@@ -1,6 +1,5 @@
 import { GoogleGenAI, Chat, GenerateContentResponse, Type, Modality } from "@google/genai";
 
-// Inicialización estricta siguiendo las guías
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const userRsvps = new Set<string>();
@@ -14,7 +13,7 @@ export const curateCommunityListings = async (rawText: string): Promise<any[]> =
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Analista Mat32: Convierte este texto en JSON. 
+      contents: `Analista Mat32: Convierte este texto en JSON para el marketplace de vinilos. 
       Campos: artist, title, condition (Mint, NM, VG+, VG), price (número), genre, description.
       Data: ${rawText}`,
       config: {
@@ -36,18 +35,22 @@ export const curateCommunityListings = async (rawText: string): Promise<any[]> =
         }
       }
     });
-    // Uso correcto de .text como propiedad, no como método
     return JSON.parse(response.text || "[]");
   } catch (error) {
-    console.error("Sync Error:", error);
+    console.error("Gemini Error:", error);
     return [];
   }
 };
 
 const getSystemInstruction = (language: 'en' | 'es') => `
-You are the Bar Manager at "Mat32" Valencia. Professional, hi-fi expert, welcoming.
-Venue: Discos Bar. Equipment: Altec, Klipsch La Scala, Rane Rotary.
-Services: Events (Thu-Sat), Records, Venue Hire, Community Trade.
+You are the Bar Manager at "Mat32" Valencia (Calle Matías Perelló 32, Ruzafa). 
+You are a high-fidelity expert. Your mission is to foster the local vinyl community.
+Venue: Discos Bar. Audio: Altec A7, Klipsch La Scala.
+Focus areas: 
+1. Marketplace/Trades: Encourage users to trade records in the Community tab.
+2. Events: Invite people to upcoming sessions.
+3. Open Decks: Encourage DJs to submit their mixes.
+Be welcoming, sophisticated, and local.
 Respond in ${language === 'es' ? 'Spanish' : 'English'}.
 `;
 
@@ -60,7 +63,7 @@ export const getChatSession = (language: 'en' | 'es'): Chat => {
       model: 'gemini-3-flash-preview',
       config: { 
         systemInstruction: getSystemInstruction(language),
-        temperature: 0.8,
+        temperature: 0.7,
       },
     });
     currentChatLang = language;
@@ -71,11 +74,11 @@ export const getChatSession = (language: 'en' | 'es'): Chat => {
 export const sendMessageToGemini = async (message: string, language: 'en' | 'es'): Promise<{text: string}> => {
   try {
     const chat = getChatSession(language);
-    const context = userRsvps.size > 0 ? `[RSVPs: ${Array.from(userRsvps).join(', ')}] ` : "";
+    const context = userRsvps.size > 0 ? `[User is attending: ${Array.from(userRsvps).join(', ')}] ` : "";
     const result: GenerateContentResponse = await chat.sendMessage({ message: context + message });
-    return { text: result.text || "..." };
+    return { text: result.text || "Protocolo activo. ¿En qué puedo ayudarte?" };
   } catch (error) {
-    return { text: language === 'es' ? "Protocolo interrumpido. Inténtalo de nuevo." : "Signal lost. Please retry." };
+    return { text: language === 'es' ? "Error de conexión con el Core. Inténtalo en un momento." : "Core connection error. Please try again." };
   }
 };
 
