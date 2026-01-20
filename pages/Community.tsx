@@ -60,13 +60,17 @@ export const Community: React.FC = () => {
   const handlePostSubmit = async () => {
     if (!content.trim() && !previewImage && !isTradeMode) return;
     setLoading(true);
+    // Fix: Extract hashtags from content and ensure 'tags' property is present to match Post interface
+    const extractedTags = content.match(/#[\wñáéíóú]+/g) || [];
+    
     await dataService.createPost({
       author: user!.alias,
       avatar: user!.color,
       content: content,
       imageUrl: previewImage || undefined,
       isTrade: isTradeMode,
-      tradeMetadata: isTradeMode ? tradeDetails : undefined
+      tradeMetadata: isTradeMode ? tradeDetails : undefined,
+      tags: extractedTags as string[]
     });
     setContent('');
     setPreviewImage(null);

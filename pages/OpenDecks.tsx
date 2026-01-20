@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   CheckCircle, Headphones, ArrowRight, Loader2, 
-  PlayCircle, Plus, Radio, Disc, Clock, Volume2, MessageSquare
+  Plus, Radio, Disc, Clock, Volume2, MessageSquare
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SEO } from '../components/SEO';
@@ -22,7 +22,7 @@ const GuestCard: React.FC<{ selector: SelectorSubmission }> = ({ selector }) => 
           observer.disconnect();
         }
       },
-      { rootMargin: '200px' } // Cargamos un poco antes de llegar para suavidad
+      { rootMargin: '200px' }
     );
 
     if (cardRef.current) {
@@ -104,7 +104,8 @@ export const OpenDecks: React.FC = () => {
 
   useEffect(() => {
     const loadSelectors = async () => {
-      const data = await dataService.getSelectors();
+      // Filtrar solo los aprobados para la vista pública
+      const data = await dataService.getSelectors(true);
       setSelectors(data);
     };
     loadSelectors();
@@ -116,6 +117,7 @@ export const OpenDecks: React.FC = () => {
     e.preventDefault();
     setIsProcessing(true);
     
+    // 1. Enviar mensaje al inbox para notificación inmediata
     await dataService.createInboxMessage({
       type: 'artist',
       sender: form.artistName,
@@ -124,12 +126,14 @@ export const OpenDecks: React.FC = () => {
       metadata: form
     });
 
+    // 2. Crear entrada de selector con estado 'pending'
     await dataService.createSelector({
       artistName: form.artistName,
       bio: form.bio,
       genres: form.genres.split(',').map(g => g.trim()),
       mixUrl: form.mixUrl,
-      format: 'Open Booth'
+      format: 'Open Booth',
+      status: 'pending'
     });
 
     setIsProcessing(false);
@@ -141,7 +145,6 @@ export const OpenDecks: React.FC = () => {
     <div className="min-h-screen bg-mat-900 text-mat-cream">
       <SEO titleKey="nav.open_decks" descriptionKey="seo.opendecks.description" />
 
-      {/* Hero Section */}
       <div className="bg-mat-800 py-24 md:py-40 border-b border-mat-700 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#ea580c_1px,transparent_1px)] [background-size:40px_40px]"></div>
@@ -168,7 +171,6 @@ export const OpenDecks: React.FC = () => {
       <div className="container mx-auto px-6 py-12 md:py-24 max-w-7xl">
         <div className="grid lg:grid-cols-12 gap-16 md:gap-32 items-start">
           
-          {/* Formulario de Captación */}
           <div className="lg:col-span-5 lg:sticky lg:top-32 space-y-12">
             <div className="space-y-6">
               <h2 className="text-4xl font-black text-white uppercase tracking-tighter font-exo leading-none">Solicita tu<br/><span className="text-mat-500">Slot de Cabina.</span></h2>
@@ -181,7 +183,7 @@ export const OpenDecks: React.FC = () => {
                   <CheckCircle className="w-10 h-10 text-mat-500" />
                 </div>
                 <h3 className="text-2xl font-black uppercase text-white mb-4 font-exo">Protocolo Recibido</h3>
-                <p className="text-gray-400 italic mb-10 text-sm">Nuestro equipo revisará tu sesión. Si encaja con el vibe de Mat32, te contactaremos pronto.</p>
+                <p className="text-gray-400 italic mb-10 text-sm">Nuestro equipo revisará tu sesión. Si es aceptada, aparecerás en la lista de invitados.</p>
                 <button onClick={() => setIsSubmitted(false)} className="w-full py-5 border-2 border-mat-700 text-gray-500 hover:text-white font-black uppercase text-[11px] tracking-widest rounded-2xl transition-all">Nueva Solicitud</button>
               </div>
             ) : (
@@ -218,23 +220,17 @@ export const OpenDecks: React.FC = () => {
                 </button>
               </form>
             )}
-            
-            <div className="flex justify-center gap-10 opacity-60">
-               <div className="flex items-center gap-2"><Clock size={16} className="text-mat-500" /> <span className="text-[10px] font-black uppercase tracking-widest">Slots 90'</span></div>
-               <div className="flex items-center gap-2"><Volume2 size={16} className="text-mat-500" /> <span className="text-[10px] font-black uppercase tracking-widest">Hi-Fi Audio</span></div>
-            </div>
           </div>
 
-          {/* Sección de Invitados */}
           <div className="lg:col-span-7 space-y-16">
             <div className="flex flex-col md:flex-row justify-between items-end gap-6">
               <div>
                 <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none">Próximos<br/><span className="text-mat-500">Invitados.</span></h2>
-                <p className="text-gray-500 text-xl mt-6 italic">Sesiones destacadas de nuestra comunidad.</p>
+                <p className="text-gray-500 text-xl mt-6 italic">Sesiones aprobadas por el equipo Mat32.</p>
               </div>
               <div className="px-5 py-2 bg-mat-800 border border-mat-700 rounded-full flex items-center gap-3">
                  <Radio size={16} className="text-red-500 animate-pulse" />
-                 <span className="text-[10px] font-black text-white uppercase tracking-widest">Live Schedule</span>
+                 <span className="text-[10px] font-black text-white uppercase tracking-widest">Aprobados</span>
               </div>
             </div>
 
@@ -242,7 +238,7 @@ export const OpenDecks: React.FC = () => {
               {selectors.length === 0 ? (
                 <div className="col-span-full py-32 text-center border-4 border-dashed border-mat-800 rounded-[4rem]">
                    <Disc className="w-20 h-20 text-mat-800 mx-auto mb-8 opacity-40 animate-spin-slow" />
-                   <p className="text-gray-700 font-black uppercase text-xs tracking-[0.4em]">Sincronizando el muro...</p>
+                   <p className="text-gray-700 font-black uppercase text-xs tracking-[0.4em]">Sincronizando el muro de invitados...</p>
                 </div>
               ) : (
                 selectors.map(selector => <GuestCard key={selector.id} selector={selector} />)

@@ -1,18 +1,25 @@
 
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS } from '../constants.ts';
-import { Event, VinylRecord, Post, SelectorSubmission, Comment, Merch, Order, TradeMetadata } from '../types.ts';
+import { Event, VinylRecord, Post, SelectorSubmission, Comment, TradeMetadata } from '../types.ts';
 
-// Exported interfaces for Admin and other components
+export interface MessageReply {
+  id: string;
+  sender: 'admin' | 'user';
+  text: string;
+  timestamp: string;
+}
+
 export interface InboxMessage {
   id: string;
-  type: string;
+  type: 'lead' | 'artist' | 'booking' | 'sale' | 'general';
   sender: string;
   email: string;
   phone?: string;
   content: string;
   date: string;
-  status: 'pending' | 'read';
+  status: 'pending' | 'read' | 'archived';
   metadata?: any;
+  replies?: MessageReply[];
 }
 
 export interface AnalyticsData {
@@ -36,7 +43,7 @@ export interface GuestEntry {
 }
 
 class DataService {
-  private localKey = 'mat32_core_database_v23';
+  private localKey = 'mat32_core_database_v26_crm';
 
   private getLocalDB() {
     try {
@@ -53,9 +60,20 @@ class DataService {
       posts: MOCK_POSTS.map(p => ({ ...p, comments: [], likes: Math.floor(Math.random() * 50) })), 
       records: [...MOCK_RECORDS], 
       events: [...MOCK_EVENTS],
-      selectors: [...MOCK_SELECTORS],
-      inbox: [],
-      rsvps: {}, // eventId -> GuestEntry[]
+      selectors: MOCK_SELECTORS.map(s => ({ ...s, status: 'approved' })),
+      inbox: [
+        {
+          id: 'initial_msg',
+          type: 'general',
+          sender: 'Mat32 System',
+          email: 'core@mat32.com',
+          content: 'Bienvenido al CRM Core de Mat32. Aquí verás todas las solicitudes de alquiler y cabina.',
+          date: new Date().toLocaleString(),
+          status: 'read',
+          replies: []
+        }
+      ],
+      rsvps: {} as Record<string, GuestEntry[]>,
       initialized: true,
       sales: []
     };
@@ -68,17 +86,24 @@ class DataService {
     window.dispatchEvent(new CustomEvent('mat32_data_changed'));
   }
 
-  // --- PRIVATE UTILS ---
-  private simulateEmailDispatch(message: InboxMessage) {
-    console.info(`%c[CORE-OUTBOX] >>> ENVIANDO EMAIL A: hola@mat32.com`, 'color: #ffffff; background: #ea580c; font-weight: bold; padding: 6px; border-radius: 4px;');
-    console.log(`%cLead Detectado: ${message.type.toUpperCase()}`, 'color: #ea580c; font-weight: bold;');
-    console.table({
-      ASUNTO: `Nuevo Lead Mat32: ${message.type}`,
-      DE: `${message.sender} <${message.email}>`,
-      MENSAJE: message.content,
-      DESTINO: 'hola@mat32.com',
-      ENVIADO: message.date
-    });
+  // Fix: Added proper type casting and guards to handle InboxMessage vs MessageReply
+  private simulateEmailDispatch(message: InboxMessage | MessageReply, originalMsg?: InboxMessage) {
+    const isReply = !!originalMsg;
+    const recipient = isReply ? originalMsg!.email : (message as InboxMessage).email;
+    const msgType = isReply ? originalMsg!.type : (message as InboxMessage).type;
+    const subject = isReply ? `RE: Mat32 Connection - ${msgType}` : `NUEVO LEAD Mat32: ${msgType || 'General'}`;
+
+    console.group(`%c[GMAIL-DISPATCH] >>> ${recipient}`, 'color: #ffffff; background: #ea580c; font-weight: bold; padding: 4px; border-radius: 2px;');
+    console.log(`%cAsunto: ${subject}`, 'color: #ea580c; font-weight: bold;');
+    
+    // Fix: Using type-safe access to content vs text property based on isReply state
+    const messageContent = isReply ? (message as MessageReply).text : (message as InboxMessage).content;
+    console.log(`%cContenido: ${messageContent}`, 'color: #fff;');
+    
+    if (!isReply && 'metadata' in message && (message as InboxMessage).metadata) {
+       console.log('%cMetadatos:', 'color: #999;', (message as InboxMessage).metadata);
+    }
+    console.groupEnd();
   }
 
   // --- AUTH METHODS ---
@@ -99,113 +124,51 @@ class DataService {
     window.dispatchEvent(new CustomEvent('mat32_data_changed'));
   }
 
-  // --- COMMUNITY METHODS ---
-  async getCommunityPosts(): Promise<Post[]> { return this.getLocalDB().posts || []; }
-  
-  async createPost(post: Omit<Post, 'id' | 'likes' | 'comments' | 'timestamp' | 'tags'> & { isTrade?: boolean, tradeMetadata?: TradeMetadata }) {
-    const db = this.getLocalDB();
-    const newPost: Post & { isTrade?: boolean, tradeMetadata?: TradeMetadata } = {
-      ...post,
-      id: `post_${Date.now()}`,
-      likes: 0,
-      comments: [],
-      timestamp: 'Ahora',
-      // Sustitución de #cambalache por #intercambio
-      tags: post.isTrade ? ['#trade', '#intercambio'] : []
-    };
-    db.posts = [newPost, ...db.posts];
-    this.saveLocalDB(db);
+  // --- INBOX & CRM METHODS ---
+  async getInbox(): Promise<InboxMessage[]> { 
+    return this.getLocalDB().inbox || []; 
   }
 
-  async deletePost(id: string) {
-    const db = this.getLocalDB();
-    db.posts = db.posts.filter((p: Post) => p.id !== id);
-    this.saveLocalDB(db);
-  }
-
-  async getPostById(id: string): Promise<Post | undefined> {
-    return this.getLocalDB().posts.find((p: Post) => p.id === id);
-  }
-
-  // --- RECORD METHODS ---
-  async getRecords(): Promise<VinylRecord[]> { return this.getLocalDB().records || []; }
-  async getRecordById(id: string): Promise<VinylRecord | undefined> {
-    return this.getLocalDB().records.find((r: VinylRecord) => r.id === id);
-  }
-  async createRecord(record: Omit<VinylRecord, 'id'>) {
-    const db = this.getLocalDB();
-    const newRecord = { ...record, id: `r_${Date.now()}` };
-    db.records.push(newRecord);
-    this.saveLocalDB(db);
-  }
-  async updateRecord(record: VinylRecord) {
-    const db = this.getLocalDB();
-    const idx = db.records.findIndex((r: VinylRecord) => r.id === record.id);
-    if (idx !== -1) {
-      db.records[idx] = record;
-      this.saveLocalDB(db);
-    }
-  }
-  async deleteRecord(id: string) {
-    const db = this.getLocalDB();
-    db.records = db.records.filter((r: VinylRecord) => r.id !== id);
-    this.saveLocalDB(db);
-  }
-
-  // --- EVENT METHODS ---
-  async getEvents(): Promise<Event[]> { return this.getLocalDB().events || []; }
-  async getEventById(id: string): Promise<Event | undefined> {
-    return this.getLocalDB().events.find((e: Event) => e.id === id);
-  }
-  async createEvent(event: Omit<Event, 'id'>) {
-    const db = this.getLocalDB();
-    const newEvent = { ...event, id: `e_${Date.now()}` };
-    db.events.push(newEvent);
-    this.saveLocalDB(db);
-  }
-  async updateEvent(event: Event) {
-    const db = this.getLocalDB();
-    const idx = db.events.findIndex((e: Event) => e.id === event.id);
-    if (idx !== -1) {
-      db.events[idx] = event;
-      this.saveLocalDB(db);
-    }
-  }
-  async deleteEvent(id: string) {
-    const db = this.getLocalDB();
-    db.events = db.events.filter((e: Event) => e.id !== id);
-    this.saveLocalDB(db);
-  }
-
-  // --- SELECTOR METHODS ---
-  async getSelectors(): Promise<SelectorSubmission[]> { return this.getLocalDB().selectors || []; }
-  async createSelector(selector: Omit<SelectorSubmission, 'id'>) {
-    const db = this.getLocalDB();
-    const newSelector = { ...selector, id: `s_${Date.now()}` };
-    db.selectors.push(newSelector);
-    this.saveLocalDB(db);
-  }
-
-  // --- INBOX METHODS ---
-  async getInbox(): Promise<InboxMessage[]> { return this.getLocalDB().inbox || []; }
-  async createInboxMessage(msg: Omit<InboxMessage, 'id' | 'date' | 'status'>) {
+  async createInboxMessage(msg: Omit<InboxMessage, 'id' | 'date' | 'status' | 'replies'>) {
     const db = this.getLocalDB();
     const newMsg: InboxMessage = {
       ...msg,
-      id: Date.now().toString(),
+      id: `msg_${Date.now()}`,
       date: new Date().toLocaleString(),
-      status: 'pending'
-    };
+      status: 'pending',
+      replies: []
+    } as InboxMessage;
     db.inbox = [newMsg, ...db.inbox];
     this.saveLocalDB(db);
     this.simulateEmailDispatch(newMsg);
   }
+
+  async addReplyToMessage(msgId: string, text: string) {
+    const db = this.getLocalDB();
+    const idx = db.inbox.findIndex((m: InboxMessage) => m.id === msgId);
+    if (idx !== -1) {
+      const original = db.inbox[idx];
+      const reply: MessageReply = {
+        id: `reply_${Date.now()}`,
+        sender: 'admin',
+        text,
+        timestamp: new Date().toLocaleString()
+      };
+      if (!original.replies) original.replies = [];
+      original.replies.push(reply);
+      original.status = 'read';
+      this.saveLocalDB(db);
+      this.simulateEmailDispatch(reply, original);
+    }
+  }
+
   async deleteMessage(id: string) {
     const db = this.getLocalDB();
     db.inbox = db.inbox.filter((m: InboxMessage) => m.id !== id);
     this.saveLocalDB(db);
   }
-  async updateMessageStatus(id: string, status: 'pending' | 'read') {
+
+  async updateMessageStatus(id: string, status: 'pending' | 'read' | 'archived') {
     const db = this.getLocalDB();
     const idx = db.inbox.findIndex((m: InboxMessage) => m.id === id);
     if (idx !== -1) {
@@ -214,34 +177,85 @@ class DataService {
     }
   }
 
-  // --- CRM & BOOKING METHODS ---
-  async createBooking(booking: any) {
-    return this.createInboxMessage({
-      type: 'booking',
-      sender: booking.name,
-      email: booking.email,
-      content: `Nueva Reserva: ${booking.guests} personas el ${booking.date} a las ${booking.time}.`,
-      metadata: booking
-    });
+  // --- DATA ACCESS METHODS ---
+  async getEvents(): Promise<Event[]> { return this.getLocalDB().events || []; }
+  
+  // Fix: Added getEventById method for detail views
+  async getEventById(id: string): Promise<Event | null> {
+    const events = await this.getEvents();
+    return events.find(e => e.id === id) || null;
   }
 
-  // --- SALES METHODS ---
-  async recordSale(sale: any) {
+  async getRecords(): Promise<VinylRecord[]> { return this.getLocalDB().records || []; }
+  
+  // Fix: Added getRecordById method for detail views
+  async getRecordById(id: string): Promise<VinylRecord | null> {
+    const records = await this.getRecords();
+    return records.find(r => r.id === id) || null;
+  }
+
+  async getCommunityPosts(): Promise<Post[]> { return this.getLocalDB().posts || []; }
+  
+  // Fix: Added getPostById method for detail views
+  async getPostById(id: string): Promise<Post | null> {
+    const posts = await this.getCommunityPosts();
+    return posts.find(p => p.id === id) || null;
+  }
+
+  async getSelectors(onlyApproved = false): Promise<SelectorSubmission[]> { 
+    const selectors = this.getLocalDB().selectors || [];
+    if (onlyApproved) return selectors.filter((s: SelectorSubmission) => s.status === 'approved');
+    return selectors;
+  }
+  
+  // Fix: Added createPost method to allow community participation
+  async createPost(post: Omit<Post, 'id' | 'likes' | 'comments' | 'timestamp'>) {
     const db = this.getLocalDB();
-    if (!db.sales) db.sales = [];
-    db.sales = [sale, ...db.sales];
+    const newPost: Post = {
+      ...post,
+      id: `post_${Date.now()}`,
+      likes: 0,
+      comments: [],
+      timestamp: 'Ahora mismo'
+    };
+    db.posts = [newPost, ...db.posts];
     this.saveLocalDB(db);
-    
-    // Notificación de venta también a inbox
-    this.createInboxMessage({
-      type: 'sale',
-      sender: 'System Checkout',
-      email: 'sales@mat32.com',
-      content: `Nueva venta completada: €${sale.total.toFixed(2)}. Ítems: ${sale.items.length}`
-    });
   }
 
-  // --- ANALYTICS METHODS ---
+  // Fix: Added deleteRecord method for admin dashboard
+  async deleteRecord(id: string) {
+    const db = this.getLocalDB();
+    db.records = db.records.filter((r: VinylRecord) => r.id !== id);
+    this.saveLocalDB(db);
+  }
+
+  // Fix: Added deleteEvent method for admin dashboard
+  async deleteEvent(id: string) {
+    const db = this.getLocalDB();
+    db.events = db.events.filter((e: Event) => e.id !== id);
+    this.saveLocalDB(db);
+  }
+
+  async createSelector(selector: Omit<SelectorSubmission, 'id'>) {
+    const db = this.getLocalDB();
+    const newSelector = { ...selector, id: `s_${Date.now()}`, status: selector.status || 'pending' };
+    db.selectors.push(newSelector);
+    this.saveLocalDB(db);
+  }
+  async updateSelectorStatus(id: string, status: 'approved' | 'rejected' | 'pending') {
+    const db = this.getLocalDB();
+    const idx = db.selectors.findIndex((s: SelectorSubmission) => s.id === id);
+    if (idx !== -1) {
+      db.selectors[idx].status = status;
+      this.saveLocalDB(db);
+    }
+  }
+  async deleteSelector(id: string) {
+    const db = this.getLocalDB();
+    db.selectors = db.selectors.filter((s: SelectorSubmission) => s.id !== id);
+    this.saveLocalDB(db);
+  }
+
   async getAdvancedAnalytics(): Promise<AnalyticsData> {
     const db = this.getLocalDB();
     const totalRev = (db.sales || []).reduce((acc: number, s: any) => acc + s.total, 0);
@@ -250,51 +264,22 @@ class DataService {
       totalRevenue: totalRev,
       ticketSales: ticketSales,
       instagramStatus: { followers: 1240 },
-      communityActiveUsers: db.posts.length * 3
+      communityActiveUsers: (db.posts?.length || 0) * 3
     };
   }
 
   getConnectors(): ConnectorStatus[] {
     return [
       { id: '1', name: 'Stripe API', status: 'online', latency: '45ms' },
-      { id: '2', name: 'Supabase Engine', status: 'online', latency: '12ms' },
+      { id: '2', name: 'Gmail Outbox', status: 'online', latency: '120ms' },
       { id: '3', name: 'Instagram Graph', status: 'warning', latency: '240ms' },
       { id: '4', name: 'Gemini LLM', status: 'online', latency: '150ms' }
     ];
   }
 
-  // --- RSVP & GUEST LIST METHODS ---
-  async getUserRSVPs(): Promise<string[]> {
-    const name = localStorage.getItem('mat32_user_name');
-    if (!name) return [];
-    const db = this.getLocalDB();
-    const rsvps: string[] = [];
-    Object.keys(db.rsvps || {}).forEach(eventId => {
-      if (db.rsvps[eventId].some((g: GuestEntry) => g.name === name)) {
-        rsvps.push(eventId);
-      }
-    });
-    return rsvps;
-  }
-
   async getEventGuestList(eventId: string): Promise<GuestEntry[]> {
     const db = this.getLocalDB();
     return (db.rsvps && db.rsvps[eventId]) ? db.rsvps[eventId] : [];
-  }
-
-  async toggleRSVP(eventId: string, name: string, attending: boolean) {
-    const db = this.getLocalDB();
-    if (!db.rsvps) db.rsvps = {};
-    if (!db.rsvps[eventId]) db.rsvps[eventId] = [];
-    
-    if (attending) {
-      if (!db.rsvps[eventId].some((g: GuestEntry) => g.name === name)) {
-        db.rsvps[eventId].push({ name, checkedIn: false });
-      }
-    } else {
-      db.rsvps[eventId] = db.rsvps[eventId].filter((g: GuestEntry) => g.name !== name);
-    }
-    this.saveLocalDB(db);
   }
 
   async toggleCheckIn(eventId: string, guestName: string) {
@@ -317,7 +302,60 @@ class DataService {
     this.saveLocalDB(db);
   }
 
-  // --- PROFILE & CORE UTILS ---
+  async recordSale(sale: any) {
+    const db = this.getLocalDB();
+    if (!db.sales) db.sales = [];
+    db.sales = [sale, ...db.sales];
+    this.saveLocalDB(db);
+    this.createInboxMessage({
+      type: 'sale',
+      sender: 'System Checkout',
+      email: 'sales@mat32.com',
+      content: `Venta: €${sale.total.toFixed(2)}. ${sale.items.length} ítems.`,
+      metadata: sale
+    });
+  }
+
+  async createBooking(booking: any) {
+    return this.createInboxMessage({
+      type: 'booking',
+      sender: booking.name,
+      email: booking.email,
+      content: `Reserva para ${booking.guests} pax: ${booking.date} @ ${booking.time}.`,
+      metadata: booking
+    });
+  }
+
+  // Fix: Added getUserRSVPs method to retrieve events the user is attending
+  async getUserRSVPs(): Promise<string[]> {
+    const userName = localStorage.getItem('mat32_user_name');
+    if (!userName) return [];
+    const db = this.getLocalDB();
+    const attended: string[] = [];
+    const rsvps = db.rsvps || {};
+    Object.keys(rsvps).forEach(eventId => {
+      const isAttending = rsvps[eventId].some((g: GuestEntry) => g.name === userName);
+      if (isAttending) attended.push(eventId);
+    });
+    return attended;
+  }
+
+  // Fix: Added toggleRSVP method to manage event guest list status
+  async toggleRSVP(eventId: string, userName: string, isAttending: boolean) {
+    const db = this.getLocalDB();
+    if (!db.rsvps) db.rsvps = {};
+    if (!db.rsvps[eventId]) db.rsvps[eventId] = [];
+    
+    if (isAttending) {
+      if (!db.rsvps[eventId].some((g: GuestEntry) => g.name === userName)) {
+        db.rsvps[eventId].push({ name: userName, checkedIn: false });
+      }
+    } else {
+      db.rsvps[eventId] = db.rsvps[eventId].filter((g: GuestEntry) => g.name !== userName);
+    }
+    this.saveLocalDB(db);
+  }
+
   getUserProfile() {
     const alias = localStorage.getItem('mat32_user_name');
     return alias ? { alias, color: '#ea580c' } : null;
@@ -327,10 +365,8 @@ class DataService {
     window.dispatchEvent(new CustomEvent('mat32_data_changed'));
   }
 
-  clearDatabase() {
-    localStorage.removeItem(this.localKey);
-    localStorage.removeItem('mat32_admin_auth');
-    window.dispatchEvent(new CustomEvent('mat32_data_changed'));
+  isAuthenticatedAdmin(): boolean {
+    return localStorage.getItem('mat32_admin_auth') === 'true';
   }
 }
 
