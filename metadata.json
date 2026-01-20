@@ -1,7 +1,7 @@
 {
-  "name": "MAT32HUB V22",
-  "description": "El epicentro de la cultura del vinilo en Valencia. Alquiler de sala para eventos privados en Ruzafa, comunidad de coleccionistas (cambalaches) y sesiones de alta fidelidad.",
-  "keywords": "alquiler local eventos valencia, sala eventos valencia, alquiler espacio ruzafa, coleccionistas vinilo valencia, cambalache vinilos, marketplace vinilo local, open decks valencia",
+  "name": "Mat32 | Hi-Fi Hub Valencia",
+  "description": "El epicentro de la cultura del vinilo y eventos privados en Valencia. Local con sonido Hi-Fi, marketplace de coleccionistas y agenda cultural en Ruzafa.",
+  "keywords": "alquiler local eventos valencia, local eventos privados ruzafa, tienda discos valencia, comunidad vinilos valencia, hi-fi bar, sonido analógico, mercadillo vinilos valencia",
   "requestFramePermissions": [
     "microphone"
   ]
