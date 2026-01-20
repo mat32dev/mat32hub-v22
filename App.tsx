@@ -1,6 +1,7 @@
+
 import React, { useState, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Menu, X, Disc, ShoppingBag, Users, Calendar, Info, MessageSquare, Shield } from 'lucide-react';
+import { Menu, X, Disc, ShoppingBag, Users, Calendar, Info, MessageSquare, Shield, Music, Headphones } from 'lucide-react';
 
 // Providers
 import { CartProvider, useCart } from './context/CartContext';
@@ -40,6 +41,8 @@ const Navigation = () => {
     { name: t('nav.events'), path: '/events' },
     { name: t('nav.records'), path: '/records' },
     { name: t('nav.community'), path: '/community' },
+    { name: t('nav.open_decks'), path: '/open-decks' },
+    { name: t('nav.private_events'), path: '/alquiler-local-eventos-valencia' },
   ];
 
   const active = (p: string) => location.pathname === p ? 'text-mat-500' : 'text-gray-400 hover:text-white';
@@ -53,9 +56,9 @@ const Navigation = () => {
         </Link>
 
         {/* Desktop */}
-        <nav className="hidden lg:flex items-center gap-8">
+        <nav className="hidden xl:flex items-center gap-6">
           {navLinks.map(l => (
-            <Link key={l.path} to={l.path} className={`text-[10px] font-black uppercase tracking-widest transition-colors ${active(l.path)}`}>{l.name}</Link>
+            <Link key={l.path} to={l.path} className={`text-[9px] font-black uppercase tracking-widest transition-colors ${active(l.path)}`}>{l.name}</Link>
           ))}
           <div className="flex items-center gap-4 pl-4 border-l border-mat-800">
             <button onClick={toggleLanguage} className="text-[10px] font-black text-gray-500 hover:text-white transition-colors uppercase">{language === 'es' ? 'EN' : 'ES'}</button>
@@ -68,7 +71,7 @@ const Navigation = () => {
         </nav>
 
         {/* Mobile Toggle */}
-        <div className="lg:hidden flex items-center gap-4">
+        <div className="xl:hidden flex items-center gap-4">
            <button onClick={toggleCart} className="text-gray-400 relative p-2">
               <ShoppingBag size={20} />
               {cartCount > 0 && <span className="absolute -top-1 -right-1 bg-mat-500 text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full">{cartCount}</span>}
@@ -81,12 +84,15 @@ const Navigation = () => {
 
       {/* Mobile Nav Overlay */}
       {isOpen && (
-        <div className="lg:hidden fixed inset-0 z-[60] bg-mat-900 pt-24 px-8 flex flex-col gap-8 text-center animate-fade-in">
+        <div className="xl:hidden fixed inset-0 z-[60] bg-mat-900 pt-24 px-8 flex flex-col gap-6 text-center animate-fade-in overflow-y-auto pb-12">
           {navLinks.map(l => (
-            <Link key={l.path} to={l.path} onClick={() => setIsOpen(false)} className="text-4xl font-black uppercase tracking-tighter text-white">{l.name}</Link>
+            <Link key={l.path} to={l.path} onClick={() => setIsOpen(false)} className="text-3xl font-black uppercase tracking-tighter text-white border-b border-mat-800 pb-2">{l.name}</Link>
           ))}
-          <Link to="/contact" onClick={() => setIsOpen(false)} className="mt-8 py-5 bg-mat-500 text-white font-black uppercase tracking-widest text-sm rounded-xl">RESERVAR MESA</Link>
-          <Link to="/admin" onClick={() => setIsOpen(false)} className="text-[9px] text-gray-700 font-black uppercase tracking-[0.5em] mt-auto pb-10 flex items-center justify-center gap-2"><Shield size={12}/> CORE SYSTEM</Link>
+          <Link to="/contact" onClick={() => setIsOpen(false)} className="mt-4 py-5 bg-mat-500 text-white font-black uppercase tracking-widest text-sm rounded-xl">RESERVAR MESA</Link>
+          <div className="flex justify-center gap-8 mt-4">
+             <button onClick={toggleLanguage} className="text-xs font-black text-mat-500 uppercase">{language === 'es' ? 'English Version' : 'Versión Española'}</button>
+          </div>
+          <Link to="/admin" onClick={() => setIsOpen(false)} className="text-[9px] text-gray-700 font-black uppercase tracking-[0.5em] mt-8 flex items-center justify-center gap-2"><Shield size={12}/> CORE SYSTEM</Link>
         </div>
       )}
     </header>
