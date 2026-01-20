@@ -48,25 +48,25 @@ const Navigation = () => {
   const active = (p: string) => location.pathname === p ? 'text-mat-500' : 'text-gray-400 hover:text-white';
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-mat-900/80 backdrop-blur-xl border-b border-mat-800 h-20">
+    <header className="sticky top-0 z-50 w-full bg-mat-900/90 backdrop-blur-xl border-b border-mat-800 h-20">
       <div className="container mx-auto px-6 h-full flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <Disc className="w-8 h-8 text-mat-500 animate-spin-slow" />
-          <span className="font-exo font-black text-xl text-white tracking-tighter">MAT<span className="text-mat-500">32</span></span>
+        <Link to="/" className="flex items-center gap-2 group">
+          <Disc className="w-8 h-8 text-mat-500 group-hover:rotate-180 transition-transform duration-1000" />
+          <span className="font-exo font-black text-xl text-white tracking-tighter uppercase">MAT<span className="text-mat-500">32</span></span>
         </Link>
 
-        {/* Desktop */}
-        <nav className="hidden xl:flex items-center gap-6">
+        {/* Desktop - Ajustado para que quepan todos los links */}
+        <nav className="hidden xl:flex items-center gap-5">
           {navLinks.map(l => (
-            <Link key={l.path} to={l.path} className={`text-[9px] font-black uppercase tracking-widest transition-colors ${active(l.path)}`}>{l.name}</Link>
+            <Link key={l.path} to={l.path} className={`text-[10px] font-black uppercase tracking-widest transition-all ${active(l.path)}`}>{l.name}</Link>
           ))}
           <div className="flex items-center gap-4 pl-4 border-l border-mat-800">
             <button onClick={toggleLanguage} className="text-[10px] font-black text-gray-500 hover:text-white transition-colors uppercase">{language === 'es' ? 'EN' : 'ES'}</button>
             <button onClick={toggleCart} className="relative p-2 text-gray-400 hover:text-mat-500 transition-colors">
               <ShoppingBag size={18} />
-              {cartCount > 0 && <span className="absolute -top-1 -right-1 bg-mat-500 text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full">{cartCount}</span>}
+              {cartCount > 0 && <span className="absolute -top-1 -right-1 bg-mat-500 text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-mat-900">{cartCount}</span>}
             </button>
-            <Link to="/contact" className="px-5 py-2 bg-mat-500 text-white font-black text-[9px] uppercase tracking-widest clip-path-slant hover:bg-mat-400 transition-all shadow-lg">RESERVAR</Link>
+            <Link to="/contact" className="px-6 py-2.5 bg-mat-500 text-white font-black text-[10px] uppercase tracking-widest clip-path-slant hover:bg-mat-400 transition-all shadow-xl">RESERVAR</Link>
           </div>
         </nav>
 
@@ -84,15 +84,14 @@ const Navigation = () => {
 
       {/* Mobile Nav Overlay */}
       {isOpen && (
-        <div className="xl:hidden fixed inset-0 z-[60] bg-mat-900 pt-24 px-8 flex flex-col gap-6 text-center animate-fade-in overflow-y-auto pb-12">
+        <div className="xl:hidden fixed inset-0 z-[60] bg-mat-900 pt-24 px-8 flex flex-col gap-5 text-center animate-fade-in overflow-y-auto pb-12">
           {navLinks.map(l => (
-            <Link key={l.path} to={l.path} onClick={() => setIsOpen(false)} className="text-3xl font-black uppercase tracking-tighter text-white border-b border-mat-800 pb-2">{l.name}</Link>
+            <Link key={l.path} to={l.path} onClick={() => setIsOpen(false)} className="text-3xl font-black uppercase tracking-tighter text-white border-b border-mat-800 pb-2 active:text-mat-500 transition-colors">{l.name}</Link>
           ))}
-          <Link to="/contact" onClick={() => setIsOpen(false)} className="mt-4 py-5 bg-mat-500 text-white font-black uppercase tracking-widest text-sm rounded-xl">RESERVAR MESA</Link>
+          <Link to="/contact" onClick={() => setIsOpen(false)} className="mt-4 py-5 bg-mat-500 text-white font-black uppercase tracking-widest text-sm rounded-xl shadow-2xl">RESERVAR MESA</Link>
           <div className="flex justify-center gap-8 mt-4">
              <button onClick={toggleLanguage} className="text-xs font-black text-mat-500 uppercase">{language === 'es' ? 'English Version' : 'Versión Española'}</button>
           </div>
-          <Link to="/admin" onClick={() => setIsOpen(false)} className="text-[9px] text-gray-700 font-black uppercase tracking-[0.5em] mt-8 flex items-center justify-center gap-2"><Shield size={12}/> CORE SYSTEM</Link>
         </div>
       )}
     </header>
@@ -126,17 +125,19 @@ const App: React.FC = () => {
               </main>
               <CartDrawer />
               <AIChat />
-              <footer className="bg-mat-950 py-16 border-t border-mat-800 text-center">
+              <footer className="bg-mat-950 py-20 border-t border-mat-800 text-center">
                 <div className="container mx-auto px-6">
-                  <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.6em] mb-6">MAT32 | RUZAFA DISCOS BAR VALENCIA</p>
-                  <div className="flex flex-wrap justify-center gap-8 text-[9px] font-black text-gray-700 uppercase tracking-widest mb-10">
+                  <div className="flex justify-center mb-10">
+                     <Disc className="w-12 h-12 text-mat-500 opacity-20" />
+                  </div>
+                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.8em] mb-10">MAT32 | RUZAFA DISCOS BAR VALENCIA</p>
+                  <div className="flex flex-wrap justify-center gap-10 text-[10px] font-black text-gray-700 uppercase tracking-widest mb-12">
                     <Link to="/legal/aviso-legal" className="hover:text-mat-500 transition-colors">Aviso Legal</Link>
                     <Link to="/legal/privacidad" className="hover:text-mat-500 transition-colors">Privacidad</Link>
                     <Link to="/legal/cookies" className="hover:text-mat-500 transition-colors">Cookies</Link>
+                    <Link to="/admin" className="hover:text-mat-500 transition-colors border-l border-mat-800 pl-10">CORE SYSTEM</Link>
                   </div>
-                  <div className="flex justify-center items-center gap-2 text-[8px] text-gray-800 font-black">
-                    <Shield size={10} /> <Link to="/admin" className="hover:text-gray-500">CORE ADMIN</Link>
-                  </div>
+                  <p className="text-[8px] text-gray-800 font-black uppercase tracking-widest">© 2025 RARERTRAXX BEAT S.L. - ALL SIGNALS ENCRYPTED</p>
                 </div>
               </footer>
             </div>
