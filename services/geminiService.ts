@@ -1,7 +1,6 @@
-
 import { GoogleGenAI, Chat, GenerateContentResponse, Type, Modality } from "@google/genai";
 
-// Fix: Strictly follow guidelines for API key initialization using process.env.API_KEY directly
+// Inicialización estricta siguiendo las guías
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const userRsvps = new Set<string>();
@@ -11,9 +10,6 @@ export const toggleRsvp = (eventTitle: string, isAttending: boolean) => {
   else userRsvps.delete(eventTitle);
 };
 
-/**
- * Crate Sync Protocol
- */
 export const curateCommunityListings = async (rawText: string): Promise<any[]> => {
   try {
     const response = await ai.models.generateContent({
@@ -23,7 +19,6 @@ export const curateCommunityListings = async (rawText: string): Promise<any[]> =
       Data: ${rawText}`,
       config: {
         responseMimeType: "application/json",
-        // Fix: Ensure Type is used for schema definition
         responseSchema: {
           type: Type.ARRAY,
           items: {
@@ -41,7 +36,7 @@ export const curateCommunityListings = async (rawText: string): Promise<any[]> =
         }
       }
     });
-    // Fix: Access .text property directly (not as a method)
+    // Uso correcto de .text como propiedad, no como método
     return JSON.parse(response.text || "[]");
   } catch (error) {
     console.error("Sync Error:", error);
@@ -77,7 +72,6 @@ export const sendMessageToGemini = async (message: string, language: 'en' | 'es'
   try {
     const chat = getChatSession(language);
     const context = userRsvps.size > 0 ? `[RSVPs: ${Array.from(userRsvps).join(', ')}] ` : "";
-    // Fix: Access .text property directly from the response
     const result: GenerateContentResponse = await chat.sendMessage({ message: context + message });
     return { text: result.text || "..." };
   } catch (error) {
@@ -85,7 +79,7 @@ export const sendMessageToGemini = async (message: string, language: 'en' | 'es'
   }
 };
 
-// AUDIO ENCODING UTILS
+// AUDIO UTILS
 export function encode(bytes: Uint8Array) {
   let binary = '';
   const len = bytes.byteLength;
@@ -114,7 +108,6 @@ export async function decodeAudioData(data: Uint8Array, ctx: AudioContext, sampl
   return buffer;
 }
 
-// Fix: Ensure Live session connection uses the provided SDK patterns
 export const connectLive = (callbacks: any, language: 'en' | 'es') => {
   return ai.live.connect({
     model: 'gemini-2.5-flash-native-audio-preview-12-2025',
