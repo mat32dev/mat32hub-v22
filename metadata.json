@@ -1,0 +1,8 @@
+{
+  "name": "MAT32HUB V22",
+  "description": "El epicentro de la cultura del vinilo en Valencia. Alquiler de sala para eventos privados en Ruzafa, comunidad de coleccionistas (cambalaches) y sesiones de alta fidelidad.",
+  "keywords": "alquiler local eventos valencia, sala eventos valencia, alquiler espacio ruzafa, coleccionistas vinilo valencia, cambalache vinilos, marketplace vinilo local, open decks valencia",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
