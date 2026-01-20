@@ -35,10 +35,8 @@ export interface GuestEntry {
   timestamp?: string;
 }
 
-// Fix: TradeMetadata interface moved to types.ts to ensure consistent use across the app
-
 class DataService {
-  private localKey = 'mat32_core_database_v22';
+  private localKey = 'mat32_core_database_v23';
 
   private getLocalDB() {
     try {
@@ -70,6 +68,19 @@ class DataService {
     window.dispatchEvent(new CustomEvent('mat32_data_changed'));
   }
 
+  // --- PRIVATE UTILS ---
+  private simulateEmailDispatch(message: InboxMessage) {
+    console.info(`%c[CORE-OUTBOX] >>> ENVIANDO EMAIL A: hola@mat32.com`, 'color: #ffffff; background: #ea580c; font-weight: bold; padding: 6px; border-radius: 4px;');
+    console.log(`%cLead Detectado: ${message.type.toUpperCase()}`, 'color: #ea580c; font-weight: bold;');
+    console.table({
+      ASUNTO: `Nuevo Lead Mat32: ${message.type}`,
+      DE: `${message.sender} <${message.email}>`,
+      MENSAJE: message.content,
+      DESTINO: 'hola@mat32.com',
+      ENVIADO: message.date
+    });
+  }
+
   // --- AUTH METHODS ---
   async authenticate(pin: string): Promise<boolean> {
     if (pin === '3232') {
@@ -90,16 +101,7 @@ class DataService {
 
   // --- COMMUNITY METHODS ---
   async getCommunityPosts(): Promise<Post[]> { return this.getLocalDB().posts || []; }
-  async getPostById(id: string): Promise<Post | undefined> {
-    return this.getLocalDB().posts.find((p: Post) => p.id === id);
-  }
-
-  async deletePost(id: string) {
-    const db = this.getLocalDB();
-    db.posts = db.posts.filter((p: Post) => p.id !== id);
-    this.saveLocalDB(db);
-  }
-
+  
   async createPost(post: Omit<Post, 'id' | 'likes' | 'comments' | 'timestamp' | 'tags'> & { isTrade?: boolean, tradeMetadata?: TradeMetadata }) {
     const db = this.getLocalDB();
     const newPost: Post & { isTrade?: boolean, tradeMetadata?: TradeMetadata } = {
@@ -114,20 +116,14 @@ class DataService {
     this.saveLocalDB(db);
   }
 
-  async addComment(postId: string, comment: { author: string; content: string }) {
+  async deletePost(id: string) {
     const db = this.getLocalDB();
-    const posts = db.posts;
-    const postIndex = posts.findIndex((p: Post) => p.id === postId);
-    if (postIndex !== -1) {
-      if (!posts[postIndex].comments) posts[postIndex].comments = [];
-      posts[postIndex].comments.push({
-        id: `c_${Date.now()}`,
-        author: comment.author,
-        content: comment.content,
-        timestamp: 'Ahora'
-      });
-      this.saveLocalDB(db);
-    }
+    db.posts = db.posts.filter((p: Post) => p.id !== id);
+    this.saveLocalDB(db);
+  }
+
+  async getPostById(id: string): Promise<Post | undefined> {
+    return this.getLocalDB().posts.find((p: Post) => p.id === id);
   }
 
   // --- RECORD METHODS ---
@@ -201,6 +197,7 @@ class DataService {
     };
     db.inbox = [newMsg, ...db.inbox];
     this.saveLocalDB(db);
+    this.simulateEmailDispatch(newMsg);
   }
   async deleteMessage(id: string) {
     const db = this.getLocalDB();
@@ -222,7 +219,7 @@ class DataService {
       type: 'booking',
       sender: booking.name,
       email: booking.email,
-      content: `Reserva para ${booking.guests} personas el ${booking.date} a las ${booking.time}.`,
+      content: `Nueva Reserva: ${booking.guests} personas el ${booking.date} a las ${booking.time}.`,
       metadata: booking
     });
   }
@@ -233,6 +230,14 @@ class DataService {
     if (!db.sales) db.sales = [];
     db.sales = [sale, ...db.sales];
     this.saveLocalDB(db);
+    
+    // Notificación de venta también a inbox
+    this.createInboxMessage({
+      type: 'sale',
+      sender: 'System Checkout',
+      email: 'sales@mat32.com',
+      content: `Nueva venta completada: €${sale.total.toFixed(2)}. Ítems: ${sale.items.length}`
+    });
   }
 
   // --- ANALYTICS METHODS ---
