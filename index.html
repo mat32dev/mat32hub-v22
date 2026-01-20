@@ -32,7 +32,7 @@
       }
     </script>
     
-    <!-- PROCESS SHIM: Evita el error 'process is not defined' en previews -->
+    <!-- PROCESS SHIM -->
     <script>
       window.process = window.process || { env: { NODE_ENV: 'production', API_KEY: '' } };
     </script>

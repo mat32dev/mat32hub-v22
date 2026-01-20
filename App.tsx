@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Menu, X, Disc, ShoppingBag, Globe, ArrowRight } from 'lucide-react';
 
 // Providers
@@ -10,7 +10,7 @@ import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { CartDrawer } from './components/CartDrawer';
 import { AIChat } from './components/AIChat';
 
-// Paginas con carga dinámica
+// Paginas con carga dinámica para optimizar la velocidad inicial
 const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
 const Bar = lazy(() => import('./pages/Bar').then(m => ({ default: m.Bar })));
 const Events = lazy(() => import('./pages/Events').then(m => ({ default: m.Events })));
@@ -62,7 +62,7 @@ const Navigation = () => {
 
   const isActive = (path: string) => {
     if (path === '/' && location.pathname === '/') return true;
-    if (path !== '/' && location.pathname.startsWith(path)) return true;
+    if (path !== '/' && location.pathname === path) return true;
     return false;
   };
 
@@ -70,13 +70,11 @@ const Navigation = () => {
     <>
       <header className="fixed top-0 left-0 right-0 z-[100] h-14 md:h-16 bg-mat-900/95 backdrop-blur-md border-b border-mat-800 flex items-center shadow-lg">
         <div className="container mx-auto px-4 flex items-center justify-between">
-          {/* Logo Minimalista */}
           <Link to="/" className="flex items-center gap-2 group shrink-0" aria-label="Inicio">
             <Disc className="w-5 h-5 text-mat-500 group-hover:rotate-180 transition-transform duration-1000" />
             <span className="font-exo font-black text-lg text-white tracking-tighter uppercase select-none">MAT<span className="text-mat-500">32</span></span>
           </Link>
 
-          {/* Desktop Nav - Visible XL */}
           <nav className="hidden xl:flex items-center gap-x-5">
             {navLinks.map(l => (
               <Link 
@@ -89,7 +87,6 @@ const Navigation = () => {
             ))}
           </nav>
 
-          {/* Global Actions */}
           <div className="flex items-center gap-2 md:gap-3">
             <button 
               onClick={toggleLanguage} 
@@ -111,7 +108,6 @@ const Navigation = () => {
               )}
             </button>
 
-            {/* Mobile Menu Button - Compact */}
             <button 
               onClick={() => setIsOpen(!isOpen)} 
               className="xl:hidden p-2 text-white bg-mat-800 rounded-lg border border-mat-700 focus:outline-none"
@@ -123,11 +119,9 @@ const Navigation = () => {
         </div>
       </header>
 
-      {/* Menú Desplegable Fijo - Rediseñado para ser menos "aparatoso" */}
       {isOpen && (
         <div className="fixed inset-0 z-[110] bg-mat-900 flex flex-col animate-fade-in">
-          {/* Header del menú más compacto */}
-          <div className="h-14 md:h-16 border-b border-mat-800 flex items-center justify-between px-4 bg-mat-950">
+          <div className="h-14 border-b border-mat-800 flex items-center justify-between px-4 bg-mat-950">
             <div className="flex items-center gap-2 opacity-50">
               <Disc className="w-4 h-4 text-mat-500" />
               <span className="font-exo font-black text-sm text-white tracking-tighter uppercase">MAT32</span>
@@ -140,16 +134,15 @@ const Navigation = () => {
             </button>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-6 py-6 flex flex-col items-center justify-center gap-2">
+          <nav className="flex-1 overflow-y-auto px-6 py-4 flex flex-col items-center justify-center gap-1.5">
             {navLinks.map((l, idx) => (
               <Link 
                 key={l.path} 
                 to={l.path} 
-                onClick={() => setIsOpen(false)} 
-                className={`group w-full max-w-xs flex items-center justify-between py-3 px-5 rounded-xl border transition-all ${isActive(l.path) ? 'bg-mat-800 border-mat-500/50 text-mat-500 shadow-lg' : 'bg-mat-950/50 border-mat-800 text-gray-300 hover:border-mat-700'}`}
+                className={`group w-full max-w-xs flex items-center justify-between py-2.5 px-5 rounded-xl border transition-all ${isActive(l.path) ? 'bg-mat-800 border-mat-500/50 text-mat-500 shadow-lg' : 'bg-mat-950/50 border-mat-800 text-gray-300 hover:border-mat-700'}`}
                 style={{ animationDelay: `${idx * 40}ms` }}
               >
-                <span className={`text-xs font-black uppercase tracking-widest font-exo ${isActive(l.path) ? 'text-mat-500' : 'group-hover:text-white'}`}>
+                <span className={`text-[11px] font-black uppercase tracking-widest font-exo ${isActive(l.path) ? 'text-mat-500' : 'group-hover:text-white'}`}>
                   {l.name}
                 </span>
                 <ArrowRight size={12} className={`transition-transform duration-300 ${isActive(l.path) ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0'}`} />
@@ -158,15 +151,14 @@ const Navigation = () => {
             
             <Link 
               to="/contact" 
-              onClick={() => setIsOpen(false)} 
-              className="mt-6 w-full max-w-xs py-4 bg-mat-500 text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-xl shadow-xl flex items-center justify-center gap-2 hover:bg-mat-400 transition-all active:scale-95"
+              className="mt-4 w-full max-w-xs py-3.5 bg-mat-500 text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-xl shadow-xl flex items-center justify-center gap-2 hover:bg-mat-400 transition-all active:scale-95"
             >
               RESERVAR AHORA
             </Link>
           </nav>
 
           <div className="p-6 border-t border-mat-800 bg-mat-950 flex flex-col items-center gap-3">
-             <button onClick={() => { toggleLanguage(); setIsOpen(false); }} className="flex items-center gap-2 text-[9px] font-black text-mat-500 uppercase tracking-[0.2em]">
+             <button onClick={toggleLanguage} className="flex items-center gap-2 text-[9px] font-black text-mat-500 uppercase tracking-[0.2em]">
                 <Globe size={12} /> {language === 'es' ? 'Versión en Inglés' : 'Spanish Version'}
              </button>
              <div className="text-[8px] font-black text-gray-700 uppercase tracking-widest">Valencia • Ruzafa Hub</div>
