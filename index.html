@@ -3,19 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mat32 | Bar Hi-Fi, Vinilos y Alquiler de Local para Eventos en Valencia</title>
+    <title>Mat32 | Bar Hi-Fi, Vinilos y Eventos Privados en Valencia</title>
     
     <!-- SEO ESTRATÉGICO -->
-    <meta name="description" content="Mat32 Valencia: Santuario Hi-Fi en Ruzafa. Tienda de discos, coctelería y el mejor local para eventos privados en Valencia con sonido Altec y Klipsch." />
-    <meta name="keywords" content="alquiler local eventos valencia, sala eventos ruzafa, local fiestas privadas valencia, tienda discos valencia, hi-fi bar, comunidad vinilos valencia" />
+    <meta name="description" content="Mat32 Valencia: El santuario Hi-Fi en Ruzafa. Tienda de discos, coctelería de autor y alquiler de local para eventos privados con sonido legendario Altec y Klipsch." />
+    <meta name="keywords" content="alquiler local eventos valencia, sala eventos ruzafa, tienda discos vinilo valencia, hi-fi bar valencia, comunidad coleccionistas vinilo, marketplace vinilos" />
+    <meta name="author" content="Mat32 Valencia" />
     <link rel="canonical" href="https://www.mat32.com/" />
+    <link rel="manifest" href="/manifest.json" />
     
-    <!-- PRECONNECT PARA VELOCIDAD -->
+    <!-- PRECONNECT -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700;900&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
     
-    <!-- TAILWIND CONFIG -->
+    <!-- TAILWIND (JIT) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -37,12 +39,11 @@
       .clip-path-slant { clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); }
       .animate-spin-slow { animation: spin 12s linear infinite; }
       @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      .glass { background: rgba(28, 25, 23, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-      
-      /* Optimizaciones de scroll y performance */
       .custom-scrollbar::-webkit-scrollbar { width: 5px; }
       .custom-scrollbar::-webkit-scrollbar-track { background: #1c1917; }
       .custom-scrollbar::-webkit-scrollbar-thumb { background: #ea580c; border-radius: 10px; }
+      @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+      .animate-shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); background-size: 200% 100%; animation: shimmer 2s infinite; }
     </style>
   <script type="importmap">
 {

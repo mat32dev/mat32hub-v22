@@ -1,10 +1,10 @@
-
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const getEnv = (key: string) => {
   try {
-    // @ts-ignore
-    return (window.process?.env?.[key]) || (process.env?.[key]) || '';
+    // Intenta obtener de Vite o de process.env (inyectado por el hoster)
+    // Fix: Cast import.meta to any to allow access to 'env' property which may not be defined in standard TypeScript ImportMeta
+    return ((import.meta as any).env?.[key]) || (process.env?.[key]) || '';
   } catch (e) {
     return '';
   }
