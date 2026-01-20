@@ -8,9 +8,9 @@ import { Link } from 'react-router-dom';
 import { SEO } from '../components/SEO';
 import { useLanguage } from '../context/LanguageContext';
 import { dataService } from '../services/dataService';
-import { SelectorSubmission } from '../types';
+import { SelectorSubmission, Event } from '../types';
 
-const GuestCard: React.FC<{ selector: SelectorSubmission }> = ({ selector }) => {
+const GuestCard: React.FC<{ selector: SelectorSubmission | (Event & { type: 'event' }) }> = ({ selector }) => {
   const [isNear, setIsNear] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -32,6 +32,13 @@ const GuestCard: React.FC<{ selector: SelectorSubmission }> = ({ selector }) => 
     return () => observer.disconnect();
   }, []);
 
+  const isEvent = 'type' in selector && selector.type === 'event';
+  const name = isEvent ? (selector as Event).title : (selector as SelectorSubmission).artistName;
+  const bio = isEvent ? (selector as Event).description : (selector as SelectorSubmission).bio;
+  const genres = isEvent ? [(selector as Event).category] : (selector as SelectorSubmission).genres;
+  const img = isEvent ? (selector as Event).imageUrl : (selector as SelectorSubmission).avatarUrl || `https://i.pravatar.cc/150?u=${name}`;
+  const mixUrl = isEvent ? null : (selector as SelectorSubmission).mixUrl;
+
   const getEmbedUrl = (url: string) => {
     if (url.includes('soundcloud.com')) {
       const encodedUrl = encodeURIComponent(url);
@@ -44,38 +51,48 @@ const GuestCard: React.FC<{ selector: SelectorSubmission }> = ({ selector }) => 
     return null;
   };
 
-  const embedUrl = selector.mixEmbedUrl || getEmbedUrl(selector.mixUrl);
+  const embedUrl = !isEvent && mixUrl ? getEmbedUrl(mixUrl) : null;
 
   return (
     <div ref={cardRef} className="bg-mat-800 border-2 border-mat-700 rounded-[2.5rem] overflow-hidden shadow-2xl hover:border-mat-500 transition-all group animate-fade-in flex flex-col h-full">
+      {isEvent && (
+        <div className="absolute top-6 left-6 z-10 bg-mat-500 text-white text-[8px] font-black uppercase px-4 py-1.5 rounded-full shadow-xl">
+           CURATED EVENT
+        </div>
+      )}
       <div className="p-8 pb-4 flex-1">
         <div className="flex items-center gap-5 mb-6">
           <div className="w-20 h-20 bg-mat-900 border-2 border-mat-700 rounded-2xl overflow-hidden shadow-lg relative flex-shrink-0">
              <img 
-               src={selector.avatarUrl || `https://i.pravatar.cc/150?u=${selector.artistName}`} 
+               src={img} 
                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
-               alt={selector.artistName} 
+               alt={name} 
                loading="lazy"
              />
           </div>
           <div className="min-w-0">
-            <h3 className="text-3xl font-black text-white uppercase tracking-tighter font-exo truncate leading-none mb-2">{selector.artistName}</h3>
+            <h3 className="text-3xl font-black text-white uppercase tracking-tighter font-exo truncate leading-none mb-2">{name}</h3>
             <div className="flex flex-wrap gap-1.5">
-              {selector.genres.map((g, i) => (
+              {genres.map((g, i) => (
                 <span key={i} className="text-[8px] font-black text-mat-500 bg-mat-900 px-2 py-0.5 rounded border border-mat-700 uppercase tracking-widest">{g}</span>
               ))}
             </div>
           </div>
         </div>
-        <p className="text-gray-400 text-sm italic line-clamp-3 mb-6 leading-relaxed">"{selector.bio}"</p>
+        <p className="text-gray-400 text-sm italic line-clamp-3 mb-6 leading-relaxed">"{bio}"</p>
       </div>
 
       <div className="px-8 pb-8 mt-auto min-h-[140px]">
-        {embedUrl && isNear ? (
+        {isEvent ? (
+          <Link to={`/events`} className="w-full h-[120px] bg-mat-500/10 rounded-2xl border border-mat-500 flex flex-col items-center justify-center gap-3 group/btn">
+             <Clock className="w-8 h-8 text-mat-500" />
+             <span className="text-[10px] font-black text-white uppercase tracking-widest group-hover/btn:scale-110 transition-transform">Ver Detalles del Evento</span>
+          </Link>
+        ) : (embedUrl && isNear ? (
           <div className="relative rounded-2xl overflow-hidden border border-mat-700 bg-black/40 shadow-inner animate-fade-in">
             <iframe 
               width="100%" 
-              height={selector.mixUrl.includes('soundcloud') ? "166" : "120"} 
+              height={mixUrl?.includes('soundcloud') ? "166" : "120"} 
               scrolling="no" 
               frameBorder="no" 
               allow="autoplay" 
@@ -89,7 +106,7 @@ const GuestCard: React.FC<{ selector: SelectorSubmission }> = ({ selector }) => 
              <Disc className="w-8 h-8 text-mat-800 animate-spin-slow" />
              <span className="text-[8px] font-black text-gray-700 uppercase tracking-widest">Preparando sesión...</span>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );
@@ -99,25 +116,33 @@ export const OpenDecks: React.FC = () => {
   const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectors, setSelectors] = useState<SelectorSubmission[]>([]);
+  const [items, setItems] = useState<(SelectorSubmission | (Event & { type: 'event' }))[]>([]);
   const [form, setForm] = useState({ artistName: '', email: '', bio: '', mixUrl: '', genres: '' });
 
   useEffect(() => {
-    const loadSelectors = async () => {
-      // Filtrar solo los aprobados para la vista pública
-      const data = await dataService.getSelectors(true);
-      setSelectors(data);
+    const loadContent = async () => {
+      const [approvedSelectors, allEvents] = await Promise.all([
+        dataService.getSelectors(true),
+        dataService.getEvents()
+      ]);
+      
+      const curatedEvents = allEvents
+        .filter(e => e.isOpenDecks)
+        .map(e => ({ ...e, type: 'event' as const }));
+
+      // @ts-ignore
+      const combined = [...curatedEvents, ...approvedSelectors];
+      setItems(combined);
     };
-    loadSelectors();
-    window.addEventListener('mat32_data_changed', loadSelectors);
-    return () => window.removeEventListener('mat32_data_changed', loadSelectors);
+    loadContent();
+    window.addEventListener('mat32_data_changed', loadContent);
+    return () => window.removeEventListener('mat32_data_changed', loadContent);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
     
-    // 1. Enviar mensaje al inbox para notificación inmediata
     await dataService.createInboxMessage({
       type: 'artist',
       sender: form.artistName,
@@ -126,7 +151,6 @@ export const OpenDecks: React.FC = () => {
       metadata: form
     });
 
-    // 2. Crear entrada de selector con estado 'pending'
     await dataService.createSelector({
       artistName: form.artistName,
       bio: form.bio,
@@ -159,12 +183,6 @@ export const OpenDecks: React.FC = () => {
           <p className="text-gray-400 max-w-2xl mx-auto text-xl md:text-3xl font-light italic mt-8 opacity-80">
             {t('opendecks.desc')}
           </p>
-          
-          <div className="mt-12">
-            <Link to="/community" className="text-gray-500 hover:text-white transition-colors flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest group">
-               <MessageSquare className="w-4 h-4 text-mat-500" /> EXPLORA EL HUB DE LA COMUNIDAD <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
-            </Link>
-          </div>
         </div>
       </div>
 
@@ -183,65 +201,48 @@ export const OpenDecks: React.FC = () => {
                   <CheckCircle className="w-10 h-10 text-mat-500" />
                 </div>
                 <h3 className="text-2xl font-black uppercase text-white mb-4 font-exo">Protocolo Recibido</h3>
-                <p className="text-gray-400 italic mb-10 text-sm">Nuestro equipo revisará tu sesión. Si es aceptada, aparecerás en la lista de invitados.</p>
+                <p className="text-gray-400 italic mb-10 text-sm">Nuestro equipo revisará tu propuesta.</p>
                 <button onClick={() => setIsSubmitted(false)} className="w-full py-5 border-2 border-mat-700 text-gray-500 hover:text-white font-black uppercase text-[11px] tracking-widest rounded-2xl transition-all">Nueva Solicitud</button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="bg-mat-800 p-10 md:p-12 border-2 border-mat-700 shadow-2xl space-y-8 rounded-[3rem] relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-2 bg-mat-500"></div>
-                
                 <div className="space-y-3">
                   <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Alias / Nombre</label>
-                  <input required value={form.artistName} onChange={e => setForm({...form, artistName: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl shadow-inner" placeholder="P.EJ: MARCO V" />
+                  <input required value={form.artistName} onChange={e => setForm({...form, artistName: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl" placeholder="P.EJ: MARCO V" />
                 </div>
-
                 <div className="space-y-3">
                   <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Géneros Musicales</label>
-                  <input required value={form.genres} onChange={e => setForm({...form, genres: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl shadow-inner" placeholder="ITALO, HOUSE, FUNK..." />
+                  <input required value={form.genres} onChange={e => setForm({...form, genres: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl" placeholder="ITALO, HOUSE, FUNK..." />
                 </div>
-
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Email de Contacto</label>
-                  <input required type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl shadow-inner" placeholder="EMAIL" />
+                  <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Enlace a Sesión</label>
+                  <input required value={form.mixUrl} onChange={e => setForm({...form, mixUrl: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl" placeholder="LINK" />
                 </div>
-
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Enlace a Sesión (SC/Mixcloud)</label>
-                  <input required value={form.mixUrl} onChange={e => setForm({...form, mixUrl: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl shadow-inner" placeholder="LINK" />
-                </div>
-
                 <div className="space-y-3">
                   <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Bio / Propuesta</label>
-                  <textarea required value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 p-6 h-40 focus:border-mat-500 outline-none transition-all text-xs font-bold rounded-3xl resize-none italic shadow-inner" placeholder="¿Qué música traes a la cabina?"></textarea>
+                  <textarea required value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 p-6 h-40 focus:border-mat-500 outline-none transition-all text-xs font-bold rounded-3xl resize-none italic" placeholder="¿Qué música traes a la cabina?"></textarea>
                 </div>
-
-                <button type="submit" disabled={isProcessing} className="w-full bg-mat-500 hover:bg-mat-400 text-white font-black py-7 uppercase tracking-[0.5em] transition-all rounded-[2rem] shadow-xl flex items-center justify-center gap-4 text-xs clip-path-slant group">
-                  {isProcessing ? <Loader2 className="animate-spin" /> : <Plus className="group-hover:rotate-90 transition-transform" />} REGISTRAR SOLICITUD
+                <button type="submit" disabled={isProcessing} className="w-full bg-mat-500 hover:bg-mat-400 text-white font-black py-7 uppercase tracking-[0.5em] transition-all rounded-[2rem] shadow-xl flex items-center justify-center gap-4 text-xs clip-path-slant">
+                  {isProcessing ? <Loader2 className="animate-spin" /> : <Plus />} REGISTRAR SOLICITUD
                 </button>
               </form>
             )}
           </div>
 
           <div className="lg:col-span-7 space-y-16">
-            <div className="flex flex-col md:flex-row justify-between items-end gap-6">
-              <div>
-                <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none">Próximos<br/><span className="text-mat-500">Invitados.</span></h2>
-                <p className="text-gray-500 text-xl mt-6 italic">Sesiones aprobadas por el equipo Mat32.</p>
-              </div>
-              <div className="px-5 py-2 bg-mat-800 border border-mat-700 rounded-full flex items-center gap-3">
-                 <Radio size={16} className="text-red-500 animate-pulse" />
-                 <span className="text-[10px] font-black text-white uppercase tracking-widest">Aprobados</span>
-              </div>
+            <div>
+              <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none">El Muro de<br/><span className="text-mat-500">Talento.</span></h2>
+              <p className="text-gray-500 text-xl mt-6 italic">Sesiones y artistas destacados por la comunidad Mat32.</p>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {selectors.length === 0 ? (
+              {items.length === 0 ? (
                 <div className="col-span-full py-32 text-center border-4 border-dashed border-mat-800 rounded-[4rem]">
                    <Disc className="w-20 h-20 text-mat-800 mx-auto mb-8 opacity-40 animate-spin-slow" />
-                   <p className="text-gray-700 font-black uppercase text-xs tracking-[0.4em]">Sincronizando el muro de invitados...</p>
+                   <p className="text-gray-700 font-black uppercase text-xs tracking-[0.4em]">Preparando el muro...</p>
                 </div>
               ) : (
-                selectors.map(selector => <GuestCard key={selector.id} selector={selector} />)
+                items.map((item, idx) => <GuestCard key={idx} selector={item} />)
               )}
             </div>
           </div>

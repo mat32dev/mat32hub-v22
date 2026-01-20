@@ -1,5 +1,4 @@
 
-
 export interface LineupMember {
   name: string;
   role: string;
@@ -14,7 +13,7 @@ export interface Event {
   time: string;
   location: string;
   description: string;
-  category: 'Disco' | 'House' | 'Live' | 'Social' | 'Promoter Request';
+  category: 'Disco' | 'House' | 'Live' | 'Social' | 'Promoter Request' | 'Open Decks';
   imageUrl: string;
   attendees: number;
   capacity?: number;
@@ -23,6 +22,7 @@ export interface Event {
   status?: 'published' | 'draft' | 'cancelled';
   lineup: LineupMember[];
   vibe?: string[];
+  isOpenDecks?: boolean; // New flag to show in Open Decks section
 }
 
 export interface Comment {
@@ -32,7 +32,6 @@ export interface Comment {
   timestamp: string;
 }
 
-// Fix: TradeMetadata interface moved here to avoid circular dependency and allow its use in Post type
 export interface TradeMetadata {
   artist: string;
   title: string;
@@ -50,7 +49,6 @@ export interface Post {
   comments: Comment[];
   timestamp: string;
   tags: string[];
-  // Fix: Added optional trade properties to the Post interface
   isTrade?: boolean;
   tradeMetadata?: TradeMetadata;
 }
@@ -120,7 +118,7 @@ export interface SelectorSubmission {
   format: string;
   bio: string;
   mixUrl: string;
-  mixEmbedUrl?: string; // Campo para el reproductor iframe
+  mixEmbedUrl?: string; 
   avatarUrl?: string;
   status?: 'pending' | 'approved' | 'rejected';
 }

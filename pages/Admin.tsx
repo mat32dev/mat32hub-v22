@@ -40,7 +40,7 @@ export const Admin: React.FC = () => {
 
   // Modal State
   const [editingItem, setEditingItem] = useState<any | null>(null);
-  const [editType, setEditType] = useState<'record' | 'event' | null>(null);
+  const [editType, setEditType] = useState<'record' | 'event' | 'selector' | null>(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -80,15 +80,23 @@ export const Admin: React.FC = () => {
     else { alert("PIN INVÁLIDO (3232)"); setPin(''); }
   };
 
-  const openEditor = (type: 'record' | 'event', item?: any) => {
+  const openEditor = (type: 'record' | 'event' | 'selector', item?: any) => {
     setEditType(type);
     if (item) setEditingItem({ ...item });
     else {
-      setEditingItem(type === 'record' ? {
-        artist: '', title: '', price: 20, genre: 'House', year: '2025', condition: 'Mint', coverUrl: '', description: ''
-      } : {
-        title: '', date: '', time: '20:00', price: 15, category: 'Disco', description: '', imageUrl: ''
-      });
+      if (type === 'record') {
+        setEditingItem({
+          artist: '', title: '', price: 20, genre: 'House', year: '2025', condition: 'Mint', coverUrl: '', description: ''
+        });
+      } else if (type === 'event') {
+        setEditingItem({
+          title: '', date: '', time: '20:00', price: 15, category: 'Disco', description: '', imageUrl: '', isOpenDecks: false
+        });
+      } else if (type === 'selector') {
+        setEditingItem({
+          artistName: '', genres: [], bio: '', mixUrl: '', status: 'approved'
+        });
+      }
     }
   };
 
@@ -96,18 +104,22 @@ export const Admin: React.FC = () => {
     setLoading(true);
     if (editType === 'record') {
       editingItem.id ? await dataService.updateRecord(editingItem) : await dataService.createRecord(editingItem);
-    } else {
+    } else if (editType === 'event') {
       editingItem.id ? await dataService.updateEvent(editingItem) : await dataService.createEvent(editingItem);
+    } else if (editType === 'selector') {
+      editingItem.id ? await dataService.updateSelector(editingItem) : await dataService.createSelector(editingItem);
     }
     setEditingItem(null);
     setEditType(null);
     await loadData();
   };
 
-  const deleteItem = async (type: 'record' | 'event', id: string) => {
+  const deleteItem = async (type: 'record' | 'event' | 'selector', id: string) => {
     if (!confirm('¿Seguro que quieres eliminar este elemento?')) return;
     setLoading(true);
-    type === 'record' ? await dataService.deleteRecord(id) : await dataService.deleteEvent(id);
+    if (type === 'record') await dataService.deleteRecord(id);
+    else if (type === 'event') await dataService.deleteEvent(id);
+    else if (type === 'selector') await dataService.deleteSelector(id);
     await loadData();
   };
 
@@ -116,7 +128,6 @@ export const Admin: React.FC = () => {
     await dataService.addReplyToMessage(selectedMsg.id, replyText);
     setReplyText('');
     await loadData();
-    // Refresh local selected msg
     const updated = (await dataService.getInbox()).find(m => m.id === selectedMsg.id);
     if (updated) setSelectedMsg(updated);
   };
@@ -202,35 +213,12 @@ export const Admin: React.FC = () => {
                   </div>
                 ))}
              </div>
-
-             <div className="bg-mat-900 border border-mat-800 p-12 rounded-[3.5rem] shadow-xl">
-                <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-8 font-exo">Tráfico Reciente (Canales)</h3>
-                <div className="space-y-6">
-                   {[
-                     { name: 'Organic Search (Valencia Venue Hire)', val: '45%' },
-                     { name: 'Social (Instagram Hub)', val: '32%' },
-                     { name: 'Direct (Resident Fans)', val: '15%' },
-                     { name: 'Referral (RA.co)', val: '8%' }
-                   ].map((channel, i) => (
-                     <div key={i} className="space-y-2">
-                        <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-gray-500">
-                           <span>{channel.name}</span>
-                           <span className="text-white">{channel.val}</span>
-                        </div>
-                        <div className="h-2 bg-mat-800 rounded-full overflow-hidden">
-                           <div className="h-full bg-mat-500" style={{ width: channel.val }}></div>
-                        </div>
-                     </div>
-                   ))}
-                </div>
-             </div>
           </div>
         )}
 
         {/* INBOX CRM TAB */}
         {activeTab === 'inbox' && (
           <div className="h-full flex flex-col md:flex-row gap-8 animate-fade-in">
-             {/* List */}
              <div className="w-full md:w-96 bg-mat-900 border border-mat-800 rounded-[3rem] overflow-hidden flex flex-col shadow-2xl">
                 <div className="p-8 border-b border-mat-800 flex justify-between items-center">
                    <h3 className="text-xl font-black text-white uppercase font-exo">Bandeja</h3>
@@ -251,7 +239,6 @@ export const Admin: React.FC = () => {
                 </div>
              </div>
 
-             {/* Thread View */}
              <div className="flex-1 bg-mat-900 border border-mat-800 rounded-[3.5rem] flex flex-col shadow-2xl overflow-hidden">
                 {selectedMsg ? (
                   <>
@@ -260,29 +247,12 @@ export const Admin: React.FC = () => {
                           <h4 className="text-3xl font-black text-white uppercase tracking-tighter font-exo leading-none">{selectedMsg.sender}</h4>
                           <p className="text-[10px] font-bold text-gray-500 mt-2 uppercase tracking-widest">{selectedMsg.email} • {selectedMsg.phone || 'S/T'}</p>
                        </div>
-                       <div className="flex gap-2">
-                          <button onClick={() => dataService.updateMessageStatus(selectedMsg.id, 'archived')} className="p-4 bg-mat-800 text-gray-500 hover:text-white rounded-2xl transition-all shadow-lg"><Archive size={20} /></button>
-                          <button onClick={() => { if(confirm('Borrar?')) dataService.deleteMessage(selectedMsg.id); setSelectedMsg(null); loadData(); }} className="p-4 bg-mat-800 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl transition-all shadow-lg"><Trash2 size={20} /></button>
-                       </div>
                     </div>
                     
                     <div className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar bg-[#0f0d0c]">
                        <div className="max-w-[85%] bg-mat-800 p-8 rounded-[2rem] rounded-tl-none border border-mat-700 shadow-xl relative">
-                          <span className="text-[8px] font-black text-mat-500 uppercase tracking-widest mb-4 block">Mensaje Original ({selectedMsg.date})</span>
                           <p className="text-gray-200 text-lg font-light italic leading-relaxed">"{selectedMsg.content}"</p>
                        </div>
-
-                       {selectedMsg.replies?.map(rep => (
-                         <div key={rep.id} className={`flex ${rep.sender === 'admin' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
-                            <div className={`max-w-[80%] p-6 rounded-[2rem] ${rep.sender === 'admin' ? 'bg-mat-500 text-white rounded-tr-none shadow-xl' : 'bg-mat-800 text-gray-200 rounded-tl-none border border-mat-700 italic'}`}>
-                               <div className="flex justify-between items-center gap-10 mb-2">
-                                  <span className="text-[9px] font-black uppercase tracking-widest opacity-60">{rep.sender === 'admin' ? 'Manager Reply' : 'User'}</span>
-                                  <span className="text-[8px] opacity-40">{rep.timestamp}</span>
-                               </div>
-                               <p className="text-sm font-bold">{rep.text}</p>
-                            </div>
-                         </div>
-                       ))}
                     </div>
 
                     <div className="p-8 bg-mat-950 border-t border-mat-800">
@@ -301,7 +271,6 @@ export const Admin: React.FC = () => {
                   <div className="flex-1 flex flex-col items-center justify-center opacity-20 p-20 text-center">
                      <Inbox className="w-24 h-24 mb-8" />
                      <h3 className="text-4xl font-black uppercase font-exo">Selecciona un lead.</h3>
-                     <p className="text-xs uppercase font-black tracking-[0.4em] italic mt-4">Protocolo de atención al cliente listo.</p>
                   </div>
                 )}
              </div>
@@ -346,6 +315,7 @@ export const Admin: React.FC = () => {
                      <div className="flex-1 min-w-0">
                         <h4 className="text-white font-black uppercase text-sm truncate tracking-tighter leading-none mb-2">{e.title}</h4>
                         <p className="text-mat-500 text-[9px] font-black uppercase tracking-widest">{e.date} @ {e.time}</p>
+                        {e.isOpenDecks && <span className="text-[8px] bg-mat-500 text-white px-2 py-0.5 rounded uppercase font-black">Open Decks Flag</span>}
                      </div>
                      <div className="flex gap-2 pt-4 border-t border-mat-800">
                         <button onClick={() => openEditor('event', e)} className="flex-1 py-3 bg-mat-800 text-gray-500 hover:text-white rounded-xl text-[9px] font-black uppercase flex items-center justify-center gap-2"><Edit3 size={14} /> Editar</button>
@@ -355,7 +325,7 @@ export const Admin: React.FC = () => {
                 ))}
 
                 {invTab === 'selectors' && selectors.map(s => (
-                  <div key={s.id} className={`bg-mat-900 border-2 p-8 rounded-[3rem] flex flex-col gap-6 shadow-xl ${s.status === 'pending' ? 'border-orange-500/30 shadow-orange-500/5' : 'border-mat-800'}`}>
+                  <div key={s.id} className={`bg-mat-900 border-2 p-8 rounded-[3rem] flex flex-col gap-6 shadow-xl ${s.status === 'pending' ? 'border-orange-500/30' : 'border-mat-800'}`}>
                      <div className="flex items-center gap-5">
                         <div className="w-20 h-20 bg-mat-800 rounded-2xl overflow-hidden shadow-inner border border-mat-700"><img src={s.avatarUrl || `https://i.pravatar.cc/150?u=${s.artistName}`} className="w-full h-full object-cover" /></div>
                         <div>
@@ -364,10 +334,11 @@ export const Admin: React.FC = () => {
                         </div>
                      </div>
                      <div className="flex gap-2 pt-4 border-t border-mat-800">
+                        <button onClick={() => openEditor('selector', s)} className="p-3 bg-mat-800 text-gray-500 hover:text-white rounded-xl"><Edit3 size={18} /></button>
                         {s.status !== 'approved' && (
                            <button onClick={() => { dataService.updateSelectorStatus(s.id, 'approved'); loadData(); }} className="flex-1 py-4 bg-green-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl">Aprobar</button>
                         )}
-                        <button onClick={() => { if(confirm('¿Borrar?')) dataService.deleteSelector(s.id); loadData(); }} className="p-4 bg-mat-800 text-red-500 hover:text-white rounded-2xl"><Trash2 size={20} /></button>
+                        <button onClick={() => deleteItem('selector', s.id)} className="p-4 bg-mat-800 text-red-500 hover:text-white rounded-2xl"><Trash2 size={20} /></button>
                      </div>
                   </div>
                 ))}
@@ -388,52 +359,16 @@ export const Admin: React.FC = () => {
                    </div>
                 </div>
              </div>
-
-             {doorEventId ? (
-                <div className="bg-mat-900 border border-mat-800 rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col">
-                   <div className="p-10 border-b border-mat-800 flex flex-col md:flex-row gap-6 md:items-center justify-between">
-                      <div className="relative flex-1 max-w-md">
-                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-                         <input type="text" value={guestSearch} onChange={e => setGuestSearch(e.target.value)} placeholder="Buscar por nombre..." className="w-full bg-mat-800 border-2 border-mat-700 text-white p-5 pl-16 rounded-2xl outline-none focus:border-mat-500 transition-all font-bold text-sm uppercase" />
-                      </div>
-                      <div className="flex gap-4 items-center">
-                         <div className="text-right">
-                            <span className="block text-2xl font-black text-white font-exo leading-none">{guestList.filter(g => g.checkedIn).length} / {guestList.length}</span>
-                            <span className="text-[9px] font-black uppercase text-gray-600 tracking-widest">Asistentes Check-In</span>
-                         </div>
-                      </div>
-                   </div>
-                   <div className="p-10 overflow-y-auto max-h-[60vh] custom-scrollbar grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {guestList.filter(g => g.name.toLowerCase().includes(guestSearch.toLowerCase())).map((guest, i) => (
-                        <button key={i} onClick={() => toggleDoorCheck(guest.name)} className={`p-6 border-2 rounded-2xl flex items-center justify-between transition-all group ${guest.checkedIn ? 'bg-green-500/10 border-green-500' : 'bg-mat-800 border-mat-700 hover:border-mat-500'}`}>
-                           <div className="flex items-center gap-4">
-                              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-xs ${guest.checkedIn ? 'bg-green-500 text-white' : 'bg-mat-900 text-gray-500'}`}>{guest.name[0]}</div>
-                              <div className="text-left">
-                                 <h5 className={`font-black uppercase text-xs tracking-tight ${guest.checkedIn ? 'text-white' : 'text-gray-400'}`}>{guest.name}</h5>
-                                 {guest.timestamp && <span className="text-[8px] font-bold text-green-500 uppercase">{guest.timestamp}</span>}
-                              </div>
-                           </div>
-                           {guest.checkedIn ? <CheckCircle className="text-green-500" /> : <div className="w-6 h-6 rounded-full border-2 border-mat-700 group-hover:border-mat-500"></div>}
-                        </button>
-                      ))}
-                   </div>
-                </div>
-             ) : (
-                <div className="flex flex-col items-center justify-center py-40 opacity-20 text-center">
-                   <UserCheck className="w-24 h-24 mb-8" />
-                   <h3 className="text-4xl font-black uppercase font-exo">Selecciona un evento activo.</h3>
-                </div>
-             )}
           </div>
         )}
 
-        {/* CONNECTIVITY STATUS TAB */}
+        {/* CONNECTORS TAB */}
         {activeTab === 'connectors' && (
           <div className="space-y-12 animate-fade-in">
              <h2 className="text-5xl lg:text-7xl font-black uppercase font-exo tracking-tighter leading-none mb-4">CONNECTIVITY <span className="text-mat-500">STATUS.</span></h2>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {connectors.map(c => (
-                  <div key={c.id} className="bg-mat-900 border border-mat-800 p-10 rounded-[3rem] shadow-xl flex items-center justify-between hover:border-mat-500 transition-all">
+                  <div key={c.id} className="bg-mat-900 border border-mat-800 p-10 rounded-[3rem] shadow-xl flex items-center justify-between">
                      <div className="flex items-center gap-8">
                         <div className={`w-4 h-4 rounded-full ${c.status === 'online' ? 'bg-green-500 shadow-[0_0_20px_#22c55e]' : 'bg-orange-500 animate-pulse'}`}></div>
                         <div>
@@ -443,86 +378,87 @@ export const Admin: React.FC = () => {
                            </div>
                         </div>
                      </div>
-                     <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${c.status === 'online' ? 'border-green-500 text-green-500' : 'border-orange-500 text-orange-500'}`}>{c.status}</span>
                   </div>
                 ))}
              </div>
-             
-             <div className="p-12 bg-mat-950 border border-mat-800 rounded-[3.5rem] shadow-xl space-y-8">
-                <h3 className="text-xl font-black text-white uppercase tracking-tighter font-exo flex items-center gap-4"><Terminal className="text-mat-500" /> SYSTEM CONSOLE</h3>
-                <div className="bg-black p-8 rounded-3xl font-mono text-[11px] text-green-500 leading-relaxed overflow-x-auto shadow-inner border border-mat-900">
-                   <p className="opacity-50">[09:21:04] MAT32_CORE INIT_BOOT_SEQUENCE... OK</p>
-                   <p className="opacity-50">[09:21:05] SENSORS_CHECK: ALL_SYSTEMS_GO</p>
-                   <p>[09:24:12] CRM_SIGNAL: NUEVO LEAD DETECTADO DE "ALEX V."</p>
-                   <p className="text-yellow-500">[09:28:55] WARN: INSTAGRAM_GRAPH_TIMEOUT_DETECTED (RETRYING...)</p>
-                   <p>[09:32:00] STRIPE_BRIDGE: TRANSACCIÓN COMPLETADA ID:TX_99123</p>
-                   <div className="w-3 h-5 bg-green-500 animate-pulse inline-block align-middle ml-2"></div>
-                </div>
-             </div>
           </div>
         )}
-
       </main>
 
-      {/* Editor Modal for Records & Events */}
+      {/* Unified Editor Modal */}
       {(editingItem && editType) && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10 bg-black/95 backdrop-blur-2xl animate-fade-in overflow-y-auto">
            <div className="w-full max-w-4xl bg-mat-900 border-2 border-mat-800 p-10 lg:p-16 rounded-[4rem] shadow-2xl relative my-auto">
               <button onClick={() => { setEditingItem(null); setEditType(null); }} className="absolute top-10 right-10 text-gray-500 hover:text-white transition-all"><X size={32} /></button>
               <h2 className="text-4xl lg:text-5xl font-black text-white uppercase mb-12 tracking-tighter font-exo">
-                 {editingItem.id ? 'Edit' : 'Create'} <span className="text-mat-500">{editType === 'record' ? 'Vinyl' : 'Event'}</span>
+                 {editingItem.id ? 'Edit' : 'Create'} <span className="text-mat-500">{editType.toUpperCase()}</span>
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
                  {/* Left Column */}
                  <div className="space-y-8">
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Título Principal</label>
-                       <input value={editingItem.title} onChange={e => setEditingItem({...editingItem, title: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white uppercase text-xs font-black rounded-2xl outline-none focus:border-mat-500 transition-all shadow-inner" placeholder="TÍTULO" />
-                    </div>
-                    {editType === 'record' ? (
-                       <div className="space-y-2">
-                          <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Artista</label>
-                          <input value={editingItem.artist} onChange={e => setEditingItem({...editingItem, artist: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white uppercase text-xs font-black rounded-2xl outline-none focus:border-mat-500 transition-all shadow-inner" placeholder="ARTISTA" />
-                       </div>
-                    ) : (
-                       <div className="grid grid-cols-2 gap-6">
+                    {editType === 'record' && (
+                       <>
                           <div className="space-y-2">
-                             <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Fecha</label>
-                             <input value={editingItem.date} onChange={e => setEditingItem({...editingItem, date: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white uppercase text-xs font-black rounded-2xl outline-none focus:border-mat-500" placeholder="YYYY-MM-DD" />
+                             <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Título Principal</label>
+                             <input value={editingItem.title} onChange={e => setEditingItem({...editingItem, title: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white uppercase text-xs font-black rounded-2xl outline-none" />
                           </div>
                           <div className="space-y-2">
-                             <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Hora</label>
-                             <input value={editingItem.time} onChange={e => setEditingItem({...editingItem, time: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white uppercase text-xs font-black rounded-2xl outline-none focus:border-mat-500" placeholder="20:00" />
+                             <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Artista</label>
+                             <input value={editingItem.artist} onChange={e => setEditingItem({...editingItem, artist: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white uppercase text-xs font-black rounded-2xl outline-none" />
                           </div>
-                       </div>
+                       </>
                     )}
-                    <div className="grid grid-cols-2 gap-6">
-                       <div className="space-y-2">
-                          <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Precio (€)</label>
-                          <input type="number" value={editingItem.price} onChange={e => setEditingItem({...editingItem, price: Number(e.target.value)})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white text-xs font-black rounded-2xl outline-none focus:border-mat-500" />
-                       </div>
-                       <div className="space-y-2">
-                          <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Categoría</label>
-                          <input value={editType === 'record' ? editingItem.genre : editingItem.category} onChange={e => setEditingItem({...editingItem, [editType === 'record' ? 'genre' : 'category']: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white uppercase text-xs font-black rounded-2xl outline-none focus:border-mat-500" />
-                       </div>
-                    </div>
+                    {editType === 'event' && (
+                       <>
+                          <div className="space-y-2">
+                             <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Título Evento</label>
+                             <input value={editingItem.title} onChange={e => setEditingItem({...editingItem, title: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white uppercase text-xs font-black rounded-2xl outline-none" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                             <div className="space-y-2">
+                                <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Fecha</label>
+                                <input value={editingItem.date} onChange={e => setEditingItem({...editingItem, date: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white uppercase text-xs font-black rounded-2xl outline-none" />
+                             </div>
+                             <div className="space-y-2">
+                                <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Hora</label>
+                                <input value={editingItem.time} onChange={e => setEditingItem({...editingItem, time: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white uppercase text-xs font-black rounded-2xl outline-none" />
+                             </div>
+                          </div>
+                          <div className="flex items-center gap-4 bg-mat-800 p-4 rounded-2xl border border-mat-700">
+                             <input type="checkbox" id="open-decks-check" checked={editingItem.isOpenDecks} onChange={e => setEditingItem({...editingItem, isOpenDecks: e.target.checked})} className="w-6 h-6 accent-mat-500" />
+                             <label htmlFor="open-decks-check" className="text-[10px] font-black text-white uppercase tracking-widest">Publicar en Open Decks</label>
+                          </div>
+                       </>
+                    )}
+                    {editType === 'selector' && (
+                       <>
+                          <div className="space-y-2">
+                             <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Alias Artista</label>
+                             <input value={editingItem.artistName} onChange={e => setEditingItem({...editingItem, artistName: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white uppercase text-xs font-black rounded-2xl outline-none" />
+                          </div>
+                          <div className="space-y-2">
+                             <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Mix URL</label>
+                             <input value={editingItem.mixUrl} onChange={e => setEditingItem({...editingItem, mixUrl: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white text-xs font-bold rounded-2xl outline-none" />
+                          </div>
+                       </>
+                    )}
                  </div>
 
                  {/* Right Column */}
                  <div className="space-y-8">
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Imagen / Cover URL</label>
-                       <input value={editType === 'record' ? editingItem.coverUrl : editingItem.imageUrl} onChange={e => setEditingItem({...editingItem, [editType === 'record' ? 'coverUrl' : 'imageUrl']: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white text-xs font-bold rounded-2xl outline-none focus:border-mat-500" placeholder="https://..." />
+                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">URL Imagen</label>
+                       <input value={editType === 'record' ? editingItem.coverUrl : (editType === 'event' ? editingItem.imageUrl : editingItem.avatarUrl)} onChange={e => setEditingItem({...editingItem, [editType === 'record' ? 'coverUrl' : (editType === 'event' ? 'imageUrl' : 'avatarUrl')]: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-6 text-white text-xs font-bold rounded-2xl outline-none" />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Descripción</label>
-                       <textarea value={editingItem.description} onChange={e => setEditingItem({...editingItem, description: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-8 h-48 text-white text-xs font-medium rounded-[2rem] outline-none focus:border-mat-500 resize-none italic leading-relaxed" placeholder="Info adicional..."></textarea>
+                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Descripción / Bio</label>
+                       <textarea value={editingItem.description || editingItem.bio} onChange={e => setEditingItem({...editingItem, [editType === 'selector' ? 'bio' : 'description']: e.target.value})} className="w-full bg-mat-800 border-2 border-mat-700 p-8 h-48 text-white text-xs font-medium rounded-[2rem] outline-none resize-none italic" />
                     </div>
                  </div>
               </div>
 
-              <div className="mt-16 pt-10 border-t border-mat-800 flex flex-col sm:flex-row justify-end gap-6">
+              <div className="mt-16 pt-10 border-t border-mat-800 flex justify-end gap-6">
                  <button onClick={() => { setEditingItem(null); setEditType(null); }} className="px-12 py-6 text-gray-500 hover:text-white font-black uppercase text-[11px] tracking-widest transition-all">Cancelar</button>
                  <button onClick={saveItem} className="px-16 py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-[0.3em] rounded-3xl shadow-xl hover:bg-mat-400 active:scale-95 transition-all flex items-center justify-center gap-4"><Save size={20} /> Guardar Cambios</button>
               </div>

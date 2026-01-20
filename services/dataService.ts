@@ -1,3 +1,4 @@
+
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS } from '../constants.ts';
 import { Event, VinylRecord, Post, SelectorSubmission, Comment, TradeMetadata } from '../types.ts';
 
@@ -89,7 +90,6 @@ class DataService {
   // --- CRUD DISCOS ---
   async getRecords(): Promise<VinylRecord[]> { return this.getLocalDB().records || []; }
   
-  // Fix: Added getRecordById to retrieve a single record for detail views
   async getRecordById(id: string): Promise<VinylRecord | null> {
     const records = await this.getRecords();
     return records.find(r => r.id === id) || null;
@@ -115,7 +115,6 @@ class DataService {
   // --- CRUD EVENTOS ---
   async getEvents(): Promise<Event[]> { return this.getLocalDB().events || []; }
   
-  // Fix: Added getEventById to retrieve a single event for detail views
   async getEventById(id: string): Promise<Event | null> {
     const events = await this.getEvents();
     return events.find(e => e.id === id) || null;
@@ -206,18 +205,22 @@ class DataService {
   }
 
   // --- SELECTORS ---
-  // Fix: Updated getSelectors to handle an optional filter for approved status
   async getSelectors(approvedOnly: boolean = false) { 
     const selectors = this.getLocalDB().selectors || [];
     return approvedOnly ? selectors.filter((s: any) => s.status === 'approved') : selectors;
   }
   
-  // Fix: Added createSelector to save new selector applications
   async createSelector(selector: any) {
     const db = this.getLocalDB();
     const newSelector = { ...selector, id: `s_${Date.now()}` };
     db.selectors = [newSelector, ...db.selectors];
     this.saveLocalDB(db);
+  }
+
+  async updateSelector(selector: SelectorSubmission) {
+    const db = this.getLocalDB();
+    const idx = db.selectors.findIndex((s: any) => s.id === selector.id);
+    if (idx !== -1) { db.selectors[idx] = selector; this.saveLocalDB(db); }
   }
 
   async updateSelectorStatus(id: string, status: string) {
@@ -234,7 +237,6 @@ class DataService {
   // --- POSTS ---
   async getCommunityPosts() { return this.getLocalDB().posts || []; }
   
-  // Fix: Added getPostById to retrieve a single community post for detail views
   async getPostById(id: string): Promise<Post | null> {
     const posts = await this.getCommunityPosts();
     return posts.find(p => p.id === id) || null;

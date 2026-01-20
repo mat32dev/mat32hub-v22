@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Menu, X, Disc, ShoppingBag, Globe, ArrowRight, Loader2 } from 'lucide-react';
 
 // Providers
@@ -120,10 +120,9 @@ const Navigation = () => {
         </div>
       </header>
 
-      {/* Menú Desplegable (Mobile Overlay) - Versión Comprimida */}
+      {/* Menú Desplegable (Mobile Overlay) */}
       {isOpen && (
         <div className="fixed inset-0 z-[110] bg-mat-950 flex flex-col animate-fade-in overflow-hidden">
-          {/* Header del menú */}
           <div className="h-16 border-b border-mat-800 flex items-center justify-between px-6 bg-mat-900 flex-shrink-0">
             <div className="flex items-center gap-3">
               <Disc className="w-5 h-5 text-mat-500" />
@@ -134,7 +133,6 @@ const Navigation = () => {
             </button>
           </div>
 
-          {/* Navegación central - Paddings reducidos para que todo quepa */}
           <nav className="flex-1 px-8 pt-4 pb-4 flex flex-col items-start justify-center gap-0.5 overflow-hidden">
             {navLinks.map((l, idx) => (
               <Link 
@@ -150,7 +148,6 @@ const Navigation = () => {
               </Link>
             ))}
             
-            {/* Botones de acción comprimidos */}
             <div className="w-full mt-4 grid grid-cols-2 gap-3">
               <Link to="/contact" className="py-4 bg-mat-500 text-white font-black uppercase tracking-[0.2em] text-[9px] rounded-xl shadow-2xl flex items-center justify-center active:scale-95 transition-transform">
                 RESERVAR
@@ -161,7 +158,6 @@ const Navigation = () => {
             </div>
           </nav>
 
-          {/* Footer del menú comprimido */}
           <div className="px-8 py-6 border-t border-mat-800 bg-mat-900 flex flex-col items-center gap-3 flex-shrink-0">
              <button onClick={toggleLanguage} className="flex items-center gap-2 text-[9px] font-black text-mat-500 uppercase tracking-widest">
                 <Globe size={12} /> {language === 'es' ? 'Switch to English' : 'Versión en Español'}
