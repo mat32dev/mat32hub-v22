@@ -23,7 +23,7 @@ export const Home: React.FC = () => {
   const services = [
     {
       title: "THE CRATE",
-      desc: "Nuestra tienda curada de vinilos. Rarezas y clásicos.",
+      desc: "Nuestra tienda curada de discos. Rarezas y clásicos.",
       link: "/records",
       icon: <Disc size={24} className="text-mat-500" />,
       img: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?q=80&w=800"
@@ -84,7 +84,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* AGENDA FLASH - PRIORITARIA DESPUÉS DEL HERO */}
+      {/* AGENDA FLASH */}
       <section className="py-20 bg-mat-900 border-b border-mat-800/50">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
@@ -161,10 +161,10 @@ export const Home: React.FC = () => {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8">
               <div className="inline-flex items-center gap-2 text-mat-500 font-black uppercase tracking-[0.5em] text-[9px]">
-                <Zap size={16} className="animate-pulse" /> COMUNIDAD VINILO VALENCIA
+                <Zap size={16} className="animate-pulse" /> COMUNIDAD DISCOS VALENCIA
               </div>
               <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none">
-                Cambalache & <span className="text-mat-500">Culture.</span>
+                Intercambio & <span className="text-mat-500">Culture.</span>
               </h2>
               <p className="text-gray-400 text-lg font-light italic leading-relaxed">
                 Únete al Hub de coleccionistas de Ruzafa. Publica tus discos, propón intercambios o simplemente ven a disfrutar del sonido analógico puro.
@@ -180,7 +180,7 @@ export const Home: React.FC = () => {
             </div>
             <div className="relative group">
               <div className="aspect-square bg-mat-800 rounded-[3rem] overflow-hidden border border-mat-700 shadow-2xl">
-                 <img src="https://images.unsplash.com/photo-1603048588665-791ca8aea617?q=80&w=1200" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110" alt="Comunidad Vinilo Valencia" />
+                 <img src="https://images.unsplash.com/photo-1603048588665-791ca8aea617?q=80&w=1200" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110" alt="Comunidad Discos Valencia" />
               </div>
             </div>
           </div>

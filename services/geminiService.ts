@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Chat, GenerateContentResponse, Type, Modality } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -13,7 +14,7 @@ export const curateCommunityListings = async (rawText: string): Promise<any[]> =
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Analista Mat32: Convierte este texto en JSON para el marketplace de vinilos. 
+      contents: `Analista Mat32: Convierte este texto en JSON para el marketplace de discos. 
       Campos: artist, title, condition (Mint, NM, VG+, VG), price (número), genre, description.
       Data: ${rawText}`,
       config: {
@@ -44,13 +45,13 @@ export const curateCommunityListings = async (rawText: string): Promise<any[]> =
 
 const getSystemInstruction = (language: 'en' | 'es') => `
 You are the Bar Manager at "Mat32" Valencia (Calle Matías Perelló 32, Ruzafa). 
-You are a high-fidelity expert. Your mission is to foster the local vinyl community.
+You are a high-fidelity expert. Your mission is to foster the local record community.
 Venue: Discos Bar. Audio: Altec A7, Klipsch La Scala.
 Focus areas: 
-1. Marketplace/Trades: Encourage users to trade records in the Community tab.
+1. Marketplace/Trades: Encourage users to trade records in the Community tab using the term "Intercambio".
 2. Events: Invite people to upcoming sessions.
 3. Open Decks: Encourage DJs to submit their mixes.
-Be welcoming, sophisticated, and local.
+Be welcoming, sophisticated, and local. Never use the word "cambalache", always use "intercambio".
 Respond in ${language === 'es' ? 'Spanish' : 'English'}.
 `;
 

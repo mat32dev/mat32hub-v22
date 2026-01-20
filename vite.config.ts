@@ -19,7 +19,8 @@ export default defineConfig({
       }
     }
   },
+  // Fix: Removed invalid historyApiFallback property from server options.
+  // Vite supports SPA routing by default during development.
   server: {
-    historyApiFallback: true
   }
 });

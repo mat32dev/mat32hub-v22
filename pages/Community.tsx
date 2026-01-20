@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   MessageCircle, Heart, X, Loader2, Camera, Send, 
@@ -91,7 +92,7 @@ export const Community: React.FC = () => {
 
       <div className="container mx-auto px-6 py-12 max-w-4xl">
         
-        {/* Post Creation - Rediseñado */}
+        {/* Post Creation */}
         <div className="bg-mat-800 border-2 border-mat-700 p-8 rounded-[2.5rem] shadow-2xl mb-16 relative">
           <div className="flex justify-between items-center mb-8">
              <div className="flex items-center gap-3">
@@ -122,7 +123,7 @@ export const Community: React.FC = () => {
                   value={content}
                   onClick={() => !user && setShowLoginModal(true)}
                   onChange={(e) => setContent(e.target.value)}
-                  placeholder={isTradeMode ? "¿Qué buscas a cambio?" : "¿Qué está sonando en tu plato hoy?"}
+                  placeholder={isTradeMode ? "¿Qué buscas a cambio?" : "¿Qué disco está sonando en tu plato hoy?"}
                   className="w-full bg-transparent text-white text-xl font-light italic outline-none resize-none min-h-[100px] placeholder:text-gray-700"
                 />
                 
@@ -150,7 +151,7 @@ export const Community: React.FC = () => {
           </div>
         </div>
 
-        {/* Feed - Rediseño más limpio y rápido */}
+        {/* Feed */}
         <div className="space-y-12">
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="animate-spin text-mat-500 w-10 h-10" /></div>
@@ -166,7 +167,7 @@ export const Community: React.FC = () => {
                         </div>
                      </div>
                      {post.isTrade && (
-                        <span className="px-4 py-1.5 bg-mat-500/10 text-mat-500 text-[8px] font-black uppercase tracking-widest rounded-full border border-mat-500/30">CAMBALACHE ACTIVO</span>
+                        <span className="px-4 py-1.5 bg-mat-500/10 text-mat-500 text-[8px] font-black uppercase tracking-widest rounded-full border border-mat-500/30">INTERCAMBIO ACTIVO</span>
                      )}
                   </div>
 
@@ -175,7 +176,7 @@ export const Community: React.FC = () => {
                   </p>
 
                   {post.imageUrl && (
-                    <div className="rounded-[2rem] overflow-hidden border-2 border-mat-700 mb-8 bg-black">
+                    <div className="rounded-[2.5rem] overflow-hidden border-2 border-mat-700 mb-8 bg-black">
                        <img src={post.imageUrl} alt="Community context" className="w-full h-full object-cover opacity-80" />
                     </div>
                   )}
@@ -195,7 +196,7 @@ export const Community: React.FC = () => {
         </div>
       </div>
 
-      {/* Login / Alias Modal */}
+      {/* Login Modal */}
       {showLoginModal && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-fade-in">
            <div className="w-full max-w-sm bg-mat-800 border-2 border-mat-700 p-12 rounded-[3.5rem] text-center shadow-2xl relative">

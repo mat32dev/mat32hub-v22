@@ -1,5 +1,6 @@
+
 import React, { useEffect } from 'react';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/LanguageContext.tsx';
 import { useLocation } from 'react-router-dom';
 
 interface SEOProps {
@@ -13,7 +14,7 @@ export const SEO: React.FC<SEOProps> = ({
   titleKey, 
   descriptionKey, 
   schemaType = 'LocalBusiness',
-  image = "https://images.unsplash.com/photo-1621360841013-c768371e93cf?q=80&w=1200"
+  image = "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200"
 }) => {
   const { t } = useLanguage();
   const location = useLocation();
@@ -41,6 +42,7 @@ export const SEO: React.FC<SEOProps> = ({
     updateMeta('og:image', image, 'property');
     updateMeta('og:url', canonical, 'property');
     updateMeta('og:type', 'website', 'property');
+    updateMeta('twitter:card', 'summary_large_image');
     
     let link: HTMLLinkElement | null = document.querySelector('link[rel="canonical"]');
     if (!link) {

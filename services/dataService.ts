@@ -110,7 +110,8 @@ class DataService {
       likes: 0,
       comments: [],
       timestamp: 'Ahora',
-      tags: post.isTrade ? ['#trade', '#cambalache'] : []
+      // Sustitución de #cambalache por #intercambio
+      tags: post.isTrade ? ['#trade', '#intercambio'] : []
     };
     db.posts = [newPost, ...db.posts];
     this.saveLocalDB(db);
