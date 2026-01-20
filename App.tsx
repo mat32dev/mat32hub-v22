@@ -1,7 +1,7 @@
 
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Menu, X, Disc, ShoppingBag } from 'lucide-react';
+import { Menu, X, Disc, ShoppingBag, Globe, ArrowRight } from 'lucide-react';
 
 // Providers
 import { CartProvider, useCart } from './context/CartContext';
@@ -35,6 +35,20 @@ const Navigation = () => {
   const { t, language, toggleLanguage } = useLanguage();
   const location = useLocation();
 
+  // Bloquear scroll del body cuando el menú está abierto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [isOpen]);
+
+  // Cerrar menú al cambiar de ruta
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
   const navLinks = [
     { name: t('nav.home'), path: '/' },
     { name: t('nav.bar'), path: '/bar' },
@@ -46,82 +60,120 @@ const Navigation = () => {
     { name: t('nav.contact'), path: '/contact' },
   ];
 
-  const active = (p: string) => (location.pathname === p || (location.pathname === '/' && p === '/')) 
-    ? 'text-mat-500 border-b border-mat-500 pb-0.5' 
-    : 'text-gray-400 hover:text-white transition-colors pb-0.5';
+  const isActive = (path: string) => {
+    if (path === '/' && location.pathname === '/') return true;
+    if (path !== '/' && location.pathname.startsWith(path)) return true;
+    return false;
+  };
 
   return (
-    <header className="fixed top-0 z-50 w-full bg-mat-900/80 backdrop-blur-xl border-b border-mat-800 h-14 md:h-16 flex items-center">
-      <div className="container mx-auto px-4 flex items-center justify-between gap-4">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 group shrink-0">
-          <Disc className="w-5 h-5 md:w-6 md:h-6 text-mat-500 group-hover:rotate-180 transition-transform duration-1000" />
-          <span className="font-exo font-black text-base md:text-lg text-white tracking-tighter uppercase">MAT<span className="text-mat-500">32</span></span>
-        </Link>
+    <>
+      <header className="fixed top-0 left-0 right-0 z-[100] h-14 md:h-16 bg-mat-900/95 backdrop-blur-md border-b border-mat-800 flex items-center shadow-lg">
+        <div className="container mx-auto px-4 flex items-center justify-between">
+          {/* Logo Minimalista */}
+          <Link to="/" className="flex items-center gap-2 group shrink-0" aria-label="Inicio">
+            <Disc className="w-5 h-5 text-mat-500 group-hover:rotate-180 transition-transform duration-1000" />
+            <span className="font-exo font-black text-lg text-white tracking-tighter uppercase select-none">MAT<span className="text-mat-500">32</span></span>
+          </Link>
 
-        {/* Desktop Navigation - Optimized Breakpoint */}
-        <nav className="hidden lg:flex items-center gap-x-4 xl:gap-x-6">
-          {navLinks.map(l => (
-            <Link 
-              key={l.path} 
-              to={l.path} 
-              className={`text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${active(l.path)}`}
+          {/* Desktop Nav - Visible XL */}
+          <nav className="hidden xl:flex items-center gap-x-5">
+            {navLinks.map(l => (
+              <Link 
+                key={l.path} 
+                to={l.path} 
+                className={`text-[9px] font-black uppercase tracking-widest transition-all ${isActive(l.path) ? 'text-mat-500 border-b border-mat-500 pb-0.5' : 'text-gray-400 hover:text-white'}`}
+              >
+                {l.name}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Global Actions */}
+          <div className="flex items-center gap-2 md:gap-3">
+            <button 
+              onClick={toggleLanguage} 
+              className="hidden sm:flex items-center gap-1 text-[8px] font-black text-gray-400 hover:text-white uppercase transition-colors px-2 py-1 bg-mat-800 rounded border border-mat-700"
             >
-              {l.name}
-            </Link>
-          ))}
-        </nav>
+              {language === 'es' ? 'EN' : 'ES'}
+            </button>
+            
+            <button 
+              onClick={toggleCart} 
+              className="relative p-2 text-gray-400 hover:text-mat-500 transition-all bg-mat-800 rounded-lg border border-mat-700"
+              aria-label="Ver Carrito"
+            >
+              <ShoppingBag size={16} />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-mat-500 text-white text-[7px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-mat-900">
+                  {cartCount}
+                </span>
+              )}
+            </button>
 
-        {/* Actions */}
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-3 pr-3 border-r border-mat-800 h-6">
-             <button onClick={toggleLanguage} className="text-[9px] font-black text-gray-500 hover:text-white uppercase transition-colors">{language === 'es' ? 'EN' : 'ES'}</button>
+            {/* Mobile Menu Button - Compact */}
+            <button 
+              onClick={() => setIsOpen(!isOpen)} 
+              className="xl:hidden p-2 text-white bg-mat-800 rounded-lg border border-mat-700 focus:outline-none"
+              aria-label={isOpen ? "Cerrar" : "Menú"}
+            >
+              {isOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
           </div>
-          
-          <button onClick={toggleCart} className="relative p-1.5 text-gray-400 hover:text-mat-500 transition-colors">
-            <ShoppingBag size={18} />
-            {cartCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-mat-500 text-white text-[7px] font-black w-3.5 h-3.5 flex items-center justify-center rounded-full border border-mat-900 animate-fade-in">
-                {cartCount}
-              </span>
-            )}
-          </button>
-
-          <Link to="/contact" className="hidden sm:block px-4 py-2 bg-mat-500 text-white font-black text-[9px] uppercase tracking-widest clip-path-slant hover:bg-mat-400 transition-all shadow-lg">
-            RESERVAR
-          </Link>
-
-          {/* Mobile Menu Toggle */}
-          <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden text-white p-1 hover:text-mat-500 transition-colors">
-            {isOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
         </div>
-      </div>
+      </header>
 
-      {/* Mobile Nav Overlay */}
+      {/* Menú Desplegable Fijo - Rediseñado para ser menos "aparatoso" */}
       {isOpen && (
-        <div className="lg:hidden fixed inset-0 z-[60] bg-mat-900/98 pt-20 px-8 flex flex-col gap-3 text-center animate-fade-in overflow-y-auto pb-12">
-          {navLinks.map(l => (
-            <Link 
-              key={l.path} 
-              to={l.path} 
+        <div className="fixed inset-0 z-[110] bg-mat-900 flex flex-col animate-fade-in">
+          {/* Header del menú más compacto */}
+          <div className="h-14 md:h-16 border-b border-mat-800 flex items-center justify-between px-4 bg-mat-950">
+            <div className="flex items-center gap-2 opacity-50">
+              <Disc className="w-4 h-4 text-mat-500" />
+              <span className="font-exo font-black text-sm text-white tracking-tighter uppercase">MAT32</span>
+            </div>
+            <button 
               onClick={() => setIsOpen(false)} 
-              className="text-xl font-black uppercase tracking-tighter text-white border-b border-mat-800/30 pb-3 active:text-mat-500 transition-colors"
+              className="p-2 text-white bg-mat-800 rounded-lg border border-mat-700"
             >
-              {l.name}
+              <X size={18} />
+            </button>
+          </div>
+
+          <nav className="flex-1 overflow-y-auto px-6 py-6 flex flex-col items-center justify-center gap-2">
+            {navLinks.map((l, idx) => (
+              <Link 
+                key={l.path} 
+                to={l.path} 
+                onClick={() => setIsOpen(false)} 
+                className={`group w-full max-w-xs flex items-center justify-between py-3 px-5 rounded-xl border transition-all ${isActive(l.path) ? 'bg-mat-800 border-mat-500/50 text-mat-500 shadow-lg' : 'bg-mat-950/50 border-mat-800 text-gray-300 hover:border-mat-700'}`}
+                style={{ animationDelay: `${idx * 40}ms` }}
+              >
+                <span className={`text-xs font-black uppercase tracking-widest font-exo ${isActive(l.path) ? 'text-mat-500' : 'group-hover:text-white'}`}>
+                  {l.name}
+                </span>
+                <ArrowRight size={12} className={`transition-transform duration-300 ${isActive(l.path) ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0'}`} />
+              </Link>
+            ))}
+            
+            <Link 
+              to="/contact" 
+              onClick={() => setIsOpen(false)} 
+              className="mt-6 w-full max-w-xs py-4 bg-mat-500 text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-xl shadow-xl flex items-center justify-center gap-2 hover:bg-mat-400 transition-all active:scale-95"
+            >
+              RESERVAR AHORA
             </Link>
-          ))}
-          <Link to="/contact" onClick={() => setIsOpen(false)} className="mt-4 py-5 bg-mat-500 text-white font-black uppercase tracking-widest text-xs rounded-xl shadow-2xl">
-            RESERVAR
-          </Link>
-          <div className="flex justify-center gap-8 mt-6">
-             <button onClick={() => { toggleLanguage(); setIsOpen(false); }} className="text-[10px] font-black text-mat-500 uppercase">
-                {language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+          </nav>
+
+          <div className="p-6 border-t border-mat-800 bg-mat-950 flex flex-col items-center gap-3">
+             <button onClick={() => { toggleLanguage(); setIsOpen(false); }} className="flex items-center gap-2 text-[9px] font-black text-mat-500 uppercase tracking-[0.2em]">
+                <Globe size={12} /> {language === 'es' ? 'Versión en Inglés' : 'Spanish Version'}
              </button>
+             <div className="text-[8px] font-black text-gray-700 uppercase tracking-widest">Valencia • Ruzafa Hub</div>
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 };
 

@@ -49,7 +49,7 @@ export const Home: React.FC = () => {
       <SEO titleKey="nav.home" descriptionKey="seo.home.description" />
 
       {/* Hero Section */}
-      <section className="relative h-[85vh] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[80vh] md:h-[85vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
             src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2000" 
@@ -61,23 +61,23 @@ export const Home: React.FC = () => {
 
         <div className="container mx-auto px-6 relative z-10 text-center">
           <div className="mb-6 animate-fade-in">
-            <h1 className="text-[18vw] md:text-[10rem] font-black uppercase tracking-tighter text-white leading-none font-exo text-glow select-none">
+            <h1 className="text-[22vw] md:text-[11rem] font-black uppercase tracking-tighter text-white leading-none font-exo text-glow select-none">
               MAT<span className="text-mat-500">32</span>
             </h1>
-            <div className="flex items-center justify-center gap-4 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] md:text-base -mt-4 md:-mt-6">
+            <div className="flex items-center justify-center gap-4 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] md:text-base -mt-4 md:-mt-8">
                <MapPin size={16} className="animate-bounce" /> VALENCIA <span className="text-gray-800">|</span> RUZAFA
             </div>
           </div>
 
-          <p className="text-gray-300 max-w-2xl mx-auto text-lg md:text-xl font-light italic mb-10 leading-relaxed">
+          <p className="text-gray-300 max-w-2xl mx-auto text-base md:text-xl font-light italic mb-10 leading-relaxed px-4">
             "Santuario Hi-Fi y Espacio de Eventos Analógicos en el corazón de Valencia."
           </p>
 
-          <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
-             <Link to="/contact" className="w-full md:w-auto px-10 py-4 bg-mat-500 text-white font-black text-[10px] uppercase tracking-[0.4em] clip-path-slant shadow-2xl hover:bg-mat-400 transition-all">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
+             <Link to="/contact" className="w-full sm:w-auto px-10 py-4 bg-mat-500 text-white font-black text-[10px] uppercase tracking-[0.4em] clip-path-slant shadow-2xl hover:bg-mat-400 transition-all">
                 RESERVAR
              </Link>
-             <Link to="/alquiler-local-eventos-valencia" className="w-full md:w-auto px-10 py-4 bg-mat-800 border-2 border-mat-700 text-white font-black text-[10px] uppercase tracking-[0.4em] clip-path-slant hover:border-mat-500 transition-all">
+             <Link to="/alquiler-local-eventos-valencia" className="w-full sm:w-auto px-10 py-4 bg-mat-800 border-2 border-mat-700 text-white font-black text-[10px] uppercase tracking-[0.4em] clip-path-slant hover:border-mat-500 transition-all">
                 ALQUILER LOCAL
              </Link>
           </div>
