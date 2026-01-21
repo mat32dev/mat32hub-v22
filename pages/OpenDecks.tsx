@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   CheckCircle, Headphones, ArrowRight, Loader2, 
-  Plus, Radio, Disc, Clock, Volume2, MessageSquare
+  Plus, Radio, Disc, Clock, Volume2, MessageSquare, Music
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SEO } from '../components/SEO';
@@ -54,7 +54,7 @@ const GuestCard: React.FC<{ selector: SelectorSubmission | (Event & { type: 'eve
   const embedUrl = !isEvent && mixUrl ? getEmbedUrl(mixUrl) : null;
 
   return (
-    <div ref={cardRef} className="bg-mat-800 border-2 border-mat-700 rounded-[2.5rem] overflow-hidden shadow-2xl hover:border-mat-500 transition-all group animate-fade-in flex flex-col h-full">
+    <div ref={cardRef} className="bg-mat-800 border-2 border-mat-700 rounded-[2.5rem] overflow-hidden shadow-2xl hover:border-mat-500 transition-all group animate-fade-in flex flex-col h-full relative">
       {isEvent && (
         <div className="absolute top-6 left-6 z-10 bg-mat-500 text-white text-[8px] font-black uppercase px-4 py-1.5 rounded-full shadow-xl">
            CURATED EVENT
@@ -86,7 +86,7 @@ const GuestCard: React.FC<{ selector: SelectorSubmission | (Event & { type: 'eve
         {isEvent ? (
           <Link to={`/events`} className="w-full h-[120px] bg-mat-500/10 rounded-2xl border border-mat-500 flex flex-col items-center justify-center gap-3 group/btn">
              <Clock className="w-8 h-8 text-mat-500" />
-             <span className="text-[10px] font-black text-white uppercase tracking-widest group-hover/btn:scale-110 transition-transform">Ver Detalles del Evento</span>
+             <span className="text-[10px] font-black text-white uppercase tracking-widest group-hover/btn:scale-110 transition-transform">Ver Detalles</span>
           </Link>
         ) : (embedUrl && isNear ? (
           <div className="relative rounded-2xl overflow-hidden border border-mat-700 bg-black/40 shadow-inner animate-fade-in">
@@ -166,88 +166,127 @@ export const OpenDecks: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-mat-900 text-mat-cream">
-      <SEO titleKey="nav.open_decks" descriptionKey="seo.opendecks.description" />
+    <div className="min-h-screen bg-mat-900 text-mat-cream pb-24">
+      <SEO titleKey="nav.open_decks" descriptionKey="La cabina es tuya en Mat32. Envía tu mix y solicita un slot de 60-90 minutos para potenciar tu talento en Valencia." />
 
-      <div className="bg-mat-800 py-24 md:py-40 border-b border-mat-700 relative overflow-hidden">
+      {/* Main Header Section */}
+      <section className="bg-mat-800 py-32 md:py-52 border-b border-mat-700 relative overflow-hidden text-center">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#ea580c_1px,transparent_1px)] [background-size:40px_40px]"></div>
         </div>
-        <div className="container mx-auto px-6 relative z-10 text-center">
+        <div className="container mx-auto px-6 relative z-10">
           <div className="inline-flex items-center gap-3 px-6 py-2 bg-mat-900 border border-mat-500 text-mat-500 text-[10px] font-black uppercase tracking-[0.5em] rounded-full shadow-2xl mb-10 animate-fade-in">
-            <Radio className="w-4 h-4" /> CABINA ABIERTA VALENCIA
+            <Radio className="w-4 h-4" /> RUZAFA ANALOG BOOTH
           </div>
-          <h1 className="text-6xl md:text-[10rem] font-black uppercase tracking-tighter text-white font-exo leading-none text-glow animate-fade-in">
+          <h1 className="text-7xl md:text-[10rem] font-black uppercase tracking-tighter text-white font-exo leading-[0.8] mb-8 animate-fade-in">
             OPEN <span className="text-mat-500">DECKS.</span>
           </h1>
-          <p className="text-gray-400 max-w-2xl mx-auto text-xl md:text-3xl font-light italic mt-8 opacity-80">
-            {t('opendecks.desc')}
+          <p className="text-gray-400 max-w-2xl mx-auto text-xl md:text-3xl font-light italic mt-8 opacity-80 leading-relaxed">
+            "La cabina es tuya. Espacio dedicado a selectores emergentes con slots de 60 a 90 minutos de pura cultura de club."
           </p>
         </div>
-      </div>
+      </section>
 
-      <div className="container mx-auto px-6 py-12 md:py-24 max-w-7xl">
-        <div className="grid lg:grid-cols-12 gap-16 md:gap-32 items-start">
-          
-          <div className="lg:col-span-5 lg:sticky lg:top-32 space-y-12">
-            <div className="space-y-6">
-              <h2 className="text-4xl font-black text-white uppercase tracking-tighter font-exo leading-none">Solicita tu<br/><span className="text-mat-500">Slot de Cabina.</span></h2>
-              <p className="text-gray-500 text-lg leading-relaxed italic">Buscamos selectores con identidad propia. No importa el género, importa la selección.</p>
-            </div>
-
-            {isSubmitted ? (
-              <div className="bg-mat-800 p-12 border-4 border-mat-500 text-center shadow-2xl rounded-[3rem] animate-fade-in">
-                <div className="w-20 h-20 bg-mat-900 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl border border-mat-700">
-                  <CheckCircle className="w-10 h-10 text-mat-500" />
-                </div>
-                <h3 className="text-2xl font-black uppercase text-white mb-4 font-exo">Protocolo Recibido</h3>
-                <p className="text-gray-400 italic mb-10 text-sm">Nuestro equipo revisará tu propuesta.</p>
-                <button onClick={() => setIsSubmitted(false)} className="w-full py-5 border-2 border-mat-700 text-gray-500 hover:text-white font-black uppercase text-[11px] tracking-widest rounded-2xl transition-all">Nueva Solicitud</button>
+      {/* SHOWCASE SECTION */}
+      <section className="py-24 bg-mat-950">
+        <div className="container mx-auto px-6">
+           <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+              <div className="max-w-2xl">
+                 <div className="flex items-center gap-2 text-mat-500 font-black uppercase tracking-[0.4em] text-[10px] mb-4">
+                    <Music size={18} /> THE SIGNAL WALL
+                 </div>
+                 <h2 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter font-exo leading-none">THE <span className="text-mat-500">SHOWCASE.</span></h2>
+                 <p className="text-gray-500 text-xl mt-6 italic">Artistas y sesiones destacadas de nuestra comunidad en Valencia.</p>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="bg-mat-800 p-10 md:p-12 border-2 border-mat-700 shadow-2xl space-y-8 rounded-[3rem] relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-2 bg-mat-500"></div>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Alias / Nombre</label>
-                  <input required value={form.artistName} onChange={e => setForm({...form, artistName: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl" placeholder="P.EJ: MARCO V" />
-                </div>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Géneros Musicales</label>
-                  <input required value={form.genres} onChange={e => setForm({...form, genres: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl" placeholder="ITALO, HOUSE, FUNK..." />
-                </div>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Enlace a Sesión</label>
-                  <input required value={form.mixUrl} onChange={e => setForm({...form, mixUrl: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl" placeholder="LINK" />
-                </div>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Bio / Propuesta</label>
-                  <textarea required value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 p-6 h-40 focus:border-mat-500 outline-none transition-all text-xs font-bold rounded-3xl resize-none italic" placeholder="¿Qué música traes a la cabina?"></textarea>
-                </div>
-                <button type="submit" disabled={isProcessing} className="w-full bg-mat-500 hover:bg-mat-400 text-white font-black py-7 uppercase tracking-[0.5em] transition-all rounded-[2rem] shadow-xl flex items-center justify-center gap-4 text-xs clip-path-slant">
-                  {isProcessing ? <Loader2 className="animate-spin" /> : <Plus />} REGISTRAR SOLICITUD
-                </button>
-              </form>
-            )}
-          </div>
+              <div className="bg-mat-900 px-6 py-3 rounded-2xl border border-mat-800 text-mat-500 font-black text-[10px] uppercase tracking-widest hidden md:block">
+                 LIVE_STREAM_READY
+              </div>
+           </div>
 
-          <div className="lg:col-span-7 space-y-16">
-            <div>
-              <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none">El Muro de<br/><span className="text-mat-500">Talento.</span></h2>
-              <p className="text-gray-500 text-xl mt-6 italic">Sesiones y artistas destacados por la comunidad Mat32.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
               {items.length === 0 ? (
-                <div className="col-span-full py-32 text-center border-4 border-dashed border-mat-800 rounded-[4rem]">
+                <div className="col-span-full py-40 text-center border-4 border-dashed border-mat-800 rounded-[4rem]">
                    <Disc className="w-20 h-20 text-mat-800 mx-auto mb-8 opacity-40 animate-spin-slow" />
-                   <p className="text-gray-700 font-black uppercase text-xs tracking-[0.4em]">Preparando el muro...</p>
+                   <p className="text-gray-700 font-black uppercase text-xs tracking-[0.4em]">Preparando el showcase...</p>
                 </div>
               ) : (
                 items.map((item, idx) => <GuestCard key={idx} selector={item} />)
               )}
-            </div>
-          </div>
+           </div>
         </div>
-      </div>
+      </section>
+
+      {/* LEAD CAPTURE SECTION */}
+      <section className="py-32 bg-mat-900 border-t border-mat-800">
+        <div className="container mx-auto px-6 max-w-6xl">
+           <div className="grid lg:grid-cols-2 gap-20 items-center">
+              <div>
+                 <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none mb-8">SOLICITA TU <span className="text-mat-500">SLOT.</span></h2>
+                 <div className="space-y-8">
+                    <p className="text-gray-400 text-xl font-light italic leading-relaxed">
+                       Buscamos selectores con identidad propia. No importa el género, importa la selección y el respeto al sonido High Fidelity.
+                    </p>
+                    <ul className="space-y-4">
+                       {[
+                         "Slots de 60 a 90 minutos",
+                         "Sistema de sonido Altec A7 & Klipsch La Scala",
+                         "Mezclador rotatorio profesional",
+                         "Grabación de sesión disponible",
+                         "Difusión en nuestros canales de Hub"
+                       ].map((item, i) => (
+                         <li key={i} className="flex items-center gap-4 text-sm font-black uppercase tracking-widest text-gray-500">
+                            <CheckCircle size={18} className="text-mat-500" /> {item}
+                         </li>
+                       ))}
+                    </ul>
+                 </div>
+              </div>
+
+              <div>
+                {isSubmitted ? (
+                  <div className="bg-mat-800 p-12 border-4 border-mat-500 text-center shadow-2xl rounded-[3rem] animate-fade-in relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-mat-500"></div>
+                    <div className="w-20 h-20 bg-mat-900 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl border border-mat-700">
+                      <CheckCircle className="w-10 h-10 text-mat-500" />
+                    </div>
+                    <h3 className="text-3xl font-black uppercase text-white mb-4 font-exo">Protocolo Recibido</h3>
+                    <p className="text-gray-400 italic mb-10 text-sm leading-relaxed">"Tu señal ha sido inyectada en el Hub. Revisaremos tu propuesta y nos pondremos en contacto contigo pronto."</p>
+                    <button onClick={() => setIsSubmitted(false)} className="w-full py-5 border-2 border-mat-700 text-gray-500 hover:text-white font-black uppercase text-[11px] tracking-widest rounded-2xl transition-all">NUEVA SOLICITUD</button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="bg-mat-800 p-10 md:p-12 border-2 border-mat-700 shadow-2xl space-y-8 rounded-[3rem] relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-mat-500"></div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Alias de Artista</label>
+                      <input required value={form.artistName} onChange={e => setForm({...form, artistName: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl" placeholder="P.EJ: MARCO V" />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Email de Contacto</label>
+                      <input required type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl" placeholder="INFO@ARTIST.COM" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                       <div className="space-y-3">
+                         <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Géneros / Estilos</label>
+                         <input required value={form.genres} onChange={e => setForm({...form, genres: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl" placeholder="HOUSE, FUNK, JAZZ..." />
+                       </div>
+                       <div className="space-y-3">
+                         <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Link a Mix / Set</label>
+                         <input required value={form.mixUrl} onChange={e => setForm({...form, mixUrl: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 text-white p-5 focus:border-mat-500 outline-none transition-all uppercase text-[11px] font-black rounded-2xl" placeholder="SC / MIXCLOUD LINK" />
+                       </div>
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-mat-500 uppercase tracking-[0.3em] ml-1">Propuesta de Sesión</label>
+                      <textarea required value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} className="w-full bg-mat-900 border-2 border-mat-700 p-6 h-40 focus:border-mat-500 outline-none transition-all text-xs font-bold rounded-3xl resize-none italic" placeholder="Cuéntanos qué música traes a la cabina de Mat32..."></textarea>
+                    </div>
+                    <button type="submit" disabled={isProcessing} className="w-full bg-mat-500 hover:bg-mat-400 text-white font-black py-7 uppercase tracking-[0.5em] transition-all rounded-[2rem] shadow-xl flex items-center justify-center gap-4 text-xs clip-path-slant shadow-mat-500/20">
+                      {isProcessing ? <Loader2 className="animate-spin" /> : <Plus />} ENVIAR SEÑAL_HUB
+                    </button>
+                  </form>
+                )}
+              </div>
+           </div>
+        </div>
+      </section>
     </div>
   );
 };

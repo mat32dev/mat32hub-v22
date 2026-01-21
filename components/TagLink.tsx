@@ -1,18 +1,18 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Hash, User, Calendar, Globe, Music, Layers } from 'lucide-react';
+import { Hash, User, Calendar, Globe, Music, Layers, Tag, Search } from 'lucide-react';
 
-// Added 'category' and 'vibe' to TagType to fix type errors in EventCard
 export type TagType = 'artist' | 'year' | 'genre' | 'country' | 'style' | 'tag' | 'category' | 'vibe';
 
 interface TagLinkProps {
   label: string;
   type: TagType;
   className?: string;
+  showIcon?: boolean;
 }
 
-export const TagLink: React.FC<TagLinkProps> = ({ label, type, className = "" }) => {
+export const TagLink: React.FC<TagLinkProps> = ({ label, type, className = "", showIcon = true }) => {
   const navigate = useNavigate();
 
   const handleClick = (e: React.MouseEvent) => {
@@ -21,27 +21,20 @@ export const TagLink: React.FC<TagLinkProps> = ({ label, type, className = "" })
 
     const normalized = label.replace('#', '').trim();
     
-    // Lógica de enrutamiento inteligente basada en el tipo de tag
     switch (type) {
       case 'artist':
-        navigate(`/records?search=${normalized}`);
+        navigate(`/records?search=${encodeURIComponent(normalized)}`);
         break;
-      case 'year':
-        navigate(`/records?year=${normalized}`);
-        break;
-      case 'genre':
-      case 'style':
-      // Handle 'category' by routing to records genre search
       case 'category':
-        navigate(`/records?genre=${normalized}`);
+      case 'genre':
+        navigate(`/records?category=${encodeURIComponent(normalized)}`);
         break;
-      case 'country':
-      // Handle 'vibe' and other tags by routing to community search
+      case 'tag':
       case 'vibe':
-        navigate(`/community?search=${normalized}`);
+        navigate(`/community?search=${encodeURIComponent(normalized)}`);
         break;
       default:
-        navigate(`/community?search=${normalized}`);
+        navigate(`/community?search=${encodeURIComponent(normalized)}`);
     }
   };
 
@@ -49,26 +42,25 @@ export const TagLink: React.FC<TagLinkProps> = ({ label, type, className = "" })
     switch (type) {
       case 'artist': return <User size={10} />;
       case 'year': return <Calendar size={10} />;
-      case 'country': return <Globe size={10} />;
-      case 'genre':
-      // Map 'category' to Music icon
-      case 'category': return <Music size={10} />;
-      case 'style':
-      // Map 'vibe' to Layers icon
+      case 'category': return <Tag size={10} />;
+      case 'genre': return <Music size={10} />;
       case 'vibe': return <Layers size={10} />;
-      default: return <Hash size={10} />;
+      case 'tag': return <Hash size={10} />;
+      default: return <Search size={10} />;
     }
   };
 
   return (
     <button
       onClick={handleClick}
-      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border border-mat-800 bg-mat-900/50 hover:bg-mat-500 hover:text-white hover:border-mat-500 group ${className}`}
+      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border border-mat-700 bg-mat-800/80 text-gray-300 hover:bg-mat-500 hover:text-white hover:border-mat-500 hover:shadow-[0_0_15px_rgba(234,88,12,0.3)] group ${className}`}
     >
-      <span className="text-mat-500 group-hover:text-white transition-colors">
-        {getIcon()}
-      </span>
-      <span>{label}</span>
+      {showIcon && (
+        <span className="text-mat-500 group-hover:text-white transition-colors">
+          {getIcon()}
+        </span>
+      )}
+      <span>{label.replace('#', '')}</span>
     </button>
   );
 };

@@ -1,7 +1,10 @@
 
 import { GoogleGenAI, Chat, GenerateContentResponse, Type, Modality } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Always initialize GoogleGenAI with a direct reference to process.env.API_KEY
+const getAI = () => {
+  return new GoogleGenAI({ apiKey: process.env.API_KEY });
+};
 
 const userRsvps = new Set<string>();
 
@@ -12,6 +15,7 @@ export const toggleRsvp = (eventTitle: string, isAttending: boolean) => {
 
 export const curateCommunityListings = async (rawText: string): Promise<any[]> => {
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: `Analista Mat32: Convierte este texto en JSON para el marketplace de discos. 
@@ -36,6 +40,7 @@ export const curateCommunityListings = async (rawText: string): Promise<any[]> =
         }
       }
     });
+    // Access the .text property directly from the response object
     return JSON.parse(response.text || "[]");
   } catch (error) {
     console.error("Gemini Error:", error);
@@ -59,6 +64,7 @@ let chatSession: Chat | null = null;
 let currentChatLang: 'en' | 'es' | null = null;
 
 export const getChatSession = (language: 'en' | 'es'): Chat => {
+  const ai = getAI();
   if (!chatSession || currentChatLang !== language) {
     chatSession = ai.chats.create({
       model: 'gemini-3-flash-preview',
@@ -73,12 +79,18 @@ export const getChatSession = (language: 'en' | 'es'): Chat => {
 };
 
 export const sendMessageToGemini = async (message: string, language: 'en' | 'es'): Promise<{text: string}> => {
+  if (!process.env.API_KEY) {
+     return { text: language === 'es' ? "El Core está en modo offline. Por favor, contacta con el personal." : "The Core is in offline mode. Please contact the staff." };
+  }
   try {
     const chat = getChatSession(language);
     const context = userRsvps.size > 0 ? `[User is attending: ${Array.from(userRsvps).join(', ')}] ` : "";
+    // Send message through the active chat session and access result.text
     const result: GenerateContentResponse = await chat.sendMessage({ message: context + message });
     return { text: result.text || "Protocolo activo. ¿En qué puedo ayudarte?" };
   } catch (error) {
+    // Force a session reset on error to ensure recovery on subsequent attempts
+    chatSession = null;
     return { text: language === 'es' ? "Error de conexión con el Core. Inténtalo en un momento." : "Core connection error. Please try again." };
   }
 };
@@ -99,6 +111,7 @@ export function decode(base64: string) {
   return bytes;
 }
 
+// Manual PCM audio decoding implementation following standard guidelines
 export async function decodeAudioData(data: Uint8Array, ctx: AudioContext, sampleRate: number, numChannels: number): Promise<AudioBuffer> {
   const dataInt16 = new Int16Array(data.buffer);
   const frameCount = dataInt16.length / numChannels;
@@ -113,6 +126,8 @@ export async function decodeAudioData(data: Uint8Array, ctx: AudioContext, sampl
 }
 
 export const connectLive = (callbacks: any, language: 'en' | 'es') => {
+  // Fresh GoogleGenAI instance for every Live connection to ensure updated API key usage
+  const ai = getAI();
   return ai.live.connect({
     model: 'gemini-2.5-flash-native-audio-preview-12-2025',
     callbacks,

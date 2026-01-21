@@ -1,4 +1,5 @@
-import { Event, Post, VinylRecord, MenuCategory, SelectorSubmission } from './types';
+
+import { Event, Post, VinylRecord, MenuCategory, SelectorSubmission, SellerProfile, InstagramPost } from './types';
 
 const getFutureDate = (daysFromNow: number) => {
   const d = new Date();
@@ -6,115 +7,153 @@ const getFutureDate = (daysFromNow: number) => {
   return d.toISOString().split('T')[0];
 };
 
-export const MOCK_EVENTS: Event[] = [
+export const MOCK_SELLERS: SellerProfile[] = [
   {
-    id: '1',
-    title: 'Saturday Night Fever: Italo Disco',
-    date: getFutureDate(2),
-    time: '22:00',
-    location: 'Mat32 Main Bar',
-    description: 'Un viaje profundo a los sonidos italo-disco de los 80. Selección curada con enfoque en sintes raros y ritmos de baile hipnóticos.',
-    category: 'Disco',
-    imageUrl: 'https://images.unsplash.com/photo-1563841930606-67e2b645b7bb?q=80&w=800',
-    attendees: 85,
-    capacity: 100,
-    price: 15,
-    ticketLink: 'https://ra.co',
-    lineup: [
-      { name: 'Marco V', role: 'Main Selector', profileUrl: '/selector/marco-v' },
-      { name: 'Luna', role: 'Warm up', profileUrl: '/selector/luna' }
-    ],
-    vibe: ['Italo', '80s', 'Neon']
+    id: 's_mat32',
+    name: 'Mat32 Archive',
+    email: 'archive@mat32.com',
+    discogsUsername: 'mat32vlc',
+    avatarUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=200',
+    bio: 'Nuestra colección privada de la casa. Joyas que han sonado en el Altec A7.',
+    location: 'Ruzafa',
+    isVerified: true,
+    specialty: ['Jazz Fusion', 'City Pop', 'Ambient']
   },
   {
-    id: '2',
-    title: 'Sunday Digging Sessions',
-    date: getFutureDate(3),
-    time: '11:00',
-    location: 'Mat32 Record Store',
-    description: 'Lanzamiento de stock de Jazz Japonés y City Pop. Café cortesía de la casa mientras exploramos las nuevas llegadas.',
-    category: 'Social',
-    imageUrl: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?q=80&w=800',
-    attendees: 42,
-    capacity: 60,
-    price: 0,
-    lineup: [
-      { name: 'The Crate Digger', role: 'Resident Selector' }
-    ],
-    vibe: ['Chill', 'Jazz', 'Coffee']
+    id: 's_raretraxxx',
+    name: 'RareTraxxx Store',
+    email: 'store@raretraxxx.com',
+    discogsUsername: 'raretraxxx',
+    avatarUrl: 'https://i.pravatar.cc/150?u=rare',
+    bio: 'Amigos de la casa especializados en Techno de Detroit y House clásico.',
+    location: 'Extramurs',
+    isVerified: true,
+    specialty: ['Techno', 'Deep House']
   }
 ];
 
 export const MOCK_POSTS: Post[] = [
   {
-    id: '101',
-    author: 'VinylAddict_VLC',
-    avatar: 'https://i.pravatar.cc/150?u=101',
-    content: 'Acabo de encontrar una primera edición de "Casiopea" en la tienda. ¡Estado impecable! No durará mucho en la caja.',
-    likes: 32,
-    // Fix: Type 'number' is not assignable to type 'Comment[]'. Initializing with an empty array.
+    id: 'p_ig_1',
+    type: 'POST',
+    title: 'Pure Analog Vibes at Mat32',
+    slug: 'pure-analog-vibes-mat32',
+    author: 'mat32__',
+    content: 'Pure Analog Vibes at Mat32. El sonido de Ruzafa esta tarde con la nueva llegada de Japón. #HiFi #Ruzafa #Valencia',
+    imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800',
+    likes: 156,
     comments: [],
-    timestamp: 'Hace 2 horas',
-    tags: ['#vinyl', '#jazzfusion', '#mat32']
-  },
-  {
-    id: '102',
-    author: 'SelectorLuna',
-    avatar: 'https://i.pravatar.cc/150?u=102',
-    content: 'Preparando la maleta para el sábado. Mucho Italo y alguna que otra sorpresa de Chicago. ¡Nos vemos en la cabina!',
-    likes: 45,
-    // Fix: Type 'number' is not assignable to type 'Comment[]'. Initializing with an empty array.
-    comments: [],
-    timestamp: 'Hace 5 horas',
-    tags: ['#italodisco', '#djlife', '#ruzafa']
+    timestamp: 'Hace 1 hora',
+    tags: ['#HiFi', '#Ruzafa'],
+    status: 'published'
   }
 ];
 
-export const MOCK_SELECTORS: SelectorSubmission[] = [
+export const MOCK_EVENTS: Event[] = [
   {
-    id: 's1',
-    artistName: 'DJ LUNA',
-    genres: ['Disco', 'Italo', '80s Synth'],
-    format: 'Physical & Digital',
-    mixUrl: 'https://soundcloud.com',
-    bio: 'Luna es una apasionada de los sintetizadores analógicos y las rarezas de club de los 80.',
-    avatarUrl: 'https://i.pravatar.cc/150?u=luna'
-  },
-  {
-    id: 's2',
-    artistName: 'MARCO V',
-    genres: ['House', 'Deep', 'Soul'],
-    format: 'Vinyl Only',
-    mixUrl: 'https://soundcloud.com',
-    bio: 'Especialista en house clásico y selecciones de Chicago. Marco es un pilar de la escena local.',
-    avatarUrl: 'https://i.pravatar.cc/150?u=marco'
+    id: 'e_1',
+    title: 'Ruzafa Soul & Funk',
+    slug: 'ruzafa-soul-funk',
+    date: getFutureDate(2),
+    time: '20:00',
+    location: 'Mat32',
+    description: 'Noche de Soul y Funk con vinilos originales.',
+    category: 'Hi-Fi Sessions',
+    imageUrl: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=800',
+    attendees: 12,
+    capacity: 40,
+    price: 0,
+    paidPrice: 10,
+    ticketLink: '#',
+    lineup: [{ name: 'Soulman', role: 'Main Selector' }],
+    vibe: ['Soul', 'Funk'],
+    status: 'published',
+    tags: ['#soul', '#funk']
   }
 ];
 
 export const MOCK_RECORDS: VinylRecord[] = [
   {
-    id: 'r1',
-    artist: 'Donna Summer',
-    title: 'I Feel Love',
-    label: 'Casablanca',
-    year: '1977',
-    condition: 'VG+',
-    price: 25.00,
+    id: 'v_1',
+    sku: 'MAT-001',
+    artist: 'Daft Punk',
+    title: 'Discovery',
+    slug: 'daft-punk-discovery',
+    label: 'Parlophone',
+    year: '2001',
+    condition: 'NM',
+    price: 45,
+    stock: 1,
     coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
-    genre: 'Disco',
-    format: '12"',
-    discogsLink: 'https://www.discogs.com/master/85309-Donna-Summer-I-Feel-Love',
-    description: 'La obra maestra de Moroder. Esencial para cualquier coleccionista.',
-    isFeatured: true
+    genre: 'Techno',
+    format: 'LP',
+    discogsLink: '#',
+    description: 'Classic electronic album.',
+    sellerId: 's_mat32',
+    status: 'published',
+    tags: ['classic', 'electronic']
+  }
+];
+
+export const MOCK_SELECTORS: SelectorSubmission[] = [
+  {
+    id: 'sel_1',
+    artistName: 'Marco V',
+    genres: ['House', 'Techno'],
+    format: 'Vinyl Only',
+    mixUrl: 'https://soundcloud.com/example',
+    bio: 'Selector de la escena local de Valencia.',
+    status: 'approved'
   }
 ];
 
 export const BAR_MENU: MenuCategory[] = [
   {
-    title: 'Signatures',
+    title: 'BÁSICOS',
     items: [
-      { name: 'Mat32 Spritz', description: 'Toque de naranja amarga y vermut local.', price: '9.00', highlight: true },
-      { name: 'Rotary Old Fashioned', description: 'Bourbon premium infusionado con haba tonka.', price: '12.00', highlight: true }
+      { name: 'AGUA / CAFÉ / INFUSIÓN', price: '2,50', highlight: false },
+      { name: 'REFRESCO', price: '3,50', highlight: false },
+      { name: 'CHUPITO', price: '3,50', highlight: false }
     ]
+  },
+  {
+    title: 'CERVEZA & VINO',
+    items: [
+      { name: 'CERVEZA CAÑA 20cl', price: '2,50', highlight: false },
+      { name: 'COPA DE VINO D.O VALENCIA', price: '4,00', highlight: true },
+      { name: 'CERVEZA ESTRELLA GALICIA 33cl', price: '4,00', highlight: false },
+      { name: 'CERVEZA ESTRELLA GALICIA 50cl', price: '5,00', highlight: false }
+    ]
+  },
+  {
+    title: 'APERITIVOS',
+    items: [
+      { name: 'VERMOUTH', price: '5,00', highlight: false },
+      { name: 'POMADA', price: '5,00', highlight: false },
+      { name: 'MARTINI BLANCO / ROSSO', price: '6,00', highlight: false },
+      { name: 'APEROL SPRITZ', price: '7,00', highlight: true }
+    ]
+  },
+  {
+    title: 'COMBINADOS & COCKTAILS',
+    items: [
+      { name: 'WHISKY SOUR', price: '8,00', highlight: false },
+      { name: 'COPA COMBINADO 50ml', price: '9,00', highlight: false },
+      { name: 'COMBINADO + RED BULL', price: '10,00', highlight: false },
+      { name: 'MOSCOW MULE', price: '10,00', highlight: true },
+      { name: 'MOJITO', price: '10,00', highlight: false },
+      { name: 'COMBINADO PREMIUM', price: '12,00', highlight: false }
+    ]
+  }
+];
+
+export const MOCK_INSTAGRAM_POSTS: InstagramPost[] = [
+  {
+    id: 'ig_1',
+    imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800',
+    link: '#',
+    likes: 120,
+    comments: 12,
+    caption: 'Pure Analog Vibes'
   }
 ];

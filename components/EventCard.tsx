@@ -1,13 +1,12 @@
-
-import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Check, Ticket, ListMusic, User, ArrowRight, Star, X, Users, Headphones } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Calendar, Clock, Ticket, ListMusic, User, X, Users, Zap, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Event } from '../types';
-import { dataService } from '../services/dataService';
 import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
 import { CachedImage } from './CachedImage';
-import { TagLink } from './TagLink';
+import { useEventRSVP } from '../hooks/useEventRSVP';
+import { EventBadge, EventLineup, GoogleCalendarButton } from './EventCardParts';
 
 interface EventCardProps {
   event: Event;
@@ -16,195 +15,167 @@ interface EventCardProps {
 export const EventCard: React.FC<EventCardProps> = ({ event }) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const { addToCart, cart } = useCart();
-  const [isAttending, setIsAttending] = useState(false);
-  const [guestList, setGuestList] = useState<string[]>([]);
+  const { addToCart } = useCart();
+  const { isAttending, guestList, userName, toggleRSVP } = useEventRSVP(event.id);
+  
   const [showGuestList, setShowGuestList] = useState(false);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
-  const [userName, setUserName] = useState(localStorage.getItem('mat32_user_name') || '');
+  const [tempName, setTempName] = useState(userName);
 
-  useEffect(() => {
-    const loadData = async () => {
-      const rsvps = await dataService.getUserRSVPs();
-      setIsAttending(rsvps.includes(event.id));
-      const list = await dataService.getEventGuestList(event.id);
-      setGuestList(list.map(g => g.name));
-    };
-    loadData();
-    window.addEventListener('storage_update', loadData);
-    window.addEventListener('mat32_data_changed', loadData);
-    return () => {
-      window.removeEventListener('storage_update', loadData);
-      window.removeEventListener('mat32_data_changed', loadData);
-    };
-  }, [event.id]);
+  const now = new Date();
+  const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+  
+  const isFreeTime = event.freeUntil ? currentTime < event.freeUntil : true;
+  const isCurrentlyFree = (event.price === 0) && isFreeTime;
 
-  const isFree = event.price === 0;
-  const inCart = cart.some(item => item.id === `ticket-${event.id}`);
-
-  const handleAction = async () => {
-    if (isFree) {
+  const handleAction = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isCurrentlyFree) {
       if (isAttending) {
-        await dataService.toggleRSVP(event.id, userName, false);
+        await toggleRSVP(false);
       } else {
         if (!userName) setShowNamePrompt(true);
-        else await dataService.toggleRSVP(event.id, userName, true);
+        else await toggleRSVP(true);
       }
     } else {
       if (isAttending) {
-        // Si ya está confirmado (ya tiene entrada o está en lista)
         navigate('/checkout');
         return;
       }
-      const ticketItem: any = {
+      addToCart({
         id: `ticket-${event.id}`,
-        title: `Entrada: ${event.title}`,
+        title: `Consumición Mínima: ${event.title}`,
         artist: event.category,
-        price: event.price,
+        price: event.paidPrice || event.price,
         coverUrl: event.imageUrl,
-        genre: 'Event',
-        format: 'Entrada Digital',
-        description: `Acceso para ${event.title} el ${event.date}`,
-        discogsLink: '#'
-      };
-      addToCart(ticketItem);
+        quantity: 1
+      } as any);
       navigate('/checkout');
     }
   };
 
-  const handleNameSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!userName.trim()) return;
-    localStorage.setItem('mat32_user_name', userName);
-    await dataService.toggleRSVP(event.id, userName, true);
-    setShowNamePrompt(false);
-  };
-
   return (
     <article 
-      className={`bg-mat-800 border-2 shadow-2xl transition-all duration-500 flex flex-col md:flex-row overflow-hidden group rounded-[1.5rem] md:rounded-[2.5rem] ${
+      onClick={() => navigate(`/events/${event.id}`)}
+      className={`bg-mat-900/40 backdrop-blur-sm border-2 transition-all duration-700 flex flex-col md:flex-row overflow-hidden group rounded-[2.5rem] relative cursor-pointer ${
         isAttending 
-          ? 'border-green-500 shadow-[0_0_50px_rgba(34,197,94,0.15)]' 
-          : 'border-mat-700 hover:border-mat-500'
+          ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.25)] scale-[1.01]' 
+          : 'border-mat-800 hover:border-mat-500/50'
       }`}
     >
-      <div className="md:w-2/5 lg:w-1/3 relative bg-black flex-shrink-0">
+      {isAttending && (
+        <div className="absolute top-0 right-0 p-6 z-20 animate-fade-in">
+          <div className="bg-emerald-500 text-white p-2 rounded-full shadow-2xl border-2 border-mat-900">
+            <CheckCircle2 size={24} className="animate-pulse" />
+          </div>
+        </div>
+      )}
+
+      <div className="md:w-1/3 relative bg-black flex-shrink-0 overflow-hidden">
         <CachedImage 
           src={event.imageUrl} 
           alt={event.title} 
-          className="w-full h-full grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
+          className={`w-full h-full transition-all duration-1000 ease-in-out ${isAttending ? 'grayscale-0' : 'grayscale group-hover:grayscale-0 group-hover:scale-110'}`}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-mat-900/80 to-transparent pointer-events-none"></div>
-        <div className="absolute bottom-6 left-6 flex gap-2">
-           <TagLink 
-            label={event.category} 
-            type="category" 
-            className="bg-mat-500 text-white shadow-xl hover:bg-mat-400" 
-           />
-        </div>
-
-        {(isAttending || inCart) && (
-          <div className="absolute top-4 right-4 z-20 animate-fade-in">
-             <div className={`${isAttending ? 'bg-green-500' : 'bg-mat-500'} text-white font-black text-[8px] tracking-[0.4em] px-4 py-2 rounded-full flex items-center gap-2 shadow-2xl border border-white/20 uppercase`}>
-                <Check className="w-3 h-3" /> {isAttending ? 'GOING' : 'IN CART'}
+        <div className="absolute inset-0 bg-gradient-to-t from-mat-950/90 via-transparent to-transparent"></div>
+        <div className="absolute top-6 left-6 flex flex-col gap-2">
+           <EventBadge label={event.category} animate={isAttending} active={isAttending} />
+           {isCurrentlyFree && (
+             <div className="bg-emerald-500 text-white font-black text-[7px] tracking-widest px-3 py-1 rounded-full border border-white/20 flex items-center gap-1.5 uppercase shadow-xl">
+                <Zap size={10} /> ACCESO LIBRE
              </div>
-          </div>
-        )}
+           )}
+        </div>
       </div>
       
-      <div className="flex-1 flex flex-col lg:flex-row">
-        <div className="flex-1 p-6 md:p-10 lg:p-12 flex flex-col">
-          <div className="flex items-center gap-3 text-mat-500 font-black text-[10px] uppercase tracking-[0.4em] mb-4">
-            <Calendar className="w-4 h-4 md:w-5 md:h-5" /> {event.date} 
-            <span className="text-mat-700">/</span> 
-            <Clock className="w-4 h-4 md:w-5 md:h-5" /> {event.time}
+      <div className="flex-1 flex flex-col p-8 md:p-12">
+        <header className="mb-6">
+          <div className="flex items-center gap-3 text-mat-500 font-black text-[9px] uppercase tracking-[0.4em] mb-4">
+            <Calendar size={14} /> {event.date} 
+            <span className="text-mat-800">•</span> 
+            <Clock size={14} /> {event.time}
           </div>
-          
-          <h3 className={`text-3xl md:text-5xl font-black uppercase leading-none mb-6 tracking-tighter font-exo transition-colors ${isAttending ? 'text-green-500' : 'text-white group-hover:text-mat-500'}`}>
+          <h3 className={`text-3xl md:text-5xl font-black uppercase leading-[0.9] tracking-tighter font-exo mb-4 transition-colors ${isAttending ? 'text-emerald-500' : 'text-white group-hover:text-mat-500'}`}>
             {event.title}
           </h3>
-          
-          <p className="text-gray-400 text-sm md:text-base leading-relaxed font-light italic mb-8 max-w-xl">
+          <p className="text-gray-500 text-sm md:text-base leading-relaxed font-light italic mb-2 max-w-xl line-clamp-2">
             "{event.description}"
           </p>
+        </header>
 
-          <div className="flex flex-wrap gap-2 mb-8">
-            {event.vibe?.map(v => (
-              <TagLink key={v} label={v} type="vibe" className="bg-mat-900/50 text-gray-500" />
-            ))}
-          </div>
+        {event.lineup && event.lineup.length > 0 && <EventLineup lineup={event.lineup} />}
 
-          <div className="mt-auto flex flex-wrap gap-4 items-center">
-             <button 
-                onClick={handleAction}
-                className={`px-8 py-4 font-black uppercase text-[10px] tracking-widest flex items-center gap-3 transition-all duration-300 border-2 clip-path-slant shadow-xl ${
-                  isAttending
-                    ? 'bg-green-500 border-green-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)]' 
-                    : inCart 
-                      ? 'bg-mat-500 border-mat-500 text-white'
-                      : 'bg-transparent border-mat-500 text-mat-500 hover:bg-mat-500 hover:text-white'
-                }`}
-              >
-                {isFree ? (isAttending ? <Check className="w-4 h-4" /> : <ListMusic className="w-4 h-4" />) : <Ticket className="w-4 h-4" />}
-                {isFree 
-                  ? (isAttending ? t('events.card.attending_confirm') : t('events.card.guestlist')) 
-                  : (isAttending ? 'TICKET CONFIRMADO' : inCart ? 'FINALIZAR COMPRA' : `${t('events.card.get_tickets')} (€${event.price})`)
-                }
-              </button>
-              
-              <button 
-                onClick={() => setShowGuestList(true)}
-                className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2 hover:text-white transition-colors"
-              >
-                 <Users className={`w-3 h-3 ${isAttending ? 'text-green-500' : 'text-mat-500'}`} /> {guestList.length} CONFIRMADOS
-              </button>
-          </div>
-        </div>
+        <footer className="mt-auto pt-8 border-t border-mat-800/50 flex flex-wrap gap-4 items-center" onClick={e => e.stopPropagation()}>
+           <button 
+              onClick={handleAction}
+              className={`px-10 py-5 font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 transition-all duration-500 clip-path-slant shadow-2xl ${
+                isAttending
+                  ? 'bg-emerald-600 text-white scale-105 border-b-4 border-emerald-800' 
+                  : isCurrentlyFree 
+                    ? 'bg-mat-500 text-white hover:bg-mat-400'
+                    : 'bg-mat-800 border-2 border-mat-500 text-white hover:bg-mat-700'
+              }`}
+            >
+              {isAttending ? <CheckCircle2 size={16} /> : (isCurrentlyFree ? <ListMusic size={16} /> : <Ticket size={16} />)}
+              {isCurrentlyFree 
+                ? (isAttending ? 'ESTÁS EN LA LISTA' : 'APUNTARSE GRATIS') 
+                : (isAttending ? 'VER MI TICKET' : `RESERVAR €${event.price}`)
+              }
+            </button>
+            
+            <button 
+              onClick={() => setShowGuestList(true)}
+              className={`p-3 rounded-xl border transition-all flex items-center gap-2 ${isAttending ? 'bg-emerald-500/10 border-emerald-500 text-emerald-500' : 'bg-mat-800 text-gray-500 border-mat-700 hover:text-white'}`}
+            >
+               <Users size={14} /> 
+               <span className="text-[10px] font-black">{event.attendees}/{event.capacity}</span>
+            </button>
 
-        <div className="w-full lg:w-80 bg-mat-900/40 p-6 md:p-10 lg:p-12 border-t md:border-t-0 md:border-l border-mat-700/50">
-           <h4 className="text-[10px] font-black text-mat-500 uppercase tracking-[0.5em] mb-8 flex items-center gap-3">
-              <Headphones className="w-4 h-4" /> Lineup
-           </h4>
-           <div className="space-y-6">
-              {event.lineup.map((artist, idx) => (
-                <div key={idx} className="flex flex-col">
-                   <span className="text-lg font-black text-white uppercase tracking-tighter">{artist.name}</span>
-                   <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">{artist.role}</span>
-                </div>
-              ))}
-           </div>
-        </div>
+            <GoogleCalendarButton event={event} />
+        </footer>
       </div>
 
       {showGuestList && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl animate-fade-in">
-           <div className="w-full max-w-md bg-mat-900 border-2 border-mat-700 rounded-[3rem] p-10 relative shadow-2xl">
-              <button onClick={() => setShowGuestList(false)} className="absolute top-8 right-8 text-gray-500 hover:text-white transition-all"><X className="w-8 h-8" /></button>
-              <div className="mb-10 text-center">
-                 <Users className="w-12 h-12 text-mat-500 mx-auto mb-4" />
-                 <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo leading-tight">Guest List</h2>
-                 <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mt-2">{event.title}</p>
-              </div>
-              <div className="max-h-64 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
-                 {guestList.length === 0 ? <p className="text-center text-gray-600 font-black uppercase text-[10px] tracking-widest italic py-8">Aún no hay confirmados...</p> : guestList.map((name, i) => (
-                     <div key={i} className="flex items-center gap-4 bg-mat-800 p-4 rounded-2xl border border-mat-700">
-                        <div className="w-8 h-8 bg-mat-900 rounded-full flex items-center justify-center text-mat-500 font-black text-xs border border-mat-700">{name[0].toUpperCase()}</div>
-                        <span className="text-white font-black uppercase text-xs tracking-tight">{name}</span>
-                        <div className="ml-auto w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                     </div>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl animate-fade-in" onClick={() => setShowGuestList(false)}>
+           <div className="w-full max-w-md bg-mat-900 border-2 border-mat-800 rounded-[3rem] p-12 relative shadow-2xl" onClick={e => e.stopPropagation()}>
+              <button onClick={() => setShowGuestList(false)} className="absolute top-10 right-10 text-gray-500 hover:text-white"><X size={28} /></button>
+              <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo mb-8">HUB_GUESTS</h2>
+              <div className="max-h-60 overflow-y-auto space-y-3 custom-scrollbar pr-4">
+                 {guestList.length === 0 ? <p className="text-center text-gray-700 font-black uppercase text-[10px] py-10">Sé el primero en la red...</p> : guestList.map((name, i) => (
+                   <div key={i} className={`flex items-center gap-4 p-4 rounded-2xl border ${name === userName ? 'bg-emerald-500/10 border-emerald-500' : 'bg-mat-800 border-mat-700'}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs ${name === userName ? 'bg-emerald-500 text-white' : 'bg-mat-900 text-mat-500'}`}>
+                        {name[0].toUpperCase()}
+                      </div>
+                      <span className="text-white font-black uppercase text-xs">{name} {name === userName && '(Tú)'}</span>
+                   </div>
                  ))}
               </div>
-              <button onClick={() => setShowGuestList(false)} className="w-full mt-10 py-5 bg-mat-800 text-gray-500 hover:text-white font-black uppercase text-[10px] tracking-widest rounded-2xl transition-all border border-mat-700">Cerrar Lista</button>
            </div>
         </div>
       )}
 
       {showNamePrompt && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl animate-fade-in">
-           <div className="w-full max-w-sm bg-mat-900 border-2 border-mat-500 rounded-[3rem] p-10 relative shadow-2xl">
-              <div className="mb-8 text-center"><User className="w-12 h-12 text-mat-500 mx-auto mb-4" /><h2 className="text-2xl font-black text-white uppercase tracking-tighter font-exo">¿Cómo te llamas?</h2><p className="text-gray-500 text-[9px] font-black uppercase tracking-widest mt-2">Para aparecer en la Guest List</p></div>
-              <form onSubmit={handleNameSubmit} className="space-y-6"><input autoFocus type="text" value={userName} onChange={(e) => setUserName(e.target.value)} className="w-full bg-mat-800 border-2 border-mat-700 p-4 text-white uppercase text-xs font-black rounded-xl outline-none focus:border-mat-500" placeholder="TU NOMBRE O ALIAS" /><button type="submit" className="w-full py-5 bg-mat-500 text-white font-black uppercase tracking-widest rounded-xl hover:bg-mat-400 transition-all shadow-xl">Confirmar RSVP</button></form>
-              <button onClick={() => setShowNamePrompt(false)} className="w-full mt-4 py-3 text-gray-600 hover:text-white text-[9px] font-black uppercase tracking-widest transition-colors">Cancelar</button>
+        <div className="fixed inset-0 z-[210] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl animate-fade-in" onClick={() => setShowNamePrompt(false)}>
+           <div className="w-full max-w-sm bg-mat-900 border-2 border-mat-500 rounded-[3rem] p-12 relative text-center" onClick={e => e.stopPropagation()}>
+              <User className="w-12 h-12 text-mat-500 mx-auto mb-6" />
+              <h2 className="text-2xl font-black text-white uppercase tracking-tighter font-exo mb-6">Tu Alias en el Hub</h2>
+              <form onSubmit={async (e) => {
+                 e.preventDefault();
+                 if (!tempName.trim()) return;
+                 const success = await toggleRSVP(true, tempName);
+                 if (success) setShowNamePrompt(false);
+              }} className="space-y-6">
+                 <input 
+                  autoFocus 
+                  type="text" 
+                  value={tempName} 
+                  onChange={(e) => setTempName(e.target.value)} 
+                  className="w-full bg-mat-800 border-2 border-mat-700 p-5 text-white uppercase text-center text-xs font-black rounded-2xl outline-none focus:border-mat-500" 
+                  placeholder="NOMBRE O ALIAS" 
+                 />
+                 <button type="submit" className="w-full py-5 bg-mat-500 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl hover:bg-mat-400 transition-colors">CONFIRMAR ACCESO</button>
+              </form>
            </div>
         </div>
       )}

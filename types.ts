@@ -1,98 +1,140 @@
 
-export interface LineupMember {
+export type ContentType = 'POST' | 'EVENT' | 'PRODUCT' | 'TIP' | 'GALLERY';
+
+export interface SellerProfile {
+  id: string;
   name: string;
-  role: string;
-  profileUrl?: string;
-  avatarUrl?: string;
+  email: string;
+  discogsUsername: string;
+  avatarUrl: string;
+  bio: string;
+  location: string;
+  isVerified: boolean;
+  specialty: string[];
+}
+
+export interface VinylRecord {
+  id: string;
+  sku: string;
+  artist: string;
+  title: string;
+  slug: string;
+  label: string;
+  year: string;
+  format: string;
+  condition: string;
+  genre: string;
+  price: number;
+  tradeValue?: number;
+  isOpenToTrade?: boolean;
+  stock: number;
+  coverUrl: string;
+  discogsLink: string;
+  streamingLink?: string;
+  description: string;
+  sellerId: string;
+  status: 'published' | 'draft' | 'sold';
+  tags: string[];
 }
 
 export interface Event {
   id: string;
   title: string;
+  slug: string;
   date: string;
   time: string;
   location: string;
   description: string;
-  category: 'Disco' | 'House' | 'Live' | 'Social' | 'Promoter Request' | 'Open Decks';
+  category: string;
   imageUrl: string;
   attendees: number;
-  capacity?: number;
+  capacity: number;
   price: number;
-  ticketLink?: string;
-  status?: 'published' | 'draft' | 'cancelled';
-  lineup: LineupMember[];
-  vibe?: string[];
-  isOpenDecks?: boolean; // New flag to show in Open Decks section
+  paidPrice: number;
+  ticketLink: string;
+  lineup: { name: string; role: string }[];
+  vibe: string[];
+  status: 'published' | 'draft';
+  tags: string[];
+  freeUntil?: string;
+  freeCapacity?: number;
+  isOpenDecks?: boolean;
 }
 
-export interface Comment {
+export interface Sale {
   id: string;
-  author: string;
-  content: string;
+  items: CartItem[];
+  total: number;
+  deliveryMethod: 'shipping' | 'pickup';
   timestamp: string;
+  type: 'ticket' | 'record';
+  status: 'pending' | 'completed' | 'cancelled';
+  customerName?: string;
+  customerEmail?: string;
 }
 
-export interface TradeMetadata {
-  artist: string;
+export interface GalleryItem {
+  id: string;
   title: string;
-  genre: string;
-  condition: string;
+  description: string;
+  imageUrl: string;
+  tags: string[];
+  category: string;
+}
+
+// Added missing InstagramPost interface
+export interface InstagramPost {
+  id: string;
+  imageUrl: string;
+  link: string;
+  likes: number;
+  comments: number;
+  caption: string;
 }
 
 export interface Post {
   id: string;
-  author: string;
-  avatar: string;
-  content: string;
-  imageUrl?: string;
-  likes: number;
-  comments: Comment[];
-  timestamp: string;
-  tags: string[];
-  isTrade?: boolean;
-  tradeMetadata?: TradeMetadata;
-}
-
-export interface Merch {
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-  imageUrl: string;
-  category: 'Apparel' | 'Accessories' | 'Print';
-  stock: number;
-}
-
-export interface VinylRecord {
-  id: string;
-  artist: string;
+  type: ContentType;
   title: string;
-  label: string;
-  year: string;
-  condition: 'Mint' | 'NM' | 'VG+' | 'VG';
+  slug?: string;
+  content: string;
+  author: string;
+  timestamp: string;
+  status: 'published' | 'draft';
+  imageUrl?: string;
+  tags: string[];
+  likes: number;
+  comments: any[];
+  isTrade?: boolean;
+}
+
+export interface InboxMessage {
+  id: string;
+  type: 'lead' | 'artist' | 'booking' | 'sale' | 'general' | 'offer' | 'negotiation';
+  sender: string;
+  email: string;
+  phone?: string;
+  content: string;
+  date: string;
+  status: 'pending' | 'read' | 'archived';
+  metadata?: any;
+}
+
+export interface CartItem {
+  id: string;
+  title: string;
+  artist: string;
   price: number;
+  quantity: number;
   coverUrl: string;
-  genre: 'Disco' | 'House' | 'Funk' | 'Jazz' | 'Ambient' | 'Event' | 'Ticket';
-  format: 'LP' | '12"' | '7"' | 'Digital' | 'Entrada Digital';
-  discogsLink: string;
-  listenLinks?: {
-    bandcamp?: string;
-    appleMusic?: string;
-    bandcampEmbed?: string;
-    appleEmbed?: string;
-  };
-  description: string;
-  isStaffPick?: boolean;
-  isFeatured?: boolean;
-  isTradeable?: boolean;
-  ownerName?: string;
+  category?: string;
 }
 
 export interface MenuItem {
   name: string;
-  description?: string;
   price: string;
   highlight?: boolean;
+  description?: string;
 }
 
 export interface MenuCategory {
@@ -100,43 +142,18 @@ export interface MenuCategory {
   items: MenuItem[];
 }
 
-export interface Order {
-  id: string;
-  customerName: string;
-  customerEmail: string;
-  items: any[];
-  total: number;
-  status: 'pending' | 'completed' | 'shipped' | 'cancelled';
-  timestamp: string;
-  shippingAddress?: string;
-}
-
 export interface SelectorSubmission {
   id: string;
   artistName: string;
   genres: string[];
   format: string;
-  bio: string;
   mixUrl: string;
-  mixEmbedUrl?: string; 
+  bio: string;
+  status: 'pending' | 'approved' | 'rejected';
   avatarUrl?: string;
-  status?: 'pending' | 'approved' | 'rejected';
 }
 
 export interface ChatMessage {
   role: 'user' | 'model';
   text: string;
-}
-
-export type CartItem = VinylRecord & { quantity: number };
-
-export enum NavItem {
-  HOME = 'Home',
-  BAR = 'Bar',
-  EVENTS = 'Agenda',
-  RECORDS = 'Shop',
-  PRIVATE_EVENTS = 'Venue Hire',
-  COMMUNITY = 'Community',
-  OPEN_DECKS = 'Open Decks',
-  CONTACT = 'Contact'
 }

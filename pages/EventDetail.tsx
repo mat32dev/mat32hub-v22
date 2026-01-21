@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Calendar, Clock, MapPin, Users, Ticket, ArrowLeft, Headphones, Share2, Zap } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Ticket, ArrowLeft, Headphones, Share2, Zap, Loader2 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { SEO } from '../components/SEO';
 import { Event } from '../types';
@@ -21,7 +21,7 @@ export const EventDetail: React.FC = () => {
     const load = async () => {
       if (id) {
         const data = await dataService.getEventById(id);
-        if (data) setEvent(data);
+        if (data) setEvent(data as any);
       }
       setLoading(false);
     };
@@ -85,9 +85,11 @@ export const EventDetail: React.FC = () => {
                   onClick={() => {
                     addToCart({
                       id: `ticket-${event.id}`,
+                      sku: `TICKET-${event.id}`,
                       title: `Entrada: ${event.title}`,
                       artist: 'Mat32 Session',
                       price: event.price,
+                      stock: 100,
                       coverUrl: event.imageUrl,
                       genre: 'Ticket',
                       format: 'Digital',
@@ -95,8 +97,11 @@ export const EventDetail: React.FC = () => {
                       label: 'Mat32',
                       year: '2025',
                       condition: 'Mint',
-                      discogsLink: '#'
-                    });
+                      discogsLink: '#',
+                      slug: `ticket-${event.id}`,
+                      tags: ['ticket'],
+                      status: 'published'
+                    } as any);
                     navigate('/checkout');
                   }}
                   className="w-full py-5 bg-white text-mat-900 font-black uppercase tracking-widest rounded-2xl shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
@@ -122,7 +127,3 @@ export const EventDetail: React.FC = () => {
     </div>
   );
 };
-
-const Loader2 = ({ className }: { className?: string }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-);

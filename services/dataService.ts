@@ -1,305 +1,261 @@
-
-import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS } from '../constants.ts';
-import { Event, VinylRecord, Post, SelectorSubmission, Comment, TradeMetadata } from '../types.ts';
-
-export interface MessageReply {
-  id: string;
-  sender: 'admin' | 'user';
-  text: string;
-  timestamp: string;
-}
-
-export interface InboxMessage {
-  id: string;
-  type: 'lead' | 'artist' | 'booking' | 'sale' | 'general';
-  sender: string;
-  email: string;
-  phone?: string;
-  content: string;
-  date: string;
-  status: 'pending' | 'read' | 'archived';
-  metadata?: any;
-  replies?: MessageReply[];
-}
-
-export interface AnalyticsData {
-  totalRevenue: number;
-  ticketSales: number;
-  leadsCount: number;
-  visitsSimulated: number;
-  communityActiveUsers: number;
-}
-
-export interface ConnectorStatus {
-  id: string;
-  name: string;
-  status: 'online' | 'warning' | 'offline';
-  latency: string;
-}
-
-export interface GuestEntry {
-  name: string;
-  checkedIn: boolean;
-  timestamp?: string;
-}
+import { Post, VinylRecord, Event, SelectorSubmission, MenuCategory, InboxMessage, GalleryItem, Sale } from '../types';
+import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_core_database_v26_crm';
+  private localKey = 'mat32_matrix_v26_crm_core';
+  
+  constructor() {
+    this.initDefaultData();
+  }
 
-  private getLocalDB() {
-    try {
-      const data = localStorage.getItem(this.localKey);
-      if (!data) return this.initializeDefaultDB();
-      return JSON.parse(data);
-    } catch (e) {
-      return this.initializeDefaultDB();
+  private initDefaultData() {
+    if (!localStorage.getItem(this.localKey)) {
+      const db = {
+        posts: MOCK_POSTS.map(p => ({ 
+          ...p, 
+          id: p.id || `p_${Math.random().toString(36).substr(2, 5)}`, 
+          comments: p.comments || [], 
+          likes: p.likes || 12,
+          timestamp: p.timestamp || 'Ahora'
+        })),
+        records: MOCK_RECORDS.map(r => ({ 
+          ...r, 
+          id: r.id || `r_${Math.random().toString(36).substr(2, 5)}`, 
+          isOpenToTrade: true, 
+          sellerId: 'mat32_archive' 
+        })),
+        events: MOCK_EVENTS.map(e => ({ ...e, id: e.id || `e_${Math.random().toString(36).substr(2, 5)}`, status: 'published' })),
+        gallery: [
+          { id: 'g1', title: 'Entrada Mat32', description: 'El portal analógico en Ruzafa.', imageUrl: 'https://lrilkrktztlabjpxqbyc.supabase.co/storage/v1/object/public/local-gallery/PORTADA_2_mat32.jpg', tags: ['#hifi', '#ruzafa'], category: 'Interior' },
+          { id: 'g2', title: 'Barra Hi-Fi', description: 'Coctelería de autor y sonido curado.', imageUrl: 'https://lrilkrktztlabjpxqbyc.supabase.co/storage/v1/object/public/local-gallery/mat32%20inside.jpg', tags: ['#cocktails', '#design'], category: 'Bar' }
+        ],
+        selectors: MOCK_SELECTORS,
+        inbox: [] as InboxMessage[],
+        rsvps: {} as Record<string, any[]>,
+        sales: [] as Sale[]
+      };
+      this.saveDB(db);
     }
   }
 
-  private initializeDefaultDB() {
-    const defaultDB = { 
-      posts: MOCK_POSTS.map(p => ({ ...p, comments: [], likes: Math.floor(Math.random() * 50) })), 
-      records: [...MOCK_RECORDS], 
-      events: [...MOCK_EVENTS],
-      selectors: MOCK_SELECTORS.map(s => ({ ...s, status: 'approved' })),
-      inbox: [
-        {
-          id: 'initial_msg',
-          type: 'general',
-          sender: 'Mat32 System',
-          email: 'core@mat32.com',
-          content: 'Bienvenido al CRM Core de Mat32. Aquí verás todas las solicitudes de alquiler y cabina.',
-          date: new Date().toLocaleString(),
-          status: 'read',
-          replies: []
-        }
-      ],
-      rsvps: {} as Record<string, GuestEntry[]>,
-      initialized: true,
-      sales: []
-    };
-    this.saveLocalDB(defaultDB);
-    return defaultDB;
+  private getDB() {
+    return JSON.parse(localStorage.getItem(this.localKey) || '{}');
   }
 
-  private saveLocalDB(data: any) {
+  private saveDB(data: any) {
     localStorage.setItem(this.localKey, JSON.stringify(data));
     window.dispatchEvent(new CustomEvent('mat32_data_changed'));
   }
 
-  // --- CRUD DISCOS ---
-  async getRecords(): Promise<VinylRecord[]> { return this.getLocalDB().records || []; }
-  
-  async getRecordById(id: string): Promise<VinylRecord | null> {
-    const records = await this.getRecords();
-    return records.find(r => r.id === id) || null;
+  // --- GETTERS ---
+  async getEvents(): Promise<Event[]> { return this.getDB().events || []; }
+  async getRecords(): Promise<VinylRecord[]> { return this.getDB().records || []; }
+  async getPosts(): Promise<Post[]> { return this.getDB().posts || []; }
+  async getCommunityPosts(): Promise<Post[]> { return this.getPosts(); }
+  async getGallery(): Promise<GalleryItem[]> { return this.getDB().gallery || []; }
+  async getLocalGallery(): Promise<GalleryItem[]> { return this.getGallery(); }
+  async getBarMenu() { return BAR_MENU; }
+  async getEventById(id: string) { return (await this.getEvents()).find(e => e.id === id); }
+  async getRecordById(id: string) { return (await this.getRecords()).find(r => r.id === id); }
+  async getPostById(id: string) { return (await this.getPosts()).find(p => p.id === id); }
+
+  // --- CRM: HUB OPERATIONS ---
+  async batchImportRecords(csv: string) {
+    const db = this.getDB();
+    const rows = csv.split('\n').filter(r => r.trim() !== '');
+    let count = 0;
+    
+    rows.forEach(row => {
+      const parts = row.split(',').map(s => s.trim());
+      if (parts.length < 3) return;
+      const [artist, title, price, genre] = parts;
+      const id = `r_${Math.random().toString(36).substr(2, 7)}`;
+      const record: VinylRecord = {
+        id,
+        sku: `IMP-${id.toUpperCase()}`,
+        artist: artist || 'Various',
+        title: title || 'Untitled',
+        price: parseFloat(price) || 20,
+        genre: genre || 'Various',
+        stock: 1,
+        coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
+        description: 'Importado desde el Hub local.',
+        sellerId: 'hub_member',
+        status: 'published',
+        tags: ['importado', 'hub'],
+        label: 'Various',
+        year: '2025',
+        format: 'LP',
+        condition: 'NM',
+        discogsLink: '#',
+        slug: `${artist}-${title}`.toLowerCase().replace(/ /g, '-')
+      };
+      db.records.push(record);
+      count++;
+    });
+    this.saveDB(db);
+    return count;
   }
 
-  async createRecord(record: Omit<VinylRecord, 'id'>) {
-    const db = this.getLocalDB();
-    const newRecord = { ...record, id: `r_${Date.now()}` };
-    db.records = [newRecord, ...db.records];
-    this.saveLocalDB(db);
-  }
-  async updateRecord(record: VinylRecord) {
-    const db = this.getLocalDB();
-    const idx = db.records.findIndex((r: any) => r.id === record.id);
-    if (idx !== -1) { db.records[idx] = record; this.saveLocalDB(db); }
-  }
-  async deleteRecord(id: string) {
-    const db = this.getLocalDB();
-    db.records = db.records.filter((r: any) => r.id !== id);
-    this.saveLocalDB(db);
-  }
-
-  // --- CRUD EVENTOS ---
-  async getEvents(): Promise<Event[]> { return this.getLocalDB().events || []; }
-  
-  async getEventById(id: string): Promise<Event | null> {
-    const events = await this.getEvents();
-    return events.find(e => e.id === id) || null;
-  }
-
-  async createEvent(event: Omit<Event, 'id' | 'lineup' | 'attendees'>) {
-    const db = this.getLocalDB();
-    const newEvent = { ...event, id: `e_${Date.now()}`, lineup: [], attendees: 0 };
-    db.events = [newEvent, ...db.events];
-    this.saveLocalDB(db);
-  }
-  async updateEvent(event: Event) {
-    const db = this.getLocalDB();
-    const idx = db.events.findIndex((e: any) => e.id === event.id);
-    if (idx !== -1) { db.events[idx] = event; this.saveLocalDB(db); }
-  }
-  async deleteEvent(id: string) {
-    const db = this.getLocalDB();
-    db.events = db.events.filter((e: any) => e.id !== id);
-    this.saveLocalDB(db);
+  async syncDiscogsCollection(username: string) {
+    // Simulación de sync real con Discogs
+    await new Promise(r => setTimeout(r, 1500));
+    const db = this.getDB();
+    // Añadimos un disco de ejemplo para verificar la sync
+    const newRecord: VinylRecord = {
+      id: `discogs_${Date.now()}`,
+      sku: `DS-${username.toUpperCase()}`,
+      artist: 'Sincronizado',
+      title: `Colección de @${username}`,
+      price: 35,
+      genre: 'Jazz',
+      stock: 1,
+      coverUrl: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?q=80&w=800',
+      description: 'Sincronizado vía Discogs API.',
+      sellerId: username,
+      status: 'published',
+      tags: ['discogs', 'verificado'],
+      label: 'Various',
+      year: '2024',
+      format: 'LP',
+      condition: 'Mint',
+      discogsLink: `https://www.discogs.com/user/${username}/collection`,
+      slug: `sync-${username}`
+    };
+    db.records.unshift(newRecord);
+    this.saveDB(db);
+    return 1;
   }
 
-  // --- CRM & INBOX ---
-  async getInbox(): Promise<InboxMessage[]> { return this.getLocalDB().inbox || []; }
-  async addReplyToMessage(msgId: string, text: string) {
-    const db = this.getLocalDB();
-    const idx = db.inbox.findIndex((m: any) => m.id === msgId);
-    if (idx !== -1) {
-      const reply: MessageReply = { id: `rep_${Date.now()}`, sender: 'admin', text, timestamp: new Date().toLocaleString() };
-      if (!db.inbox[idx].replies) db.inbox[idx].replies = [];
-      db.inbox[idx].replies.push(reply);
-      db.inbox[idx].status = 'read';
-      this.saveLocalDB(db);
-    }
+  // --- CRM: SALES & MESSAGES ---
+  async getSales(): Promise<Sale[]> { return this.getDB().sales || []; }
+  async recordSale(sale: Partial<Sale>) {
+    const db = this.getDB();
+    const newSale: Sale = {
+      id: `sale_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      status: 'pending',
+      items: [],
+      total: 0,
+      deliveryMethod: 'shipping',
+      type: 'record',
+      ...sale
+    } as Sale;
+    db.sales.unshift(newSale);
+    this.saveDB(db);
   }
-  async updateMessageStatus(id: string, status: string) {
-    const db = this.getLocalDB();
+
+  async createInboxMessage(m: Partial<InboxMessage>) { 
+    const db = this.getDB(); 
+    db.inbox.unshift({ 
+      id: `msg_${Date.now()}`, 
+      date: new Date().toISOString(), 
+      status: 'pending',
+      ...m 
+    } as InboxMessage); 
+    this.saveDB(db); 
+  }
+
+  async getInbox(): Promise<InboxMessage[]> { return this.getDB().inbox || []; }
+  async updateMessageStatus(id: string, status: InboxMessage['status']) {
+    const db = this.getDB();
     const idx = db.inbox.findIndex((m: any) => m.id === id);
-    if (idx !== -1) { db.inbox[idx].status = status; this.saveLocalDB(db); }
-  }
-  async deleteMessage(id: string) {
-    const db = this.getLocalDB();
-    db.inbox = db.inbox.filter((m: any) => m.id !== id);
-    this.saveLocalDB(db);
-  }
-  async createInboxMessage(msg: any) {
-    const db = this.getLocalDB();
-    const newMsg = { ...msg, id: `msg_${Date.now()}`, date: new Date().toLocaleString(), status: 'pending', replies: [] };
-    db.inbox = [newMsg, ...db.inbox];
-    this.saveLocalDB(db);
+    if (idx > -1) db.inbox[idx].status = status;
+    this.saveDB(db);
   }
 
-  // --- PUERTA (DOOR CONTROL) ---
-  async getEventGuestList(id: string): Promise<GuestEntry[]> { 
-    return (this.getLocalDB().rsvps || {})[id] || []; 
+  async updateSaleStatus(id: string, status: Sale['status']) {
+    const db = this.getDB();
+    const idx = db.sales.findIndex((s: any) => s.id === id);
+    if (idx > -1) db.sales[idx].status = status;
+    this.saveDB(db);
   }
-  async toggleCheckIn(eventId: string, guestName: string) {
-    const db = this.getLocalDB();
-    if (!db.rsvps) db.rsvps = {};
-    const list = db.rsvps[eventId] || [];
-    const idx = list.findIndex((g: any) => g.name === guestName);
-    if (idx !== -1) {
-      list[idx].checkedIn = !list[idx].checkedIn;
-      list[idx].timestamp = list[idx].checkedIn ? new Date().toLocaleTimeString() : undefined;
-      db.rsvps[eventId] = list;
-      this.saveLocalDB(db);
-    }
-  }
-  async addManualGuest(eventId: string, name: string) {
-    const db = this.getLocalDB();
+
+  async toggleRSVP(eventId: string, name: string, active: boolean) {
+    const db = this.getDB();
     if (!db.rsvps) db.rsvps = {};
     if (!db.rsvps[eventId]) db.rsvps[eventId] = [];
-    db.rsvps[eventId].push({ name, checkedIn: true, timestamp: new Date().toLocaleTimeString() });
-    this.saveLocalDB(db);
+    if (active) {
+      if (!db.rsvps[eventId].some((g: any) => g.name === name)) db.rsvps[eventId].push({ name, timestamp: new Date().toISOString() });
+    } else {
+      db.rsvps[eventId] = db.rsvps[eventId].filter((g: any) => g.name !== name);
+    }
+    this.saveDB(db);
   }
 
-  // --- ANALYTICS ---
-  async getAdvancedAnalytics(): Promise<AnalyticsData> {
-    const db = this.getLocalDB();
-    const sales = db.sales || [];
-    return {
-      totalRevenue: sales.reduce((acc: number, s: any) => acc + s.total, 0),
-      ticketSales: sales.filter((s: any) => s.type === 'ticket').length,
-      leadsCount: db.inbox.filter((m: any) => m.type !== 'sale').length,
-      visitsSimulated: (db.inbox.length * 15) + (db.posts.length * 8),
-      communityActiveUsers: db.posts.length * 3
-    };
+  async getEventGuestList(id: string) { return (this.getDB().rsvps || {})[id] || []; }
+  async getUserRSVPs() {
+    const name = localStorage.getItem('mat32_user_name');
+    if (!name) return [];
+    const rsvps = this.getDB().rsvps || {};
+    return Object.keys(rsvps).filter(eid => rsvps[eid].some((g: any) => g.name === name));
   }
 
-  // --- SELECTORS ---
-  async getSelectors(approvedOnly: boolean = false) { 
-    const selectors = this.getLocalDB().selectors || [];
-    return approvedOnly ? selectors.filter((s: any) => s.status === 'approved') : selectors;
-  }
-  
-  async createSelector(selector: any) {
-    const db = this.getLocalDB();
-    const newSelector = { ...selector, id: `s_${Date.now()}` };
-    db.selectors = [newSelector, ...db.selectors];
-    this.saveLocalDB(db);
+  async getSelectors(approvedOnly: boolean = false): Promise<SelectorSubmission[]> {
+    const selectors = this.getDB().selectors || [];
+    if (approvedOnly) return selectors.filter((s: any) => s.status === 'approved');
+    return selectors;
   }
 
-  async updateSelector(selector: SelectorSubmission) {
-    const db = this.getLocalDB();
-    const idx = db.selectors.findIndex((s: any) => s.id === selector.id);
-    if (idx !== -1) { db.selectors[idx] = selector; this.saveLocalDB(db); }
+  async createSelector(s: Partial<SelectorSubmission>) {
+    const db = this.getDB();
+    if (!db.selectors) db.selectors = [];
+    db.selectors.push({ id: `sel_${Date.now()}`, status: 'pending', ...s });
+    this.saveDB(db);
   }
 
-  async updateSelectorStatus(id: string, status: string) {
-    const db = this.getLocalDB();
-    const idx = db.selectors.findIndex((s: any) => s.id === id);
-    if (idx !== -1) { db.selectors[idx].status = status; this.saveLocalDB(db); }
-  }
-  async deleteSelector(id: string) {
-    const db = this.getLocalDB();
-    db.selectors = db.selectors.filter((s: any) => s.id !== id);
-    this.saveLocalDB(db);
-  }
-
-  // --- POSTS ---
-  async getCommunityPosts() { return this.getLocalDB().posts || []; }
-  
-  async getPostById(id: string): Promise<Post | null> {
-    const posts = await this.getCommunityPosts();
-    return posts.find(p => p.id === id) || null;
+  async createBooking(booking: any) {
+    return this.createInboxMessage({
+      type: 'booking',
+      sender: booking.name,
+      email: booking.email,
+      content: `Reserva para ${booking.guests} personas el ${booking.date} a las ${booking.time}.`,
+      metadata: booking
+    });
   }
 
-  async createPost(post: any) {
-    const db = this.getLocalDB();
-    db.posts = [{ ...post, id: `p_${Date.now()}`, timestamp: 'Ahora', likes: 0, comments: [] }, ...db.posts];
-    this.saveLocalDB(db);
+  async getTaxonomyTree() {
+    const records = await this.getRecords();
+    const categories = Array.from(new Set(records.map(r => r.genre)));
+    const tags = Array.from(new Set(records.flatMap(r => r.tags)));
+    return { categories, tags };
   }
 
-  // --- AUTH ---
-  async authenticate(pin: string) {
-    if (pin === '3232') { localStorage.setItem('mat32_admin_auth', 'true'); return true; }
+  async getGalleryTaxonomy() {
+    const items = await this.getGallery();
+    const categories = Array.from(new Set(items.map(i => i.category)));
+    const tags = Array.from(new Set(items.flatMap(i => i.tags)));
+    return { categories, tags };
+  }
+
+  async processMatrixImport(csvData: string) {
+    const db = this.getDB();
+    const rows = csvData.split('\n').filter(r => r.trim() !== '');
+    const dataRows = rows[0].includes('ID') ? rows.slice(1) : rows;
+    dataRows.forEach(row => {
+      const parts = row.split('\t').map(s => s?.trim());
+      if (parts.length < 2) return;
+      const [id, type, title, content, mediaUrl, price, stock, eventDate, tagsStr] = parts;
+      const tags = tagsStr ? tagsStr.split(' ') : [];
+      if (type === 'POST') {
+        db.posts.unshift({ id, type: 'POST', title, content, imageUrl: mediaUrl, timestamp: 'Importado', tags, author: 'Admin', likes: 0, comments: [], status: 'published' });
+      } else if (type === 'EVENT') {
+        db.events.push({ id, title, slug: id, description: content, imageUrl: mediaUrl, price: parseFloat(price) || 0, capacity: parseInt(stock) || 50, date: eventDate, time: '21:00', tags, status: 'published', attendees: 0, category: tags[0]?.replace('#','') || 'Session' });
+      } else if (type === 'PRODUCT') {
+        db.records.push({ id, sku: id, title, artist: 'Various', price: parseFloat(price) || 20, stock: parseInt(stock) || 1, coverUrl: mediaUrl, description: content, genre: tags[0]?.replace('#','') || 'Vinyl', status: 'published', tags, sellerId: 'hub_vendor', isOpenToTrade: true, condition: 'NM' });
+      }
+    });
+    this.saveDB(db);
+    return dataRows.length;
+  }
+
+  isAuthenticated() { return !!localStorage.getItem('mat32_admin_token'); }
+  async login(e: string, p: string) {
+    if (p === 'mat32_secure_access') { localStorage.setItem('mat32_admin_token', 'true'); return true; }
     return false;
   }
-  isAuthenticated() { return localStorage.getItem('mat32_admin_auth') === 'true'; }
-  logout() { localStorage.removeItem('mat32_admin_auth'); }
-
-  getConnectors(): ConnectorStatus[] {
-    return [
-      { id: '1', name: 'Stripe API', status: 'online', latency: '42ms' },
-      { id: '2', name: 'Gemini AI Hub', status: 'online', latency: '156ms' },
-      { id: '3', name: 'Gmail SMTP', status: 'online', latency: '210ms' },
-      { id: '4', name: 'Instagram Graph', status: 'warning', latency: '890ms' }
-    ];
-  }
-
-  async recordSale(sale: any) {
-    const db = this.getLocalDB();
-    if (!db.sales) db.sales = [];
-    db.sales.push(sale);
-    this.saveLocalDB(db);
-  }
-  
-  async createBooking(booking: any) {
-    this.createInboxMessage({ type: 'booking', sender: booking.name, email: booking.email, content: `Reserva ${booking.guests}pax - ${booking.date}`, metadata: booking });
-  }
-
-  async getUserRSVPs() {
-    const user = localStorage.getItem('mat32_user_name');
-    if (!user) return [];
-    const rsvps = this.getLocalDB().rsvps || {};
-    return Object.keys(rsvps).filter(id => rsvps[id].some((g: any) => g.name === user));
-  }
-  
-  async toggleRSVP(eventId: string, name: string, active: boolean) {
-    const db = this.getLocalDB();
-    if (!db.rsvps) db.rsvps = {};
-    if (!db.rsvps[eventId]) db.rsvps[eventId] = [];
-    if (active) db.rsvps[eventId].push({ name, checkedIn: false });
-    else db.rsvps[eventId] = db.rsvps[eventId].filter((g: any) => g.name !== name);
-    this.saveLocalDB(db);
-  }
-
-  getUserProfile() {
-    const alias = localStorage.getItem('mat32_user_name');
-    return alias ? { alias, color: '#ea580c' } : null;
-  }
-  setUserProfile(alias: string) {
-    localStorage.setItem('mat32_user_name', alias);
-    window.dispatchEvent(new CustomEvent('mat32_data_changed'));
-  }
+  logout() { localStorage.removeItem('mat32_admin_token'); }
 }
 
 export const dataService = new DataService();
+export const optimizeImageUrl = (u: string, width?: number) => u;

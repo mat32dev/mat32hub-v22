@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { X, ShoppingBag, Trash2, ArrowRight, CreditCard } from 'lucide-react';
+import { X, ShoppingBag, Trash2, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -44,7 +43,6 @@ export const CartDrawer: React.FC = () => {
             <div className="text-center py-12 text-gray-500">
               <ShoppingBag className="w-12 h-12 mx-auto mb-4 opacity-20" />
               <p className="uppercase tracking-wider text-sm font-bold">{t('cart.empty')}</p>
-              <p className="text-xs mt-2">{t('cart.empty.desc')}</p>
             </div>
           ) : (
             cart.map((item) => (
@@ -87,7 +85,7 @@ export const CartDrawer: React.FC = () => {
           </button>
           
           <p className="text-center text-[10px] text-gray-500 uppercase tracking-wider">
-            {t('cart.secured')}
+            SECURED PAYMENT HUB
           </p>
         </div>
       </div>

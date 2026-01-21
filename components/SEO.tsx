@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { useLanguage } from '../context/LanguageContext.tsx';
+import { useLanguage } from '../context/LanguageContext';
 import { useLocation } from 'react-router-dom';
 
 interface SEOProps {
@@ -55,35 +55,59 @@ export const SEO: React.FC<SEOProps> = ({
     const existingScript = document.getElementById('json-ld-schema');
     if (existingScript) existingScript.remove();
 
+    const pathSegments = location.pathname.split('/').filter(Boolean);
+    const breadcrumbs = pathSegments.map((segment, index) => ({
+      "@type": "ListItem",
+      "position": index + 2,
+      "name": segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' '),
+      "item": `https://www.mat32.com/${pathSegments.slice(0, index + 1).join('/')}`
+    }));
+
     const jsonLd = {
       "@context": "https://schema.org",
-      "@type": ["BarOrPub", "MusicStore", "LocalBusiness"],
-      "name": "Mat32 Valencia Discos Bar",
-      "description": "El mejor sonido Hi-Fi de Valencia. Alquiler de local para eventos privados en Ruzafa.",
-      "url": "https://www.mat32.com",
-      "image": image,
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Calle Matías Perelló, 32",
-        "addressLocality": "Valencia",
-        "postalCode": "46005",
-        "addressCountry": "ES"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": 39.461159,
-        "longitude": -0.370535
-      },
-      "openingHoursSpecification": [
+      "@graph": [
         {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Thursday", "Friday", "Saturday"],
-          "opens": "18:00",
-          "closes": "02:00"
+          "@type": ["BarOrPub", "MusicStore", "LocalBusiness"],
+          "name": "Mat32 Valencia Discos Bar",
+          "description": "El mejor sonido Hi-Fi de Valencia. Alquiler de local para eventos privados en Ruzafa.",
+          "url": "https://www.mat32.com",
+          "image": image,
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Calle Matías Perelló, 32",
+            "addressLocality": "Valencia",
+            "postalCode": "46005",
+            "addressCountry": "ES"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 39.461159,
+            "longitude": -0.370535
+          },
+          "openingHoursSpecification": [
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Thursday", "Friday", "Saturday"],
+              "opens": "18:00",
+              "closes": "02:00"
+            }
+          ],
+          "priceRange": "$$",
+          "telephone": "+34960000032"
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://www.mat32.com"
+            },
+            ...breadcrumbs
+          ]
         }
-      ],
-      "priceRange": "$$",
-      "telephone": "+34960000032"
+      ]
     };
 
     const script = document.createElement('script');
