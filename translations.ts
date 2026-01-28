@@ -7,7 +7,7 @@ export const translations = {
     "nav.community": "Community",
     "nav.open_decks": "Open Decks",
     "nav.contact": "Contact",
-    "nav.private_events": "Venue Hire",
+    "nav.private_events": "Collabs",
     "nav.reserve_table": "RESERVE",
     "home.now_spinning": "NOW SPINNING",
     "home.cta.agenda": "VIEW AGENDA",
@@ -17,7 +17,7 @@ export const translations = {
     "bar.hero.desc": "Curated spirits and signature cocktails designed to complement our high-fidelity atmosphere in the heart of Ruzafa.",
     "bar.aperitivo.title": "APERITIVO PROTOCOL",
     "bar.aperitivo.desc": "Disc sessions and specialty drinks. The perfect transition into the night with the best analog sound.",
-    "private.hero.desc": "Hire the sanctuary for your private event. High Fidelity sound, craft cocktails, and an exclusive atmosphere in Ruzafa.",
+    "private.hero.desc": "Collaborate with our sanctuary. Workshops, live sessions, and community events in Ruzafa.",
     "cart.title": "YOUR CRATE",
     "cart.empty": "YOUR CRATE IS EMPTY",
     "cart.subtotal": "SUBTOTAL",
@@ -25,8 +25,8 @@ export const translations = {
     "checkout.success": "ORDER COMPLETED",
     "chat.welcome": "Welcome to Mat32. I am the manager. How can I help you today?",
     "opendecks.desc": "The booth is yours. Submit your mix and join our monthly rotation of emerging selectors.",
-    "seo.private.title": "Event Venue Valencia | Venue Hire Ruzafa | Mat32",
-    "seo.private.description": "Looking for a venue in Valencia? Hire Mat32 in Ruzafa for private events, shoots, and corporate sessions. High-fidelity sound and premium cocktails."
+    "seo.private.title": "Collabs & Creative Space Valencia | Mat32",
+    "seo.private.description": "Propose your event at Mat32 Valencia. Workshops, acoustic sessions, and art exhibitions in a high-fidelity environment."
   },
   es: {
     "nav.home": "Inicio",
@@ -46,7 +46,7 @@ export const translations = {
     "bar.hero.desc": "Destilados curados y coctelería de autor en el corazón de Ruzafa.",
     "bar.aperitivo.title": "PROTOCOLO APERITIVO",
     "bar.aperitivo.desc": "Sesiones con discos y bebidas especiales. El mejor sonido analógico.",
-    "private.hero.desc": "Alquila nuestro santuario para tu evento privado en Ruzafa.",
+    "private.hero.desc": "Propón tu colaboración creativa. Talleres, acústicos y exposiciones en Ruzafa.",
     "cart.title": "TU CAJA",
     "cart.empty": "TU CAJA ESTÁ VACÍA",
     "cart.subtotal": "SUBTOTAL",
@@ -54,7 +54,7 @@ export const translations = {
     "checkout.success": "PEDIDO COMPLETADO",
     "chat.welcome": "Bienvenido a Mat32. Soy el Manager. ¿En qué puedo ayudarte hoy?",
     "opendecks.desc": "La cabina es tuya. Envía tu sesión y únete a nuestra rotación de selectores.",
-    "seo.private.title": "Sala de Eventos Valencia | Alquiler Espacio Ruzafa | Mat32",
-    "seo.private.description": "¿Buscas una sala de eventos en Valencia? Alquila Mat32 en Ruzafa para eventos privados, rodajes y sesiones corporativas. Sonido Hi-Fi y coctelería premium."
+    "seo.private.title": "Colaboraciones & Espacio Creativo Valencia | Mat32",
+    "seo.private.description": "Propón tu evento en Mat32 Valencia. Talleres, acústicos y exposiciones de arte en un entorno High Fidelity."
   }
 };

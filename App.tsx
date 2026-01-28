@@ -44,11 +44,11 @@ const Navigation = () => {
     { name: t('nav.home'), path: '/' },
     { name: t('nav.bar'), path: '/bar' },
     { name: t('nav.events'), path: '/events' },
-    { name: "TIENDA", path: '/records' },
-    { name: "COMUNIDAD", path: '/community' },
-    { name: 'OPEN DECKS', path: '/open-decks' },
-    { name: 'ALQUILER', path: '/alquiler-local-eventos-valencia' },
-    { name: 'CONTACTO', path: '/contact' },
+    { name: t('nav.records'), path: '/records' },
+    { name: t('nav.community'), path: '/community' },
+    { name: t('nav.open_decks'), path: '/open-decks' },
+    { name: t('nav.private_events'), path: '/alquiler-local-eventos-valencia' },
+    { name: t('nav.contact'), path: '/contact' },
   ];
 
   const isActive = (path: string) => {

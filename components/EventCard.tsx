@@ -60,13 +60,13 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
       onClick={() => navigate(`/events/${event.id}`)}
       className={`bg-mat-900/40 backdrop-blur-sm border-2 transition-all duration-700 flex flex-col md:flex-row overflow-hidden group rounded-[2.5rem] relative cursor-pointer ${
         isAttending 
-          ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.25)] scale-[1.01]' 
+          ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.3)] scale-[1.01]' 
           : 'border-mat-800 hover:border-mat-500/50'
       }`}
     >
       {isAttending && (
         <div className="absolute top-0 right-0 p-6 z-20 animate-fade-in">
-          <div className="bg-emerald-500 text-white p-2 rounded-full shadow-2xl border-2 border-mat-900">
+          <div className="bg-emerald-500 text-white p-2.5 rounded-full shadow-2xl border-2 border-mat-900">
             <CheckCircle2 size={24} className="animate-pulse" />
           </div>
         </div>
