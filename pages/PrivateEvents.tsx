@@ -65,7 +65,7 @@ export const PrivateEvents: React.FC = () => {
           <div className="inline-flex items-center gap-3 px-6 py-2 bg-mat-900 border border-mat-500 text-mat-500 text-[10px] font-black uppercase tracking-[0.5em] rounded-full mb-8 shadow-2xl animate-fade-in">
             <Zap className="w-4 h-4" /> COLLABORATION_PROTOCOL
           </div>
-          <h1 className="text-5xl md:text-[8rem] font-black uppercase tracking-tighter text-white font-exo leading-none mb-8 animate-fade-in text-balance">ESPACIO<span className="text-mat-500">POLIVALENTE.</span></h1>
+          <h1 className="text-5xl md:text-[8rem] font-black uppercase tracking-tighter text-white font-exo leading-none mb-8 animate-fade-in text-balance">ESPACIO <span className="text-mat-500"> POLIVALENTE.</span></h1>
           <p className="text-gray-400 max-w-4xl mx-auto text-xl md:text-2xl font-light italic leading-relaxed mb-14 px-4">
             "Talleres, acústicos, exposiciones o DJ sets. Mat32 es un espacio vivo donde cualquier señal creativa es bienvenida bajo nuestro protocolo de colaboración."
           </p>
