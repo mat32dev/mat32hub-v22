@@ -5,7 +5,7 @@ import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from 
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUqaYPiWSjt37UxQnpL6ZgSb5Rsr-oA-mdNPFxdtkYtHXI0U9DL6eh-cwbfVbvBAhFXw/exec";
 
 class DataService {
-  private localKey = 'mat32_matrix_core_v32';
+  private localKey = 'mat32_core_v40'; // Nueva versión para asegurar consistencia
   private sessionKey = 'mat32_auth_session';
   
   constructor() {
@@ -42,12 +42,13 @@ class DataService {
   // --- AUTH ---
   async login(email: string, pass: string): Promise<boolean> {
     let session: UserSession | null = null;
+    // Password checking (mocking a real system)
     if (pass === 'mat32_admin') {
-      session = { id: 'admin_1', role: 'ADMIN', name: 'Mat32 Manager', email: 'admin@mat32.com' };
+      session = { id: 'admin_1', role: 'ADMIN', name: 'Mat32 Manager', email: email || 'admin@mat32.com' };
     } else if (pass === 'mat32_dj') {
-      session = { id: 'dj_selector_1', role: 'DJ', name: 'Selector Residente', email: 'dj@mat32.com' };
+      session = { id: 'dj_selector_1', role: 'DJ', name: 'Selector Residente', email: email || 'dj@mat32.com' };
     } else if (pass === 'mat32_user') {
-      session = { id: 'user_99', role: 'CUSTOMER', name: 'Digger Member', email: 'user@mat32.com' };
+      session = { id: 'user_99', role: 'CUSTOMER', name: 'Digger Member', email: email || 'user@mat32.com' };
     }
 
     if (session) {
@@ -69,9 +70,9 @@ class DataService {
     return s ? JSON.parse(s) : null;
   }
 
-  isAuthenticated() { return !!localStorage.getItem(this.sessionKey); }
+  isAuthenticated() { return !!this.getSession(); }
 
-  // --- CRUD EVENTS ---
+  // --- EVENTS CRUD ---
   async getEvents(): Promise<Event[]> { return this.getDB().events || []; }
   async getEventById(id: string) { return (await this.getEvents()).find(e => e.id === id); }
   
@@ -107,7 +108,7 @@ class DataService {
     this.saveDB(db);
   }
 
-  // --- CRUD RECORDS ---
+  // --- RECORDS CRUD ---
   async getRecords(): Promise<VinylRecord[]> { return this.getDB().records || []; }
   async getRecordById(id: string) { return (await this.getRecords()).find(r => r.id === id); }
 
@@ -141,7 +142,7 @@ class DataService {
     this.saveDB(db);
   }
 
-  // --- SELECTORS / DJ MANAGEMENT ---
+  // --- DJ SUBMISSIONS (SELECTORS) ---
   async getSelectors(): Promise<SelectorSubmission[]> { return this.getDB().selectors || []; }
   
   async createSelector(s: Partial<SelectorSubmission>) {
@@ -152,7 +153,7 @@ class DataService {
     this.saveDB(db);
   }
 
-  async updateSelectorStatus(id: string, status: 'pending' | 'approved' | 'rejected') {
+  async updateSelectorStatus(id: string, status: 'approved' | 'rejected' | 'pending') {
     const db = this.getDB();
     const idx = db.selectors.findIndex((s: any) => s.id === id);
     if (idx > -1) {
@@ -179,10 +180,7 @@ class DataService {
     this.saveDB(db);
   }
 
-  // --- RSVP PROTOCOL ---
-  /**
-   * Obtiene la lista de eventos a los que el usuario actual está apuntado.
-   */
+  // --- RSVP ---
   async getUserRSVPs(): Promise<string[]> {
     const userName = localStorage.getItem('mat32_user_name');
     if (!userName) return [];
@@ -193,22 +191,15 @@ class DataService {
     );
   }
 
-  /**
-   * Obtiene la lista de asistentes para un evento específico.
-   */
   async getEventGuestList(eventId: string): Promise<{name: string}[]> {
     const db = this.getDB();
     return (db.rsvps && db.rsvps[eventId]) || [];
   }
 
-  /**
-   * Cambia el estado de RSVP para un usuario en un evento.
-   */
   async toggleRSVP(eventId: string, userName: string, active: boolean) {
     const db = this.getDB();
     if (!db.rsvps) db.rsvps = {};
     if (!db.rsvps[eventId]) db.rsvps[eventId] = [];
-    
     if (active) {
       if (!db.rsvps[eventId].some((g: any) => g.name === userName)) {
         db.rsvps[eventId].push({ name: userName });
@@ -221,44 +212,25 @@ class DataService {
 
   // --- OTHERS ---
   async getPosts(): Promise<Post[]> { return this.getDB().posts || []; }
-  
-  /**
-   * Alias para obtener posts de la comunidad (usado en Home.tsx)
-   */
   async getCommunityPosts(): Promise<Post[]> { return this.getPosts(); }
-
-  /**
-   * Obtiene un post específico por su ID.
-   */
-  async getPostById(id: string): Promise<Post | undefined> {
-    return (await this.getPosts()).find(p => p.id === id);
-  }
-
+  async getPostById(id: string) { return (await this.getPosts()).find(p => p.id === id); }
   async getGallery(): Promise<GalleryItem[]> { return this.getDB().gallery || []; }
-
-  /**
-   * Alias para la galería local (usado en Gallery.tsx)
-   */
   async getLocalGallery(): Promise<GalleryItem[]> { return this.getGallery(); }
-
-  /**
-   * Obtiene las categorías y tags de la galería para filtrado.
-   */
-  async getGalleryTaxonomy() {
-    const gallery = await this.getGallery();
-    return {
-      categories: Array.from(new Set(gallery.map(i => i.category))),
-      tags: Array.from(new Set(gallery.flatMap(i => i.tags || [])))
-    };
-  }
-
   async getBarMenu(): Promise<MenuCategory[]> { return BAR_MENU; }
-
+  
   async getTaxonomyTree() {
     const records = await this.getRecords();
     return {
       categories: Array.from(new Set(records.map(r => r.genre))),
       tags: Array.from(new Set(records.flatMap(r => r.tags || [])))
+    };
+  }
+
+  async getGalleryTaxonomy() {
+    const gallery = await this.getGallery();
+    return {
+      categories: Array.from(new Set(gallery.map(i => i.category))),
+      tags: Array.from(new Set(gallery.flatMap(i => i.tags || [])))
     };
   }
 
@@ -286,31 +258,23 @@ class DataService {
     return count;
   }
 
-  /**
-   * Sincroniza la colección de Discogs de un usuario.
-   */
   async syncDiscogsCollection(username: string): Promise<number> {
-    // Simulación de sincronización con API de Discogs
     await new Promise(resolve => setTimeout(resolve, 2000));
     const db = this.getDB();
-    const count = 3; // Simulación de 3 discos encontrados
-    for (let i = 0; i < count; i++) {
-      db.records.unshift({
-        id: `r_discogs_${username}_${Date.now()}_${i}`,
-        artist: 'Discogs Sync Artist',
-        title: `Track Verificado ${i + 1}`,
-        price: 35 + i * 5,
-        genre: 'Electronic',
-        stock: 1,
-        coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
-        status: 'published',
-        tags: ['discogs'],
-        sellerId: username,
-        sku: `DISCOGS-${i}-${Date.now()}`
-      } as any);
-    }
+    db.records.unshift({
+      id: `r_discogs_${Date.now()}`,
+      artist: 'Discogs User',
+      title: `${username} Collection Item`,
+      price: 35,
+      genre: 'Electronic',
+      stock: 1,
+      coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
+      status: 'published',
+      tags: ['discogs'],
+      sellerId: username
+    } as any);
     this.saveDB(db);
-    return count;
+    return 1;
   }
 }
 
