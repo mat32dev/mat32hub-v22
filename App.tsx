@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Menu, X, Disc, ShoppingBag, Globe, ArrowRight, Heart, User, Settings } from 'lucide-react';
+import { Menu, X, Disc, ShoppingBag, Globe, ArrowRight, Heart } from 'lucide-react';
 
 import { CartProvider, useCart } from './context/CartContext';
 import { WishlistProvider, useWishlist } from './context/WishlistContext';
@@ -26,7 +25,6 @@ import { Gallery } from './pages/Gallery';
 import { EventDetail } from './pages/EventDetail';
 import { RecordDetail } from './pages/RecordDetail';
 import { PostDetail } from './pages/PostDetail';
-import { dataService } from './services/dataService';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -34,18 +32,11 @@ const Navigation = () => {
   const { wishlistCount } = useWishlist();
   const { t, language, toggleLanguage } = useLanguage();
   const location = useLocation();
-  const [userSession, setUserSession] = React.useState(dataService.getSession());
 
   React.useEffect(() => {
     setIsOpen(false);
     window.scrollTo(0, 0);
   }, [location.pathname]);
-
-  React.useEffect(() => {
-    const sync = () => setUserSession(dataService.getSession());
-    window.addEventListener('mat32_data_changed', sync);
-    return () => window.removeEventListener('mat32_data_changed', sync);
-  }, []);
 
   const navLinks = [
     { name: t('nav.home'), path: '/' },
@@ -76,12 +67,12 @@ const Navigation = () => {
             </div>
           </Link>
 
-          <nav className="hidden xl:flex items-center gap-x-6">
+          <nav className="hidden xl:flex items-center gap-x-8">
             {navLinks.map(l => (
               <Link 
                 key={l.path} 
                 to={l.path} 
-                className={`text-[9px] font-black uppercase tracking-[0.2em] transition-all relative py-2 ${isActive(l.path) ? 'text-mat-500' : 'text-gray-400 hover:text-white'}`}
+                className={`text-[9px] font-black uppercase tracking-[0.3em] transition-all relative py-2 ${isActive(l.path) ? 'text-mat-500' : 'text-gray-400 hover:text-white'}`}
               >
                 {l.name}
                 {isActive(l.path) && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-mat-500"></span>}
@@ -90,6 +81,9 @@ const Navigation = () => {
           </nav>
 
           <div className="flex items-center gap-4">
+            <button onClick={toggleLanguage} className="hidden sm:flex items-center gap-2 text-[9px] font-black text-gray-400 hover:text-white uppercase px-4 py-2 bg-mat-800 rounded-2xl border border-mat-700">
+              <Globe size={14} /> {language === 'es' ? 'EN' : 'ES'}
+            </button>
             <Link to="/wishlist" className="relative p-3 text-gray-400 hover:text-mat-500 transition-all bg-mat-800 rounded-2xl border border-mat-700">
               <Heart size={20} className={wishlistCount > 0 ? 'fill-mat-500 text-mat-500' : ''} />
               {wishlistCount > 0 && <span className="absolute -top-1 -right-1 bg-mat-500 text-white text-[8px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-mat-900">{wishlistCount}</span>}
@@ -98,16 +92,6 @@ const Navigation = () => {
               <ShoppingBag size={20} />
               {cartCount > 0 && <span className="absolute -top-1 -right-1 bg-mat-500 text-white text-[8px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-mat-900 animate-bounce">{cartCount}</span>}
             </button>
-            
-            <Link to="/admin" className="p-3 text-gray-400 hover:text-white bg-mat-800 rounded-2xl border border-mat-700 transition-all">
-              {userSession ? (
-                <div className="flex items-center gap-2">
-                   <Settings size={20} className="text-mat-500 animate-spin-slow" />
-                   <span className="hidden lg:block text-[8px] font-black uppercase tracking-widest">{userSession.role}</span>
-                </div>
-              ) : <User size={20} />}
-            </Link>
-
             <button onClick={() => setIsOpen(!isOpen)} className="xl:hidden p-3 text-white bg-mat-800 rounded-2xl border border-mat-700">
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -179,11 +163,7 @@ const App: React.FC = () => {
                     <span className="opacity-20">•</span>
                     <Link to="/legal/privacidad" className="hover:text-mat-500">PRIVACIDAD</Link>
                     <span className="opacity-20">•</span>
-                    <Link to="/alquiler-local-eventos-valencia" className="hover:text-mat-500">ALQUILER LOCAL</Link>
-                    <span className="opacity-20">•</span>
-                    <Link to="/contact" className="hover:text-mat-500">CONTACTO</Link>
-                    <span className="opacity-20">•</span>
-                    <Link to="/admin" className="hover:text-mat-500">MATRIX_PORTAL</Link>
+                    <Link to="/admin" className="hover:text-mat-500">MATRIX_ACCESS</Link>
                   </div>
                   <p className="text-[7px] text-gray-800 font-black uppercase tracking-[0.8em] opacity-30">© 2025 RARERTRAXX BEAT S.L. VALENCIA_SPAIN</p>
                 </div>

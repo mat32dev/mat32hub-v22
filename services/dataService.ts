@@ -1,12 +1,10 @@
-
-import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem, Sale, MenuItem, MenuCategory, UserSession, UserRole } from '../types';
+import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem, Sale, MenuItem, MenuCategory } from '../types';
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUqaYPiWSjt37UxQnpL6ZgSb5Rsr-oA-mdNPFxdtkYtHXI0U9DL6eh-cwbfVbvBAhFXw/exec";
 
 class DataService {
-  private localKey = 'mat32_matrix_core_v31';
-  private sessionKey = 'mat32_auth_session';
+  private localKey = 'mat32_matrix_core_v30';
   
   constructor() {
     this.initDefaultData();
@@ -39,42 +37,7 @@ class DataService {
     window.dispatchEvent(new CustomEvent('mat32_data_changed'));
   }
 
-  // --- AUTH & ROLES ---
-  async login(email: string, pass: string): Promise<boolean> {
-    let session: UserSession | null = null;
-
-    // Mock logic for demo purposes
-    if (pass === 'mat32_admin') {
-      session = { id: 'admin_1', role: 'ADMIN', name: 'Mat32 Manager', email: 'admin@mat32.com' };
-    } else if (pass === 'mat32_dj') {
-      session = { id: 'dj_selector_1', role: 'DJ', name: 'Selector Residente', email: 'dj@mat32.com' };
-    } else if (pass === 'mat32_user') {
-      session = { id: 'user_99', role: 'CUSTOMER', name: 'Digger Member', email: 'user@mat32.com' };
-    }
-
-    if (session) {
-      localStorage.setItem(this.sessionKey, JSON.stringify(session));
-      localStorage.setItem('mat32_user_name', session.name);
-      window.dispatchEvent(new CustomEvent('mat32_data_changed'));
-      return true;
-    }
-    return false;
-  }
-
-  logout() {
-    localStorage.removeItem(this.sessionKey);
-    window.dispatchEvent(new CustomEvent('mat32_data_changed'));
-  }
-
-  getSession(): UserSession | null {
-    const s = localStorage.getItem(this.sessionKey);
-    return s ? JSON.parse(s) : null;
-  }
-
-  isAuthenticated() { return !!localStorage.getItem(this.sessionKey); }
-  getUserRole(): UserRole | null { return this.getSession()?.role || null; }
-
-  // --- GETTERS ---
+  // GETTERS
   async getEvents(): Promise<Event[]> { return this.getDB().events || []; }
   async getRecords(): Promise<VinylRecord[]> { return this.getDB().records || []; }
   async getPosts(): Promise<Post[]> { return this.getDB().posts || []; }
@@ -89,7 +52,22 @@ class DataService {
   async getInbox(): Promise<InboxMessage[]> { return this.getDB().inbox || []; }
   async getSales(): Promise<Sale[]> { return this.getDB().sales || []; }
 
-  // --- CRUD (Admin Only Logic usually checked in UI) ---
+  // TAXONOMY
+  async getTaxonomyTree() {
+    const records = await this.getRecords();
+    const categories = Array.from(new Set(records.map(r => r.genre))).filter(Boolean);
+    const tags = Array.from(new Set(records.flatMap(r => r.tags || []))).filter(Boolean);
+    return { categories, tags };
+  }
+
+  async getGalleryTaxonomy() {
+    const gallery = await this.getGallery();
+    const categories = Array.from(new Set(gallery.map(g => g.category))).filter(Boolean);
+    const tags = Array.from(new Set(gallery.flatMap(g => g.tags || []))).filter(Boolean);
+    return { categories, tags };
+  }
+
+  // CRUD EVENTOS
   async createEvent(event: Partial<Event>) {
     const db = this.getDB();
     const newEvent = {
@@ -122,7 +100,7 @@ class DataService {
     this.saveDB(db);
   }
 
-  // --- CRM & INBOX ---
+  // CRM & INBOX
   async createInboxMessage(m: Partial<InboxMessage>) { 
     const db = this.getDB(); 
     const entry = { 
@@ -167,6 +145,38 @@ class DataService {
     this.saveDB(db);
   }
 
+  async updateSaleStatus(id: string, status: Sale['status']) {
+    const db = this.getDB();
+    const idx = db.sales.findIndex((s: any) => s.id === id);
+    if (idx > -1) db.sales[idx].status = status;
+    this.saveDB(db);
+  }
+
+  // IMPORTACIÓN MASIVA (MATRIX PROTOCOL)
+  async batchImportRecords(csvInput: string) {
+    const db = this.getDB();
+    const rows = csvInput.split('\n').filter(r => r.trim() !== '');
+    rows.forEach(row => {
+      const parts = row.split(',').map(s => s.trim());
+      if (parts.length >= 4) {
+        db.records.unshift({ 
+          id: `imp_${Math.random().toString(36).substr(2, 5)}`, 
+          artist: parts[0], title: parts[1], 
+          price: parseFloat(parts[2]), genre: parts[3], status: 'published',
+          stock: 1, coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
+          sku: `SKU_${Date.now()}`, slug: parts[1].toLowerCase().replace(/\s+/g, '-'),
+          tags: [parts[3].toLowerCase()]
+        } as any);
+      }
+    });
+    this.saveDB(db);
+    return rows.length;
+  }
+
+  async processMatrixImport(csvData: string) {
+    return this.batchImportRecords(csvData);
+  }
+
   async syncDiscogsCollection(username: string) {
     await new Promise(r => setTimeout(r, 1500));
     return 1;
@@ -178,7 +188,7 @@ class DataService {
     this.saveDB(db);
   }
 
-  // --- RSVP SYSTEM ---
+  // RSVP SYSTEM
   async toggleRSVP(eventId: string, userName: string, active: boolean) {
     const db = this.getDB();
     if (!db.rsvps) db.rsvps = {};
@@ -206,51 +216,17 @@ class DataService {
     }
     return res;
   }
-  
-  async getTaxonomyTree() {
-    const records = await this.getRecords();
-    return {
-      categories: Array.from(new Set(records.map(r => r.genre))),
-      tags: Array.from(new Set(records.flatMap(r => r.tags || [])))
-    };
-  }
 
-  async getGalleryTaxonomy() {
-    const gallery = await this.getGallery();
-    return {
-      categories: Array.from(new Set(gallery.map(g => g.category))),
-      tags: Array.from(new Set(gallery.flatMap(g => g.tags || [])))
-    };
-  }
-
-  // Fix: Implemented batchImportRecords to process CSV formatted string input
-  async batchImportRecords(csv: string): Promise<number> {
-    const lines = csv.split('\n').filter(l => l.trim().length > 0);
-    const db = this.getDB();
-    let count = 0;
-    const startIdx = (lines[0] && lines[0].toLowerCase().includes('artista')) ? 1 : 0;
-    for (let i = startIdx; i < lines.length; i++) {
-      const parts = lines[i].split(',').map(p => p.trim());
-      if (parts.length >= 2) {
-        db.records.unshift({
-          id: `r_batch_${Date.now()}_${count}`,
-          artist: parts[0] || 'Unknown Artist',
-          title: parts[1] || 'Unknown Title',
-          price: parseFloat(parts[2]) || 25,
-          genre: parts[3] || 'General',
-          condition: 'NM',
-          stock: 1,
-          coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
-          status: 'published',
-          tags: ['batch-import'],
-          sellerId: this.getSession()?.id || 'mat32_admin'
-        });
-        count++;
-      }
+  // AUTH
+  isAuthenticated() { return !!localStorage.getItem('mat32_admin_token'); }
+  async login(e: string, p: string) {
+    if (p === 'mat32_secure_access') { 
+      localStorage.setItem('mat32_admin_token', 'true'); 
+      return true; 
     }
-    this.saveDB(db);
-    return count;
+    return false;
   }
+  logout() { localStorage.removeItem('mat32_admin_token'); }
 }
 
 export const dataService = new DataService();
