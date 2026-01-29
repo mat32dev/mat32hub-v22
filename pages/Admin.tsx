@@ -1,31 +1,31 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Settings, Disc, Database, RefreshCw, FileText, Search, 
   Plus, LogOut, CheckCircle, AlertCircle, Loader2, Table,
-  Calendar, ShoppingBag, Mail, Users, Trash2, Edit3, Eye, X, Save
+  Calendar, ShoppingBag, Mail, Users, Trash2, Edit3, Eye, X, Save, ShieldCheck, UserCheck
 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { Event, VinylRecord, Sale, InboxMessage } from '../types';
 
-type AdminTab = 'dashboard' | 'agenda' | 'crate' | 'sales' | 'inbox' | 'matrix';
+type AdminTab = 'dashboard' | 'agenda' | 'crate' | 'sales' | 'inbox' | 'matrix' | 'door';
 
 export const Admin: React.FC = () => {
   const [isAuth, setIsAuth] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [loading, setLoading] = useState(true);
   
-  // Data States
   const [events, setEvents] = useState<Event[]>([]);
   const [records, setRecords] = useState<VinylRecord[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [inbox, setInbox] = useState<InboxMessage[]>([]);
   
-  // UI States
+  const [selectedDoorEvent, setSelectedDoorEvent] = useState<string | null>(null);
+  const [guestList, setGuestList] = useState<{name: string}[]>([]);
+  
   const [importText, setImportText] = useState('');
   const [status, setStatus] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  // Edit/Create Modal State
   const [editingEvent, setEditingEvent] = useState<Partial<Event> | null>(null);
 
   useEffect(() => {
@@ -39,6 +39,18 @@ export const Admin: React.FC = () => {
     window.addEventListener('mat32_data_changed', loadCRMData);
     return () => window.removeEventListener('mat32_data_changed', loadCRMData);
   }, []);
+
+  useEffect(() => {
+    if (selectedDoorEvent) {
+       const loadGuests = async () => {
+          const list = await dataService.getEventGuestList(selectedDoorEvent);
+          setGuestList(list);
+       };
+       loadGuests();
+       window.addEventListener('mat32_data_changed', loadGuests);
+       return () => window.removeEventListener('mat32_data_changed', loadGuests);
+    }
+  }, [selectedDoorEvent]);
 
   const loadCRMData = async () => {
     setLoading(true);
@@ -104,15 +116,6 @@ export const Admin: React.FC = () => {
     }
   };
 
-  const updateSaleStatus = async (id: string, newStatus: Sale['status']) => {
-    await dataService.updateSaleStatus(id, newStatus);
-    setStatus("ESTADO_PEDIDO_ACTUALIZADO");
-  };
-
-  const archiveMessage = async (id: string) => {
-    await dataService.updateMessageStatus(id, 'archived');
-  };
-
   if (!isAuth) {
     return (
       <div className="min-h-screen bg-mat-950 flex items-center justify-center p-6">
@@ -127,7 +130,6 @@ export const Admin: React.FC = () => {
             </div>
             <button className="w-full py-5 bg-mat-500 text-white font-black uppercase text-[10px] tracking-widest rounded-2xl hover:bg-mat-400 transition-all shadow-xl shadow-mat-500/20">DESBLOQUEAR HUB</button>
           </form>
-          {status && <p className="mt-8 text-[10px] text-red-500 font-black uppercase tracking-widest animate-pulse">{status}</p>}
         </div>
       </div>
     );
@@ -139,14 +141,14 @@ export const Admin: React.FC = () => {
         <div className="flex items-center gap-6">
           <Settings className="text-mat-500 animate-spin-slow" size={24} />
           <h2 className="text-xl font-black uppercase tracking-tighter font-exo">MAT32 <span className="text-mat-500">COMMAND_CENTER</span></h2>
-          <div className="hidden md:flex bg-mat-800 p-1 rounded-xl border border-mat-700">
-             {(['dashboard', 'agenda', 'crate', 'sales', 'inbox', 'matrix'] as AdminTab[]).map(tab => (
+          <div className="hidden xl:flex bg-mat-800 p-1 rounded-xl border border-mat-700 overflow-x-auto">
+             {(['dashboard', 'agenda', 'crate', 'sales', 'inbox', 'matrix', 'door'] as AdminTab[]).map(tab => (
                <button 
                 key={tab} 
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:text-white whitespace-nowrap'}`}
                >
-                 {tab}
+                 {tab === 'door' ? 'DOOR CONTROL' : tab.toUpperCase()}
                </button>
              ))}
           </div>
@@ -160,7 +162,6 @@ export const Admin: React.FC = () => {
         ) : (
           <div className="space-y-12 animate-fade-in">
             
-            {/* TAB: DASHBOARD */}
             {activeTab === 'dashboard' && (
               <div className="grid gap-12">
                  <div className="grid md:grid-cols-4 gap-6">
@@ -176,51 +177,84 @@ export const Admin: React.FC = () => {
                        <h4 className="text-[10px] font-black text-mat-500 uppercase tracking-widest mb-4">MENSAJES_NUEVOS</h4>
                        <p className="text-5xl font-black font-exo">{inbox.filter(m => m.status === 'pending').length}</p>
                     </div>
-                    <div className="bg-mat-900 border border-mat-800 p-8 rounded-[2.5rem] shadow-xl">
-                       <h4 className="text-[10px] font-black text-mat-500 uppercase tracking-widest mb-4">CRM_HEALTH</h4>
-                       <p className="text-5xl font-black font-exo text-emerald-500">100%</p>
-                    </div>
-                 </div>
-
-                 <div className="grid lg:grid-cols-2 gap-12">
-                    <div className="bg-mat-900 border border-mat-800 p-10 rounded-[3rem]">
-                       <h3 className="text-xl font-black uppercase font-exo mb-8 flex items-center gap-3"><Mail className="text-mat-500" /> ÚLTIMOS LEADS</h3>
-                       <div className="space-y-4">
-                          {inbox.slice(0, 5).map(msg => (
-                            <div key={msg.id} className="flex items-center justify-between p-4 bg-mat-800 border border-mat-700 rounded-2xl group hover:border-mat-500 transition-all">
-                               <div className="flex items-center gap-4">
-                                  <div className="w-10 h-10 bg-mat-900 rounded-xl flex items-center justify-center text-mat-500 font-black">{msg.sender[0]}</div>
-                                  <div>
-                                     <p className="text-xs font-black uppercase">{msg.sender}</p>
-                                     <p className="text-[9px] text-gray-500 uppercase tracking-widest">{msg.type} • {new Date(msg.date).toLocaleDateString()}</p>
-                                  </div>
-                               </div>
-                               <button onClick={() => archiveMessage(msg.id)} className="p-2 opacity-0 group-hover:opacity-100 text-gray-500 hover:text-red-500 transition-all"><Trash2 size={14} /></button>
-                            </div>
-                          ))}
-                       </div>
-                    </div>
-                    <div className="bg-mat-900 border border-mat-800 p-10 rounded-[3rem]">
-                       <h3 className="text-xl font-black uppercase font-exo mb-8 flex items-center gap-3"><ShoppingBag className="text-mat-500" /> VENTAS RECIENTES</h3>
-                       <div className="space-y-4">
-                          {sales.slice(0, 5).map(sale => (
-                            <div key={sale.id} className="flex items-center justify-between p-4 bg-mat-800 border border-mat-700 rounded-2xl">
-                               <div>
-                                  <p className="text-xs font-black text-white">PEDIDO #{sale.id.slice(-5).toUpperCase()}</p>
-                                  <p className="text-[9px] text-gray-500 uppercase">{sale.deliveryMethod} • €{sale.total.toFixed(2)}</p>
-                               </div>
-                               <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${sale.status === 'pending' ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/30'}`}>
-                                  {sale.status}
-                               </span>
-                            </div>
-                          ))}
+                    <div className="bg-mat-900 border border-mat-800 p-8 rounded-[2.5rem] shadow-xl" onClick={() => setActiveTab('door')}>
+                       <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-4">LIVE_DOOR_STATUS</h4>
+                       <div className="flex items-center gap-3">
+                          <span className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></span>
+                          <p className="text-2xl font-black font-exo uppercase">PROTOCOL_ACTIVE</p>
                        </div>
                     </div>
                  </div>
               </div>
             )}
 
-            {/* TAB: AGENDA */}
+            {activeTab === 'door' && (
+              <div className="grid lg:grid-cols-12 gap-12">
+                 <div className="lg:col-span-4 space-y-6">
+                    <h3 className="text-xl font-black uppercase font-exo mb-4 flex items-center gap-3"><ShieldCheck className="text-mat-500" /> EVENT_SELECTOR</h3>
+                    <div className="space-y-3">
+                       {events.filter(e => e.price === 0).map(ev => (
+                         <button 
+                          key={ev.id} 
+                          onClick={() => setSelectedDoorEvent(ev.id)}
+                          className={`w-full p-6 rounded-2xl border-2 text-left transition-all flex flex-col gap-1 ${selectedDoorEvent === ev.id ? 'bg-mat-500 border-white text-white' : 'bg-mat-900 border-mat-800 text-gray-400 hover:border-mat-500'}`}
+                         >
+                            <span className="text-xs font-black uppercase">{ev.title}</span>
+                            <span className="text-[9px] font-bold opacity-60 uppercase">{ev.date} @ {ev.time}</span>
+                         </button>
+                       ))}
+                    </div>
+                 </div>
+                 
+                 <div className="lg:col-span-8">
+                    <div className="bg-mat-900 border-2 border-mat-800 rounded-[3.5rem] p-10 md:p-16 shadow-2xl min-h-[60vh] relative overflow-hidden">
+                       <div className="absolute top-0 left-0 w-full h-1.5 bg-emerald-500"></div>
+                       
+                       {selectedDoorEvent ? (
+                         <>
+                           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 border-b border-mat-800 pb-10">
+                              <div>
+                                 <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo mb-2">GUEST_DIRECTORY</h2>
+                                 <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2">
+                                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                                    Sincronización en tiempo real activa
+                                 </p>
+                              </div>
+                              <div className="bg-mat-800 p-4 px-8 rounded-2xl border border-mat-700 text-center">
+                                 <span className="block text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">CONFIRMADOS</span>
+                                 <span className="text-4xl font-black text-white font-exo">{guestList.length}</span>
+                              </div>
+                           </div>
+
+                           <div className="grid md:grid-cols-2 gap-4">
+                              {guestList.length === 0 ? (
+                                <div className="col-span-full py-20 text-center text-gray-700 font-black uppercase text-xs italic">Lista vacía. Esperando señales...</div>
+                              ) : (
+                                guestList.map((guest, i) => (
+                                  <div key={i} className="flex items-center justify-between p-5 bg-mat-800 border border-mat-700 rounded-2xl group hover:border-emerald-500 transition-all">
+                                     <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 bg-mat-900 rounded-xl flex items-center justify-center text-mat-500 font-black text-sm border border-mat-700 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                                           {guest.name[0].toUpperCase()}
+                                        </div>
+                                        <span className="text-xs font-black text-white uppercase tracking-tight">{guest.name}</span>
+                                     </div>
+                                     <UserCheck size={18} className="text-gray-700 group-hover:text-emerald-500 transition-colors" />
+                                  </div>
+                                ))
+                              )}
+                           </div>
+                         </>
+                       ) : (
+                         <div className="flex flex-col items-center justify-center h-full py-40 text-center opacity-30">
+                            <Disc className="w-20 h-20 mb-6 animate-spin-slow" />
+                            <p className="text-lg font-black uppercase tracking-widest">Selecciona un evento para gestionar la puerta</p>
+                         </div>
+                       )}
+                    </div>
+                 </div>
+              </div>
+            )}
+
             {activeTab === 'agenda' && (
               <div className="bg-mat-900 border border-mat-800 p-10 rounded-[3rem]">
                  <div className="flex justify-between items-center mb-10">
@@ -238,8 +272,6 @@ export const Admin: React.FC = () => {
                           <tr className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
                              <th className="pb-6">EVENTO</th>
                              <th className="pb-6">FECHA</th>
-                             <th className="pb-6">AFORO</th>
-                             <th className="pb-6">ESTADO</th>
                              <th className="pb-6 text-right">ACCIONES</th>
                           </tr>
                        </thead>
@@ -253,24 +285,10 @@ export const Admin: React.FC = () => {
                                   </div>
                                </td>
                                <td className="py-6 text-xs text-gray-400">{ev.date} @ {ev.time}</td>
-                               <td className="py-6 text-xs text-gray-400">{ev.attendees}/{ev.capacity}</td>
-                               <td className="py-6">
-                                  <span className="px-2 py-1 bg-mat-800 border border-mat-700 text-[8px] font-black rounded-lg">{ev.status}</span>
-                               </td>
                                <td className="py-6 text-right">
                                   <div className="flex justify-end gap-2">
-                                     <button 
-                                      onClick={() => setEditingEvent(ev)}
-                                      className="p-2 text-gray-600 hover:text-white transition-colors"
-                                     >
-                                      <Edit3 size={16} />
-                                     </button>
-                                     <button 
-                                      onClick={() => handleDeleteEvent(ev.id)}
-                                      className="p-2 text-gray-600 hover:text-red-500 transition-colors"
-                                     >
-                                      <Trash2 size={16} />
-                                     </button>
+                                     <button onClick={() => setEditingEvent(ev)} className="p-2 text-gray-600 hover:text-white transition-colors"><Edit3 size={16} /></button>
+                                     <button onClick={() => handleDeleteEvent(ev.id)} className="p-2 text-gray-600 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                                   </div>
                                </td>
                             </tr>
@@ -280,188 +298,37 @@ export const Admin: React.FC = () => {
                  </div>
               </div>
             )}
-
-            {/* TAB: SALES */}
-            {activeTab === 'sales' && (
-              <div className="bg-mat-900 border border-mat-800 p-10 rounded-[3rem]">
-                 <h3 className="text-2xl font-black uppercase font-exo mb-10 flex items-center gap-4"><ShoppingBag className="text-mat-500" /> LIBRO DE VENTAS</h3>
-                 <div className="space-y-4">
-                    {sales.map(sale => (
-                       <div key={sale.id} className="p-8 bg-mat-800 border border-mat-700 rounded-[2rem] flex flex-col md:flex-row md:items-center justify-between gap-6 group hover:border-mat-500 transition-all">
-                          <div className="space-y-1">
-                             <div className="flex items-center gap-3">
-                                <span className="text-xs font-black uppercase">PEDIDO #{sale.id.slice(-6).toUpperCase()}</span>
-                                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase border ${sale.deliveryMethod === 'pickup' ? 'border-emerald-500/50 text-emerald-500' : 'border-blue-500/50 text-blue-500'}`}>{sale.deliveryMethod}</span>
-                             </div>
-                             <p className="text-[10px] text-gray-500 uppercase">{new Date(sale.timestamp).toLocaleString()}</p>
-                          </div>
-                          
-                          <div className="flex-1 px-10">
-                             <div className="flex flex-wrap gap-2">
-                                {sale.items.map((item, i) => (
-                                  <span key={i} className="text-[8px] bg-mat-950 px-2 py-1 rounded-lg text-gray-400">{item.quantity}x {item.title}</span>
-                                ))}
-                             </div>
-                          </div>
-
-                          <div className="flex items-center gap-8">
-                             <span className="text-xl font-black font-exo">€{sale.total.toFixed(2)}</span>
-                             <select 
-                                value={sale.status} 
-                                onChange={(e) => updateSaleStatus(sale.id, e.target.value as any)}
-                                className="bg-mat-900 border border-mat-700 p-2 text-[10px] font-black uppercase rounded-lg outline-none focus:border-mat-500"
-                             >
-                                <option value="pending">PENDIENTE</option>
-                                <option value="completed">COMPLETADO</option>
-                                <option value="cancelled">CANCELADO</option>
-                             </select>
-                          </div>
-                       </div>
-                    ))}
-                 </div>
-              </div>
-            )}
-
-            {/* TAB: MATRIX (IMPORT) */}
-            {activeTab === 'matrix' && (
-              <div className="bg-mat-900 border border-mat-800 p-10 rounded-[3rem] relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500"></div>
-                <h3 className="text-2xl font-black uppercase font-exo mb-10 flex items-center gap-4"><Table className="text-mat-500" /> MATRIX_HUB IMPORT</h3>
-                <textarea 
-                  value={importText} 
-                  onChange={e => setImportText(e.target.value)}
-                  className="w-full h-64 bg-mat-950 border border-mat-800 p-6 text-mat-500 font-mono text-xs rounded-2xl outline-none focus:border-mat-500 mb-8"
-                  placeholder="ID | TYPE | TITLE | CONTENT | URL..."
-                />
-                <button 
-                  onClick={handleMatrixImport}
-                  disabled={isProcessing}
-                  className="w-full py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-[0.5em] rounded-2xl shadow-xl flex items-center justify-center gap-4"
-                >
-                  {isProcessing ? <Loader2 className="animate-spin" /> : <RefreshCw />} EJECUTAR SINCRONIZACIÓN_MASIVA
-                </button>
-              </div>
-            )}
-
           </div>
         )}
       </main>
 
-      {/* MODAL: EDITAR/CREAR EVENTO */}
       {editingEvent && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl animate-fade-in">
            <div className="w-full max-w-2xl bg-mat-900 border-2 border-mat-800 rounded-[3.5rem] p-12 relative shadow-2xl overflow-y-auto max-h-[90vh] custom-scrollbar">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500"></div>
               <button onClick={() => setEditingEvent(null)} className="absolute top-10 right-10 text-gray-500 hover:text-white"><X size={28} /></button>
-              
-              <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo mb-10">
-                {editingEvent.id ? 'EDITAR_EVENTO' : 'NUEVA_SESIÓN'}
-              </h2>
-
+              <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo mb-10">{editingEvent.id ? 'EDITAR_EVENTO' : 'NUEVA_SESIÓN'}</h2>
               <form onSubmit={handleSaveEvent} className="space-y-8">
                  <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Título del Evento</label>
-                       <input 
-                        required 
-                        value={editingEvent.title} 
-                        onChange={e => setEditingEvent({...editingEvent, title: e.target.value})}
-                        className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" 
-                        placeholder="P.EJ: ANALOG NIGHT" 
-                       />
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Categoría</label>
-                       <input 
-                        required 
-                        value={editingEvent.category} 
-                        onChange={e => setEditingEvent({...editingEvent, category: e.target.value})}
-                        className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" 
-                        placeholder="HI-FI SESSIONS" 
-                       />
-                    </div>
+                    <input required value={editingEvent.title} onChange={e => setEditingEvent({...editingEvent, title: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" placeholder="TÍTULO" />
+                    <input required value={editingEvent.category} onChange={e => setEditingEvent({...editingEvent, category: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" placeholder="CATEGORÍA" />
                  </div>
-
                  <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Fecha (YYYY-MM-DD)</label>
-                       <input 
-                        required 
-                        type="date"
-                        value={editingEvent.date} 
-                        onChange={e => setEditingEvent({...editingEvent, date: e.target.value})}
-                        className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl outline-none focus:border-mat-500" 
-                       />
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Hora (HH:MM)</label>
-                       <input 
-                        required 
-                        type="time"
-                        value={editingEvent.time} 
-                        onChange={e => setEditingEvent({...editingEvent, time: e.target.value})}
-                        className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl outline-none focus:border-mat-500" 
-                       />
-                    </div>
+                    <input required type="date" value={editingEvent.date} onChange={e => setEditingEvent({...editingEvent, date: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl" />
+                    <input required type="time" value={editingEvent.time} onChange={e => setEditingEvent({...editingEvent, time: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl" />
                  </div>
-
                  <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Precio (€)</label>
-                       <input 
-                        required 
-                        type="number"
-                        value={editingEvent.price} 
-                        onChange={e => setEditingEvent({...editingEvent, price: parseFloat(e.target.value)})}
-                        className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" 
-                       />
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Capacidad (PAX)</label>
-                       <input 
-                        required 
-                        type="number"
-                        value={editingEvent.capacity} 
-                        onChange={e => setEditingEvent({...editingEvent, capacity: parseInt(e.target.value)})}
-                        className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" 
-                       />
-                    </div>
+                    <input required type="number" value={editingEvent.price} onChange={e => setEditingEvent({...editingEvent, price: parseFloat(e.target.value)})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl" placeholder="PRECIO" />
+                    <input required type="number" value={editingEvent.capacity} onChange={e => setEditingEvent({...editingEvent, capacity: parseInt(e.target.value)})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl" placeholder="AFORO" />
                  </div>
-
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">URL de Imagen</label>
-                    <input 
-                      required 
-                      value={editingEvent.imageUrl} 
-                      onChange={e => setEditingEvent({...editingEvent, imageUrl: e.target.value})}
-                      className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl outline-none focus:border-mat-500" 
-                      placeholder="https://..." 
-                    />
-                 </div>
-
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Descripción</label>
-                    <textarea 
-                      required 
-                      value={editingEvent.description} 
-                      onChange={e => setEditingEvent({...editingEvent, description: e.target.value})}
-                      className="w-full bg-mat-800 border border-mat-700 p-4 h-32 text-white text-xs italic rounded-xl outline-none focus:border-mat-500 resize-none" 
-                    />
-                 </div>
-
-                 <button 
-                  type="submit" 
-                  disabled={isProcessing}
-                  className="w-full py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-[0.5em] rounded-2xl flex items-center justify-center gap-4 hover:bg-mat-400 transition-all shadow-xl"
-                 >
-                    {isProcessing ? <Loader2 className="animate-spin" /> : <Save size={20} />} GUARDAR EN LA MATRIZ
-                 </button>
+                 <input required value={editingEvent.imageUrl} onChange={e => setEditingEvent({...editingEvent, imageUrl: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl" placeholder="URL IMAGEN" />
+                 <textarea required value={editingEvent.description} onChange={e => setEditingEvent({...editingEvent, description: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 h-32 text-white text-xs italic rounded-xl resize-none" placeholder="DESCRIPCIÓN" />
+                 <button type="submit" className="w-full py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-[0.5em] rounded-2xl flex items-center justify-center gap-4 hover:bg-mat-400 transition-all shadow-xl"><Save size={20} /> GUARDAR EN LA MATRIZ</button>
               </form>
            </div>
         </div>
       )}
 
-      {/* GLOBAL STATUS BAR */}
       {status && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] animate-fade-in">
            <div className="bg-mat-900 border-2 border-mat-500 p-4 px-8 rounded-full shadow-2xl flex items-center gap-4">

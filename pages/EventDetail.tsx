@@ -1,8 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-// Added missing Disc import from lucide-react
-import { Calendar, Clock, MapPin, Users, Ticket, ArrowLeft, Headphones, Share2, Zap, Loader2, CheckCircle2, User, X, Disc } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Ticket, ArrowLeft, Headphones, Share2, Zap, Loader2, CheckCircle2, User, X, Disc, ShieldCheck } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { SEO } from '../components/SEO';
 import { Event } from '../types';
@@ -20,7 +19,6 @@ export const EventDetail: React.FC = () => {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   
-  // RSVP Hook logic
   const { isAttending, guestList, userName, toggleRSVP } = useEventRSVP(id || '');
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [tempName, setTempName] = useState(userName);
@@ -99,7 +97,6 @@ export const EventDetail: React.FC = () => {
         schemaType="MusicEvent"
       />
       
-      {/* Hero Section */}
       <div className="relative h-[70vh] overflow-hidden">
         <CachedImage src={event.imageUrl} alt={event.title} className="w-full h-full opacity-60 grayscale hover:grayscale-0 transition-all duration-1000" />
         <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/20 to-transparent"></div>
@@ -125,7 +122,6 @@ export const EventDetail: React.FC = () => {
 
       <div className="container mx-auto px-6 py-20">
         <div className="grid lg:grid-cols-12 gap-16 md:gap-24">
-           {/* Main Content */}
            <div className="lg:col-span-8 space-y-16">
               <section className="bg-mat-800/50 p-10 md:p-16 border-2 border-mat-700 rounded-[3.5rem] shadow-2xl relative overflow-hidden group">
                  <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500"></div>
@@ -152,7 +148,6 @@ export const EventDetail: React.FC = () => {
                  </div>
               </section>
 
-              {/* Lineup Section */}
               {event.lineup && event.lineup.length > 0 && (
                 <section className="space-y-10">
                    <h3 className="text-3xl font-black text-white uppercase tracking-tighter font-exo border-b-4 border-mat-500 inline-block">THE_SELECTORS</h3>
@@ -172,35 +167,38 @@ export const EventDetail: React.FC = () => {
                 </section>
               )}
 
-              {/* Guest List for Free Events */}
               {isFree && (
-                <section className="bg-mat-950 border-2 border-mat-800 p-10 md:p-16 rounded-[3.5rem] shadow-inner space-y-10">
-                   <div className="flex items-center justify-between">
+                <section className="bg-mat-950 border-2 border-mat-800 p-10 md:p-16 rounded-[3.5rem] shadow-inner space-y-8 relative overflow-hidden">
+                   <div className="absolute top-0 right-0 p-8 opacity-5">
+                      <ShieldCheck size={120} />
+                   </div>
+                   <div className="flex items-center justify-between relative z-10">
                       <h3 className="text-2xl font-black text-white uppercase tracking-tighter font-exo flex items-center gap-4">
-                         <Users className="text-emerald-500" size={28} /> HUB_GUEST_LIST
+                         <ShieldCheck className="text-emerald-500" size={28} /> PRIVACY_GUEST_LIST
                       </h3>
-                      <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{guestList.length} / {event.capacity} CONFIRMADOS</span>
+                      <div className="text-right">
+                         <span className="block text-[10px] font-black text-gray-600 uppercase tracking-widest">ESTADO_AFORO</span>
+                         <span className="text-xl font-black text-white font-exo">{guestList.length} / {event.capacity}</span>
+                      </div>
                    </div>
-                   
-                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {guestList.length === 0 ? (
-                        <div className="col-span-full py-10 text-center text-gray-700 font-black uppercase text-xs italic">La lista está abierta. Sé el primero...</div>
-                      ) : (
-                        guestList.map((name, i) => (
-                          <div key={i} className={`p-4 rounded-2xl border flex items-center gap-3 ${name === userName ? 'bg-emerald-500/10 border-emerald-500' : 'bg-mat-900 border-mat-800'}`}>
-                             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-[10px] ${name === userName ? 'bg-emerald-500 text-white' : 'bg-mat-800 text-mat-500'}`}>
-                                {name[0].toUpperCase()}
-                             </div>
-                             <span className="text-[10px] font-black text-white uppercase truncate">{name}</span>
-                          </div>
-                        ))
-                      )}
+                   <div className="p-8 bg-mat-900/50 border border-mat-800 rounded-3xl relative z-10">
+                      <p className="text-gray-500 italic text-sm leading-relaxed">
+                        "Por protocolo de privacidad de Mat32, el listado de invitados solo es visible para el personal de puerta. Tu estado de confirmación se muestra de forma privada en esta pantalla."
+                      </p>
                    </div>
+                   {isAttending && (
+                     <div className="flex items-center gap-4 p-6 bg-emerald-500/10 border border-emerald-500 rounded-2xl animate-fade-in relative z-10">
+                        <CheckCircle2 className="text-emerald-500" size={24} />
+                        <div>
+                           <p className="text-xs font-black text-white uppercase">ID_CONFIRMADA: {userName.toUpperCase()}</p>
+                           <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">TU SEÑAL ESTÁ ACTIVA EN LA PUERTA</p>
+                        </div>
+                     </div>
+                   )}
                 </section>
               )}
            </div>
 
-           {/* Sidebar Actions */}
            <aside className="lg:col-span-4 space-y-8">
               <div className={`p-10 rounded-[3.5rem] shadow-2xl relative overflow-hidden transition-all duration-700 border-2 ${isAttending ? 'bg-emerald-600 border-emerald-400' : 'bg-mat-800 border-mat-700'}`}>
                  <div className={`absolute top-0 left-0 w-full h-1.5 ${isAttending ? 'bg-white' : 'bg-mat-500'}`}></div>
@@ -210,14 +208,13 @@ export const EventDetail: React.FC = () => {
                       {isAttending ? 'ACCESO_CONFIRMADO' : 'PROTOCOL_ENTRY'}
                     </h3>
                     <p className="text-[10px] font-black uppercase tracking-widest mb-10 opacity-70 text-white">
-                      {isFree ? 'GESTIÓN DE LISTA DE INVITADOS' : 'ADQUISICIÓN DE TICKETS DIGITALES'}
+                      {isFree ? 'GESTIÓN DE LISTA PRIVADA' : 'ADQUISICIÓN DE TICKETS DIGITALES'}
                     </p>
 
                     <div className="flex items-baseline gap-4 mb-10">
                        <span className="text-7xl font-black text-white font-exo leading-none">
                          {isFree ? 'FREE' : `€${event.price}`}
                        </span>
-                       {!isFree && <span className="text-xs font-black text-white/50 uppercase">IVA INC.</span>}
                     </div>
 
                     <button 
@@ -239,16 +236,9 @@ export const EventDetail: React.FC = () => {
                          </>
                        )}
                     </button>
-                    
-                    <p className="mt-8 text-[9px] text-center font-bold uppercase tracking-widest text-white/40 leading-relaxed">
-                       {isFree 
-                         ? "Al apuntarte, tu alias aparecerá en la lista pública del evento." 
-                         : "Tus tickets se inyectan directamente en tu panel tras el pago."}
-                    </p>
                  </div>
               </div>
 
-              {/* Location Mini Map Placeholder */}
               <div className="bg-mat-800 border border-mat-700 p-10 rounded-[3rem] shadow-xl overflow-hidden relative group">
                  <div className="flex items-center gap-4 mb-6">
                     <MapPin className="text-mat-500" size={24} />
@@ -272,7 +262,6 @@ export const EventDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* Name Prompt Modal for Free Events */}
       {showNamePrompt && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl animate-fade-in" onClick={() => setShowNamePrompt(false)}>
            <div className="w-full max-w-sm bg-mat-900 border-2 border-mat-500 rounded-[3.5rem] p-12 relative text-center shadow-[0_0_100px_rgba(234,88,12,0.2)]" onClick={e => e.stopPropagation()}>
@@ -280,7 +269,7 @@ export const EventDetail: React.FC = () => {
                 <User className="w-10 h-10 text-mat-500" />
               </div>
               <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo mb-4">IDENTIDAD_HUB</h2>
-              <p className="text-gray-500 italic text-sm mb-8">Dinos cómo quieres aparecer en la lista de invitados.</p>
+              <p className="text-gray-500 italic text-sm mb-8">Dinos cómo quieres aparecer en el listado de puerta.</p>
               
               <form onSubmit={async (e) => {
                  e.preventDefault();
@@ -300,8 +289,6 @@ export const EventDetail: React.FC = () => {
                     CONFIRMAR_ACCESO
                  </button>
               </form>
-              
-              <button onClick={() => setShowNamePrompt(false)} className="mt-8 text-gray-700 hover:text-white transition-colors text-[9px] font-black uppercase tracking-widest">CANCELAR</button>
            </div>
         </div>
       )}
