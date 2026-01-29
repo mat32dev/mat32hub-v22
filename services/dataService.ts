@@ -2,36 +2,56 @@
 import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem, Sale, MenuItem, MenuCategory, UserSession, UserRole } from '../types';
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUqaYPiWSjt37UxQnpL6ZgSb5Rsr-oA-mdNPFxdtkYtHXI0U9DL6eh-cwbfVbvBAhFXw/exec";
-
 class DataService {
-  private localKey = 'mat32_core_v40'; // Nueva versión para asegurar consistencia
+  private localKey = 'mat32_matrix_production_v1'; // Clave estable definitiva
   private sessionKey = 'mat32_auth_session';
-  
+  private oldKeys = ['mat32_core_v40', 'mat32_matrix_core_v32', 'mat32_matrix_core'];
+
   constructor() {
-    this.initDefaultData();
+    this.initDatabase();
   }
 
-  private initDefaultData() {
-    if (!localStorage.getItem(this.localKey)) {
-      const db = {
-        posts: MOCK_POSTS.map(p => ({ ...p, id: p.id || `p_${Math.random().toString(36).substr(2, 9)}`, comments: [], likes: 12, timestamp: 'Reciente' })),
-        records: MOCK_RECORDS.map(r => ({ ...r, id: r.id || `r_${Math.random().toString(36).substr(2, 9)}`, isOpenToTrade: true, sellerId: 'mat32_archive' })),
-        events: MOCK_EVENTS.map(e => ({ ...e, id: e.id || `e_${Math.random().toString(36).substr(2, 9)}`, status: 'published' })),
-        gallery: [
-          { id: 'g1', title: 'Portal Mat32', description: 'Entrada analógica Ruzafa.', imageUrl: 'https://lrilkrktztlabjpxqbyc.supabase.co/storage/v1/object/public/local-gallery/PORTADA_2_mat32.jpg', tags: ['#hifi'], category: 'Interior' }
-        ],
-        selectors: MOCK_SELECTORS,
-        inbox: [] as InboxMessage[],
-        rsvps: {} as Record<string, {name: string}[]>,
-        sales: [] as Sale[]
-      };
-      this.saveDB(db);
+  private initDatabase() {
+    const existingData = localStorage.getItem(this.localKey);
+    
+    if (!existingData) {
+      // Intentar migrar de versiones antiguas antes de cargar MOCKS
+      let migratedData = null;
+      for (const key of this.oldKeys) {
+        const oldData = localStorage.getItem(key);
+        if (oldData) {
+          console.log(`Sistema Mat32: Migrando datos desde ${key}`);
+          migratedData = JSON.parse(oldData);
+          break;
+        }
+      }
+
+      if (migratedData) {
+        this.saveDB(migratedData);
+      } else {
+        const db = {
+          posts: MOCK_POSTS.map(p => ({ ...p, id: p.id || `p_${Math.random().toString(36).substr(2, 9)}`, comments: [], likes: 12, timestamp: 'Reciente' })),
+          records: MOCK_RECORDS.map(r => ({ ...r, id: r.id || `r_${Math.random().toString(36).substr(2, 9)}`, isOpenToTrade: true, sellerId: 'mat32_archive' })),
+          events: MOCK_EVENTS.map(e => ({ ...e, id: e.id || `e_${Math.random().toString(36).substr(2, 9)}`, status: 'published' })),
+          gallery: [
+            { id: 'g1', title: 'Portal Mat32', description: 'Entrada analógica Ruzafa.', imageUrl: 'https://lrilkrktztlabjpxqbyc.supabase.co/storage/v1/object/public/local-gallery/PORTADA_2_mat32.jpg', tags: ['#hifi'], category: 'Interior' }
+          ],
+          selectors: MOCK_SELECTORS,
+          inbox: [] as InboxMessage[],
+          rsvps: {} as Record<string, {name: string}[]>,
+          sales: [] as Sale[]
+        };
+        this.saveDB(db);
+      }
     }
   }
 
   private getDB() {
-    return JSON.parse(localStorage.getItem(this.localKey) || '{}');
+    try {
+      return JSON.parse(localStorage.getItem(this.localKey) || '{}');
+    } catch (e) {
+      return {};
+    }
   }
 
   private saveDB(data: any) {
@@ -42,12 +62,13 @@ class DataService {
   // --- AUTH ---
   async login(email: string, pass: string): Promise<boolean> {
     let session: UserSession | null = null;
-    // Password checking (mocking a real system)
-    if (pass === 'mat32_admin') {
+    const cleanPass = pass.trim();
+    
+    if (cleanPass === 'mat32_admin') {
       session = { id: 'admin_1', role: 'ADMIN', name: 'Mat32 Manager', email: email || 'admin@mat32.com' };
-    } else if (pass === 'mat32_dj') {
+    } else if (cleanPass === 'mat32_dj') {
       session = { id: 'dj_selector_1', role: 'DJ', name: 'Selector Residente', email: email || 'dj@mat32.com' };
-    } else if (pass === 'mat32_user') {
+    } else if (cleanPass === 'mat32_user') {
       session = { id: 'user_99', role: 'CUSTOMER', name: 'Digger Member', email: email || 'user@mat32.com' };
     }
 
@@ -88,6 +109,7 @@ class DataService {
       vibe: event.vibe || [],
       tags: event.tags || []
     } as Event;
+    if (!db.events) db.events = [];
     db.events.unshift(newEvent);
     this.saveDB(db);
     return newEvent;
@@ -122,6 +144,7 @@ class DataService {
       tags: record.tags || [],
       slug: (record.title || '').toLowerCase().replace(/\s+/g, '-')
     } as VinylRecord;
+    if (!db.records) db.records = [];
     db.records.unshift(newRecord);
     this.saveDB(db);
     return newRecord;
@@ -142,7 +165,7 @@ class DataService {
     this.saveDB(db);
   }
 
-  // --- DJ SUBMISSIONS (SELECTORS) ---
+  // --- DJ SUBMISSIONS ---
   async getSelectors(): Promise<SelectorSubmission[]> { return this.getDB().selectors || []; }
   
   async createSelector(s: Partial<SelectorSubmission>) {
@@ -167,6 +190,7 @@ class DataService {
   async createInboxMessage(m: Partial<InboxMessage>) { 
     const db = this.getDB(); 
     const entry = { id: `msg_${Date.now()}`, date: new Date().toISOString(), status: 'pending', ...m } as InboxMessage;
+    if (!db.inbox) db.inbox = [];
     db.inbox.unshift(entry); 
     this.saveDB(db);
   }
@@ -258,23 +282,61 @@ class DataService {
     return count;
   }
 
+  // --- DISCOGS SYNC ---
+  // Fix: Added missing syncDiscogsCollection method to fulfill calls from Community and Marketplace components.
   async syncDiscogsCollection(username: string): Promise<number> {
+    // Simulate API call to Discogs with a slight delay for better UX
     await new Promise(resolve => setTimeout(resolve, 2000));
     const db = this.getDB();
-    db.records.unshift({
-      id: `r_discogs_${Date.now()}`,
-      artist: 'Discogs User',
-      title: `${username} Collection Item`,
-      price: 35,
-      genre: 'Electronic',
-      stock: 1,
-      coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
-      status: 'published',
-      tags: ['discogs'],
-      sellerId: username
-    } as any);
+    
+    // Mock synced data representing items from a user's collection
+    const syncedRecords: VinylRecord[] = [
+      {
+        id: `r_sync_${Date.now()}_1`,
+        sku: `SYNC-${Math.random().toString(36).substr(2, 5)}`,
+        artist: 'Aphex Twin',
+        title: 'Selected Ambient Works 85-92',
+        price: 35,
+        genre: 'Ambient',
+        stock: 1,
+        coverUrl: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=800',
+        status: 'published',
+        tags: ['discogs', 'verified'],
+        slug: 'aphex-twin-saw-85-92',
+        label: 'Apollo',
+        year: '1992',
+        format: '2xLP',
+        condition: 'NM',
+        description: `Imported from ${username}'s Discogs collection.`,
+        sellerId: username,
+        isOpenToTrade: true
+      },
+      {
+        id: `r_sync_${Date.now()}_2`,
+        sku: `SYNC-${Math.random().toString(36).substr(2, 5)}`,
+        artist: 'Kraftwerk',
+        title: 'The Man-Machine',
+        price: 28,
+        genre: 'Electronic',
+        stock: 1,
+        coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
+        status: 'published',
+        tags: ['discogs', 'classic'],
+        slug: 'kraftwerk-man-machine',
+        label: 'Capitol',
+        year: '1978',
+        format: 'LP',
+        condition: 'VG+',
+        description: `Classic synth-pop from ${username}'s collection.`,
+        sellerId: username,
+        isOpenToTrade: true
+      }
+    ];
+
+    if (!db.records) db.records = [];
+    db.records = [...syncedRecords, ...db.records];
     this.saveDB(db);
-    return 1;
+    return syncedRecords.length;
   }
 }
 
