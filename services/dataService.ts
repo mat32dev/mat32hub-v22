@@ -98,10 +98,8 @@ class DataService {
   }
 
   async syncDiscogsCollection(username: string) {
-    // Simulación de sync real con Discogs
     await new Promise(r => setTimeout(r, 1500));
     const db = this.getDB();
-    // Añadimos un disco de ejemplo para verificar la sync
     const newRecord: VinylRecord = {
       id: `discogs_${Date.now()}`,
       sku: `DS-${username.toUpperCase()}`,
@@ -147,13 +145,18 @@ class DataService {
 
   async createInboxMessage(m: Partial<InboxMessage>) { 
     const db = this.getDB(); 
-    db.inbox.unshift({ 
+    // Aseguramos que el contenido registre el destino hola@mat32.com para el CRM
+    const entry = { 
       id: `msg_${Date.now()}`, 
       date: new Date().toISOString(), 
       status: 'pending',
-      ...m 
-    } as InboxMessage); 
-    this.saveDB(db); 
+      ...m,
+      content: `${m.content} [DESTINO: hola@mat32.com]`
+    } as InboxMessage;
+    
+    db.inbox.unshift(entry); 
+    this.saveDB(db);
+    console.log("SIGNAL_SENT_TO: hola@mat32.com", entry);
   }
 
   async getInbox(): Promise<InboxMessage[]> { return this.getDB().inbox || []; }

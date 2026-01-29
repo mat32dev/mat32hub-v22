@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   CheckCircle, Headphones, ArrowRight, Loader2, 
@@ -147,7 +146,7 @@ export const OpenDecks: React.FC = () => {
       type: 'artist',
       sender: form.artistName,
       email: form.email,
-      content: `Solicitud de Cabina. Estilos: ${form.genres}. Bio: ${form.bio}. Link: ${form.mixUrl}`,
+      content: `Solicitud de Cabina. Estilos: ${form.genres}. Link: ${form.mixUrl}`,
       metadata: form
     });
 
@@ -232,7 +231,7 @@ export const OpenDecks: React.FC = () => {
                          "Sistema de sonido Altec A7 & Klipsch La Scala",
                          "Mezclador rotatorio profesional",
                          "Grabación de sesión disponible",
-                         "Difusión en nuestros canales de Hub"
+                         "Difusión directa a hola@mat32.com"
                        ].map((item, i) => (
                          <li key={i} className="flex items-center gap-4 text-sm font-black uppercase tracking-widest text-gray-500">
                             <CheckCircle size={18} className="text-mat-500" /> {item}
@@ -250,7 +249,7 @@ export const OpenDecks: React.FC = () => {
                       <CheckCircle className="w-10 h-10 text-mat-500" />
                     </div>
                     <h3 className="text-3xl font-black uppercase text-white mb-4 font-exo">Protocolo Recibido</h3>
-                    <p className="text-gray-400 italic mb-10 text-sm leading-relaxed">"Tu señal ha sido inyectada en el Hub. Revisaremos tu propuesta y nos pondremos en contacto contigo pronto."</p>
+                    <p className="text-gray-400 italic mb-10 text-sm leading-relaxed">"Tu señal ha sido inyectada hacia <strong>hola@mat32.com</strong>. Revisaremos tu sesión y contactaremos pronto."</p>
                     <button onClick={() => setIsSubmitted(false)} className="w-full py-5 border-2 border-mat-700 text-gray-500 hover:text-white font-black uppercase text-[11px] tracking-widest rounded-2xl transition-all">NUEVA SOLICITUD</button>
                   </div>
                 ) : (

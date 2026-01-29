@@ -42,7 +42,7 @@ export const PrivateEvents: React.FC = () => {
       type: 'lead',
       sender: formData.name,
       email: formData.email,
-      content: `[PROPUESTA HUB]: ${formData.eventType.toUpperCase()}. Concepto: ${formData.concept}. Destino: hola@mat32.com`,
+      content: `[PROPUESTA HUB]: ${formData.eventType.toUpperCase()}. Concepto: ${formData.concept}.`,
       metadata: formData
     });
     setIsProcessing(false);
@@ -132,7 +132,7 @@ export const PrivateEvents: React.FC = () => {
                 <form onSubmit={handleSubmit} className="space-y-8">
                    <div className="text-center mb-10">
                       <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo leading-none mb-2">INYECTA TU IDEA</h2>
-                      <p className="text-gray-500 text-[9px] font-black uppercase tracking-widest italic">Captura de intenciones para el Hub Central</p>
+                      <p className="text-gray-500 text-[9px] font-black uppercase tracking-widest italic">Envío directo a hola@mat32.com</p>
                    </div>
 
                    <div className="grid md:grid-cols-2 gap-8">

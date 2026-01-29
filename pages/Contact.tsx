@@ -83,7 +83,7 @@ export const Contact: React.FC = () => {
         type: 'booking',
         sender: bookingForm.name,
         email: bookingForm.email,
-        content: `Nueva Reserva: ${bookingForm.guests} PAX el ${bookingForm.date} a las ${bookingForm.time}. Canal: hola@mat32.com`,
+        content: `Nueva Reserva: ${bookingForm.guests} PAX el ${bookingForm.date} a las ${bookingForm.time}.`,
         metadata: bookingForm
       });
       setBookingStatus('success');
@@ -159,7 +159,7 @@ export const Contact: React.FC = () => {
                    <div className="w-14 h-14 bg-mat-900 border border-mat-700 rounded-2xl flex items-center justify-center text-mat-500 shadow-xl"><Calendar size={24} /></div>
                    <div>
                       <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo leading-none">RESERVAR MESA</h2>
-                      <p className="text-gray-500 text-[9px] font-black uppercase tracking-widest mt-1">Directo a hola@mat32.com</p>
+                      <p className="text-gray-500 text-[9px] font-black uppercase tracking-widest mt-1">Envío directo a hola@mat32.com</p>
                    </div>
                 </div>
 
