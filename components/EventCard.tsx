@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Calendar, Clock, Ticket, ListMusic, User, X, Users, Zap, CheckCircle2 } from 'lucide-react';
+import { Calendar, Clock, Ticket, ListMusic, User, X, Users, Zap, CheckCircle2, Pin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Event } from '../types';
 import { useLanguage } from '../context/LanguageContext';
@@ -10,9 +11,10 @@ import { EventBadge, EventLineup, GoogleCalendarButton } from './EventCardParts'
 
 interface EventCardProps {
   event: Event;
+  isPast?: boolean;
 }
 
-export const EventCard: React.FC<EventCardProps> = ({ event }) => {
+export const EventCard: React.FC<EventCardProps> = ({ event, isPast = false }) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { addToCart } = useCart();
@@ -22,15 +24,21 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [tempName, setTempName] = useState(userName);
 
-  const now = new Date();
-  const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-  
-  const isFreeTime = event.freeUntil ? currentTime < event.freeUntil : true;
-  const isCurrentlyFree = (event.price === 0) && isFreeTime;
+  const getDayName = (dateStr: string) => {
+    const days = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
+    const date = new Date(dateStr);
+    return days[date.getDay()];
+  };
+
+  const dayName = getDayName(event.date);
 
   const handleAction = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isPast) return;
+
+    const isCurrentlyFree = event.price === 0;
+
     if (isCurrentlyFree) {
       if (isAttending) {
         await toggleRSVP(false);
@@ -45,7 +53,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
       }
       addToCart({
         id: `ticket-${event.id}`,
-        title: `Consumición Mínima: ${event.title}`,
+        title: `Consumición: ${event.title}`,
         artist: event.category,
         price: event.paidPrice || event.price,
         coverUrl: event.imageUrl,
@@ -59,13 +67,23 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
     <article 
       onClick={() => navigate(`/events/${event.id}`)}
       className={`bg-mat-900/40 backdrop-blur-sm border-2 transition-all duration-700 flex flex-col md:flex-row overflow-hidden group rounded-[2.5rem] relative cursor-pointer ${
+        isPast ? 'opacity-60 grayscale hover:grayscale-0' :
         isAttending 
           ? 'border-emerald-500 shadow-[0_0_50px_rgba(16,185,129,0.3)] scale-[1.01]' 
           : 'border-mat-800 hover:border-mat-500/50'
       }`}
     >
-      {isAttending && (
-        <div className="absolute top-0 right-0 p-6 z-20 animate-fade-in">
+      {/* POST-IT DAY BANNER */}
+      {!isPast && (
+        <div className="absolute top-4 -right-2 z-30 transform rotate-6 animate-fade-in pointer-events-none">
+          <div className="bg-mat-400 text-mat-900 font-black text-[9px] tracking-[0.2em] px-4 py-1.5 shadow-xl flex items-center gap-2 border-b-2 border-mat-950/20">
+            <Pin size={10} className="fill-current" /> {dayName}
+          </div>
+        </div>
+      )}
+
+      {isAttending && !isPast && (
+        <div className="absolute top-0 left-0 p-6 z-20 animate-fade-in">
           <div className="bg-emerald-500 text-white p-2.5 rounded-full shadow-2xl border-2 border-mat-900">
             <CheckCircle2 size={24} className="animate-pulse" />
           </div>
@@ -80,12 +98,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-mat-950/90 via-transparent to-transparent"></div>
         <div className="absolute top-6 left-6 flex flex-col gap-2">
-           <EventBadge label={event.category} animate={isAttending} active={isAttending} />
-           {isCurrentlyFree && (
-             <div className="bg-emerald-500 text-white font-black text-[7px] tracking-widest px-3 py-1 rounded-full border border-white/20 flex items-center gap-1.5 uppercase shadow-xl">
-                <Zap size={10} /> ACCESO LIBRE
-             </div>
-           )}
+           <EventBadge label={event.category} animate={isAttending && !isPast} active={isAttending && !isPast} />
         </div>
       </div>
       
@@ -107,32 +120,41 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
         {event.lineup && event.lineup.length > 0 && <EventLineup lineup={event.lineup} />}
 
         <footer className="mt-auto pt-8 border-t border-mat-800/50 flex flex-wrap gap-4 items-center" onClick={e => e.stopPropagation()}>
-           <button 
-              onClick={handleAction}
-              className={`px-10 py-5 font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 transition-all duration-500 clip-path-slant shadow-2xl ${
-                isAttending
-                  ? 'bg-emerald-600 text-white scale-105 border-b-4 border-emerald-800' 
-                  : isCurrentlyFree 
-                    ? 'bg-mat-500 text-white hover:bg-mat-400'
-                    : 'bg-mat-800 border-2 border-mat-500 text-white hover:bg-mat-700'
-              }`}
-            >
-              {isAttending ? <CheckCircle2 size={16} /> : (isCurrentlyFree ? <ListMusic size={16} /> : <Ticket size={16} />)}
-              {isCurrentlyFree 
-                ? (isAttending ? 'ESTÁS EN LA LISTA' : 'APUNTARSE GRATIS') 
-                : (isAttending ? 'VER MI TICKET' : `RESERVAR €${event.price}`)
-              }
-            </button>
+           {!isPast ? (
+             <button 
+                onClick={handleAction}
+                className={`px-10 py-5 font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 transition-all duration-500 clip-path-slant shadow-2xl ${
+                  isAttending
+                    ? 'bg-emerald-600 text-white scale-105 border-b-4 border-emerald-800' 
+                    : event.price === 0
+                      ? 'bg-mat-500 text-white hover:bg-mat-400'
+                      : 'bg-mat-800 border-2 border-mat-500 text-white hover:bg-mat-700'
+                }`}
+              >
+                {isAttending ? <CheckCircle2 size={16} /> : (event.price === 0 ? <ListMusic size={16} /> : <Ticket size={16} />)}
+                {event.price === 0 
+                  ? (isAttending ? 'ESTÁS EN LA LISTA' : 'APUNTARSE GRATIS') 
+                  : (isAttending ? 'VER MI TICKET' : `RESERVAR €${event.price}`)
+                }
+              </button>
+           ) : (
+             <div className="px-10 py-5 bg-mat-800 text-gray-600 font-black uppercase text-[10px] tracking-widest clip-path-slant border border-mat-700">
+               SESIÓN FINALIZADA
+             </div>
+           )}
             
-            <button 
-              onClick={() => setShowGuestList(true)}
-              className={`p-3 rounded-xl border transition-all flex items-center gap-2 ${isAttending ? 'bg-emerald-500/10 border-emerald-500 text-emerald-500' : 'bg-mat-800 text-gray-500 border-mat-700 hover:text-white'}`}
-            >
-               <Users size={14} /> 
-               <span className="text-[10px] font-black">{event.attendees}/{event.capacity}</span>
-            </button>
-
-            <GoogleCalendarButton event={event} />
+            {!isPast && (
+              <>
+                <button 
+                  onClick={() => setShowGuestList(true)}
+                  className={`p-3 rounded-xl border transition-all flex items-center gap-2 ${isAttending ? 'bg-emerald-500/10 border-emerald-500 text-emerald-500' : 'bg-mat-800 text-gray-500 border-mat-700 hover:text-white'}`}
+                >
+                   <Users size={14} /> 
+                   <span className="text-[10px] font-black">{event.attendees}/{event.capacity}</span>
+                </button>
+                <GoogleCalendarButton event={event} />
+              </>
+            )}
         </footer>
       </div>
 
@@ -157,7 +179,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
 
       {showNamePrompt && (
         <div className="fixed inset-0 z-[210] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl animate-fade-in" onClick={() => setShowNamePrompt(false)}>
-           <div className="w-full max-w-sm bg-mat-900 border-2 border-mat-500 rounded-[3rem] p-12 relative text-center" onClick={e => e.stopPropagation()}>
+           <div className="w-full max-w-sm bg-mat-900 border-2 border-mat-500 rounded-[3rem] p-12 relative text-center shadow-2xl" onClick={e => e.stopPropagation()}>
               <User className="w-12 h-12 text-mat-500 mx-auto mb-6" />
               <h2 className="text-2xl font-black text-white uppercase tracking-tighter font-exo mb-6">Tu Alias en el Hub</h2>
               <form onSubmit={async (e) => {
