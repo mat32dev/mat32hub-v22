@@ -5,7 +5,7 @@ import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from 
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUqaYPiWSjt37UxQnpL6ZgSb5Rsr-oA-mdNPFxdtkYtHXI0U9DL6eh-cwbfVbvBAhFXw/exec";
 
 class DataService {
-  private localKey = 'mat32_matrix_core_v31';
+  private localKey = 'mat32_matrix_core_v32';
   private sessionKey = 'mat32_auth_session';
   
   constructor() {
@@ -23,7 +23,7 @@ class DataService {
         ],
         selectors: MOCK_SELECTORS,
         inbox: [] as InboxMessage[],
-        rsvps: {} as Record<string, string[]>,
+        rsvps: {} as Record<string, {name: string}[]>,
         sales: [] as Sale[]
       };
       this.saveDB(db);
@@ -39,11 +39,9 @@ class DataService {
     window.dispatchEvent(new CustomEvent('mat32_data_changed'));
   }
 
-  // --- AUTH & ROLES ---
+  // --- AUTH ---
   async login(email: string, pass: string): Promise<boolean> {
     let session: UserSession | null = null;
-
-    // Mock logic for demo purposes
     if (pass === 'mat32_admin') {
       session = { id: 'admin_1', role: 'ADMIN', name: 'Mat32 Manager', email: 'admin@mat32.com' };
     } else if (pass === 'mat32_dj') {
@@ -72,24 +70,11 @@ class DataService {
   }
 
   isAuthenticated() { return !!localStorage.getItem(this.sessionKey); }
-  getUserRole(): UserRole | null { return this.getSession()?.role || null; }
 
-  // --- GETTERS ---
+  // --- CRUD EVENTS ---
   async getEvents(): Promise<Event[]> { return this.getDB().events || []; }
-  async getRecords(): Promise<VinylRecord[]> { return this.getDB().records || []; }
-  async getPosts(): Promise<Post[]> { return this.getDB().posts || []; }
-  async getCommunityPosts(): Promise<Post[]> { return this.getPosts(); }
-  async getGallery(): Promise<GalleryItem[]> { return this.getDB().gallery || []; }
-  async getLocalGallery(): Promise<GalleryItem[]> { return this.getGallery(); }
-  async getBarMenu(): Promise<MenuCategory[]> { return BAR_MENU; }
-  
   async getEventById(id: string) { return (await this.getEvents()).find(e => e.id === id); }
-  async getRecordById(id: string) { return (await this.getRecords()).find(r => r.id === id); }
-  async getPostById(id: string) { return (await this.getPosts()).find(p => p.id === id); }
-  async getInbox(): Promise<InboxMessage[]> { return this.getDB().inbox || []; }
-  async getSales(): Promise<Sale[]> { return this.getDB().sales || []; }
-
-  // --- CRUD (Admin Only Logic usually checked in UI) ---
+  
   async createEvent(event: Partial<Event>) {
     const db = this.getDB();
     const newEvent = {
@@ -122,91 +107,153 @@ class DataService {
     this.saveDB(db);
   }
 
-  // --- CRM & INBOX ---
-  async createInboxMessage(m: Partial<InboxMessage>) { 
-    const db = this.getDB(); 
-    const entry = { 
-      id: `msg_${Date.now()}`, 
-      date: new Date().toISOString(), 
-      status: 'pending',
-      ...m
-    } as InboxMessage;
-    
-    db.inbox.unshift(entry); 
-    this.saveDB(db);
+  // --- CRUD RECORDS ---
+  async getRecords(): Promise<VinylRecord[]> { return this.getDB().records || []; }
+  async getRecordById(id: string) { return (await this.getRecords()).find(r => r.id === id); }
 
-    try {
-      await fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors', 
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify(entry)
-      });
-    } catch (error) {
-      console.error("Fallo de transmisión al Workspace.", error);
+  async createRecord(record: Partial<VinylRecord>) {
+    const db = this.getDB();
+    const newRecord = {
+      ...record,
+      id: `v_${Date.now()}`,
+      stock: record.stock || 1,
+      status: 'published',
+      tags: record.tags || [],
+      slug: (record.title || '').toLowerCase().replace(/\s+/g, '-')
+    } as VinylRecord;
+    db.records.unshift(newRecord);
+    this.saveDB(db);
+    return newRecord;
+  }
+
+  async updateRecord(id: string, updates: Partial<VinylRecord>) {
+    const db = this.getDB();
+    const idx = db.records.findIndex((r: any) => r.id === id);
+    if (idx > -1) {
+      db.records[idx] = { ...db.records[idx], ...updates };
+      this.saveDB(db);
     }
   }
 
+  async deleteRecord(id: string) {
+    const db = this.getDB();
+    db.records = db.records.filter((r: any) => r.id !== id);
+    this.saveDB(db);
+  }
+
+  // --- SELECTORS / DJ MANAGEMENT ---
+  async getSelectors(): Promise<SelectorSubmission[]> { return this.getDB().selectors || []; }
+  
+  async createSelector(s: Partial<SelectorSubmission>) {
+    const db = this.getDB();
+    const newSel = { id: `sel_${Date.now()}`, status: 'pending', ...s } as SelectorSubmission;
+    if (!db.selectors) db.selectors = [];
+    db.selectors.push(newSel);
+    this.saveDB(db);
+  }
+
+  async updateSelectorStatus(id: string, status: 'pending' | 'approved' | 'rejected') {
+    const db = this.getDB();
+    const idx = db.selectors.findIndex((s: any) => s.id === id);
+    if (idx > -1) {
+      db.selectors[idx].status = status;
+      this.saveDB(db);
+    }
+  }
+
+  // --- CRM & INBOX ---
+  async getInbox(): Promise<InboxMessage[]> { return this.getDB().inbox || []; }
+  async createInboxMessage(m: Partial<InboxMessage>) { 
+    const db = this.getDB(); 
+    const entry = { id: `msg_${Date.now()}`, date: new Date().toISOString(), status: 'pending', ...m } as InboxMessage;
+    db.inbox.unshift(entry); 
+    this.saveDB(db);
+  }
+
+  async getSales(): Promise<Sale[]> { return this.getDB().sales || []; }
   async recordSale(sale: Partial<Sale>) {
     const db = this.getDB();
     const newSale = { id: `sale_${Date.now()}`, status: 'pending', ...sale } as Sale;
     if (!db.sales) db.sales = [];
     db.sales.unshift(newSale);
     this.saveDB(db);
-    await this.createInboxMessage({
-      type: 'sale',
-      sender: sale.customerName || 'Cliente Online',
-      content: `Pedido registrado por valor de €${sale.total}`
-    });
   }
 
-  async updateMessageStatus(id: string, status: InboxMessage['status']) {
+  // --- RSVP PROTOCOL ---
+  /**
+   * Obtiene la lista de eventos a los que el usuario actual está apuntado.
+   */
+  async getUserRSVPs(): Promise<string[]> {
+    const userName = localStorage.getItem('mat32_user_name');
+    if (!userName) return [];
     const db = this.getDB();
-    const idx = db.inbox.findIndex((m: any) => m.id === id);
-    if (idx > -1) db.inbox[idx].status = status;
-    this.saveDB(db);
+    const rsvps = db.rsvps || {};
+    return Object.keys(rsvps).filter(eventId => 
+      rsvps[eventId].some((g: any) => g.name === userName)
+    );
   }
 
-  async syncDiscogsCollection(username: string) {
-    await new Promise(r => setTimeout(r, 1500));
-    return 1;
-  }
-
-  async createSelector(s: Partial<SelectorSubmission>) {
+  /**
+   * Obtiene la lista de asistentes para un evento específico.
+   */
+  async getEventGuestList(eventId: string): Promise<{name: string}[]> {
     const db = this.getDB();
-    db.selectors.push({ id: `sel_${Date.now()}`, status: 'pending', ...s } as any);
-    this.saveDB(db);
+    return (db.rsvps && db.rsvps[eventId]) || [];
   }
 
-  // --- RSVP SYSTEM ---
+  /**
+   * Cambia el estado de RSVP para un usuario en un evento.
+   */
   async toggleRSVP(eventId: string, userName: string, active: boolean) {
     const db = this.getDB();
     if (!db.rsvps) db.rsvps = {};
     if (!db.rsvps[eventId]) db.rsvps[eventId] = [];
+    
     if (active) {
-      if (!db.rsvps[eventId].includes(userName)) db.rsvps[eventId].push(userName);
+      if (!db.rsvps[eventId].some((g: any) => g.name === userName)) {
+        db.rsvps[eventId].push({ name: userName });
+      }
     } else {
-      db.rsvps[eventId] = db.rsvps[eventId].filter((n: string) => n !== userName);
+      db.rsvps[eventId] = db.rsvps[eventId].filter((g: any) => g.name !== userName);
     }
     this.saveDB(db);
   }
 
-  async getEventGuestList(eventId: string) {
-    const db = this.getDB();
-    return (db.rsvps?.[eventId] || []).map((name: string) => ({ name }));
+  // --- OTHERS ---
+  async getPosts(): Promise<Post[]> { return this.getDB().posts || []; }
+  
+  /**
+   * Alias para obtener posts de la comunidad (usado en Home.tsx)
+   */
+  async getCommunityPosts(): Promise<Post[]> { return this.getPosts(); }
+
+  /**
+   * Obtiene un post específico por su ID.
+   */
+  async getPostById(id: string): Promise<Post | undefined> {
+    return (await this.getPosts()).find(p => p.id === id);
   }
 
-  async getUserRSVPs() {
-    const db = this.getDB();
-    const userName = localStorage.getItem('mat32_user_name');
-    if (!userName) return [];
-    const res = [];
-    for (const id in db.rsvps) {
-      if (db.rsvps[id].includes(userName)) res.push(id);
-    }
-    return res;
+  async getGallery(): Promise<GalleryItem[]> { return this.getDB().gallery || []; }
+
+  /**
+   * Alias para la galería local (usado en Gallery.tsx)
+   */
+  async getLocalGallery(): Promise<GalleryItem[]> { return this.getGallery(); }
+
+  /**
+   * Obtiene las categorías y tags de la galería para filtrado.
+   */
+  async getGalleryTaxonomy() {
+    const gallery = await this.getGallery();
+    return {
+      categories: Array.from(new Set(gallery.map(i => i.category))),
+      tags: Array.from(new Set(gallery.flatMap(i => i.tags || [])))
+    };
   }
-  
+
+  async getBarMenu(): Promise<MenuCategory[]> { return BAR_MENU; }
+
   async getTaxonomyTree() {
     const records = await this.getRecords();
     return {
@@ -215,38 +262,52 @@ class DataService {
     };
   }
 
-  async getGalleryTaxonomy() {
-    const gallery = await this.getGallery();
-    return {
-      categories: Array.from(new Set(gallery.map(g => g.category))),
-      tags: Array.from(new Set(gallery.flatMap(g => g.tags || [])))
-    };
-  }
-
-  // Fix: Implemented batchImportRecords to process CSV formatted string input
   async batchImportRecords(csv: string): Promise<number> {
     const lines = csv.split('\n').filter(l => l.trim().length > 0);
     const db = this.getDB();
     let count = 0;
-    const startIdx = (lines[0] && lines[0].toLowerCase().includes('artista')) ? 1 : 0;
-    for (let i = startIdx; i < lines.length; i++) {
+    for (let i = 0; i < lines.length; i++) {
       const parts = lines[i].split(',').map(p => p.trim());
       if (parts.length >= 2) {
         db.records.unshift({
           id: `r_batch_${Date.now()}_${count}`,
-          artist: parts[0] || 'Unknown Artist',
-          title: parts[1] || 'Unknown Title',
+          artist: parts[0] || 'Unknown',
+          title: parts[1] || 'Unknown',
           price: parseFloat(parts[2]) || 25,
           genre: parts[3] || 'General',
-          condition: 'NM',
           stock: 1,
           coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
-          status: 'published',
-          tags: ['batch-import'],
-          sellerId: this.getSession()?.id || 'mat32_admin'
-        });
+          status: 'published'
+        } as any);
         count++;
       }
+    }
+    this.saveDB(db);
+    return count;
+  }
+
+  /**
+   * Sincroniza la colección de Discogs de un usuario.
+   */
+  async syncDiscogsCollection(username: string): Promise<number> {
+    // Simulación de sincronización con API de Discogs
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const db = this.getDB();
+    const count = 3; // Simulación de 3 discos encontrados
+    for (let i = 0; i < count; i++) {
+      db.records.unshift({
+        id: `r_discogs_${username}_${Date.now()}_${i}`,
+        artist: 'Discogs Sync Artist',
+        title: `Track Verificado ${i + 1}`,
+        price: 35 + i * 5,
+        genre: 'Electronic',
+        stock: 1,
+        coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
+        status: 'published',
+        tags: ['discogs'],
+        sellerId: username,
+        sku: `DISCOGS-${i}-${Date.now()}`
+      } as any);
     }
     this.saveDB(db);
     return count;
