@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Settings, Disc, Database, RefreshCw, FileText, Search, 
   Plus, LogOut, CheckCircle, AlertCircle, Loader2, Table,
-  Calendar, ShoppingBag, Mail, Users, Trash2, Edit3, Eye
+  Calendar, ShoppingBag, Mail, Users, Trash2, Edit3, Eye, X, Save
 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { Event, VinylRecord, Sale, InboxMessage } from '../types';
@@ -25,6 +24,9 @@ export const Admin: React.FC = () => {
   const [importText, setImportText] = useState('');
   const [status, setStatus] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Edit/Create Modal State
+  const [editingEvent, setEditingEvent] = useState<Partial<Event> | null>(null);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -74,6 +76,32 @@ export const Admin: React.FC = () => {
       setStatus("ERROR_HUB_PROTOCOL: Formato de datos inválido.");
     }
     setIsProcessing(false);
+  };
+
+  const handleSaveEvent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingEvent) return;
+    setIsProcessing(true);
+
+    if (editingEvent.id) {
+      await dataService.updateEvent(editingEvent.id, editingEvent);
+      setStatus("EVENTO_ACTUALIZADO");
+    } else {
+      await dataService.createEvent(editingEvent);
+      setStatus("NUEVO_EVENTO_INYECTADO");
+    }
+
+    setEditingEvent(null);
+    setIsProcessing(false);
+    setTimeout(() => setStatus(null), 3000);
+  };
+
+  const handleDeleteEvent = async (id: string) => {
+    if (window.confirm("¿ELIMINAR ESTE EVENTO DE LA MATRIZ?")) {
+      await dataService.deleteEvent(id);
+      setStatus("EVENTO_BORRADO");
+      setTimeout(() => setStatus(null), 3000);
+    }
   };
 
   const updateSaleStatus = async (id: string, newStatus: Sale['status']) => {
@@ -197,7 +225,12 @@ export const Admin: React.FC = () => {
               <div className="bg-mat-900 border border-mat-800 p-10 rounded-[3rem]">
                  <div className="flex justify-between items-center mb-10">
                     <h3 className="text-2xl font-black uppercase font-exo flex items-center gap-4"><Calendar className="text-mat-500" /> GESTIÓN DE AGENDA</h3>
-                    <button className="px-6 py-3 bg-mat-500 text-white text-[10px] font-black uppercase rounded-xl flex items-center gap-2 hover:bg-mat-400 transition-all"><Plus size={16} /> NUEVA SESIÓN</button>
+                    <button 
+                      onClick={() => setEditingEvent({ title: '', price: 0, capacity: 40, date: '', time: '21:00', imageUrl: '', description: '' })}
+                      className="px-6 py-3 bg-mat-500 text-white text-[10px] font-black uppercase rounded-xl flex items-center gap-2 hover:bg-mat-400 transition-all"
+                    >
+                      <Plus size={16} /> NUEVA SESIÓN
+                    </button>
                  </div>
                  <div className="overflow-x-auto">
                     <table className="w-full text-left">
@@ -226,9 +259,18 @@ export const Admin: React.FC = () => {
                                </td>
                                <td className="py-6 text-right">
                                   <div className="flex justify-end gap-2">
-                                     <button className="p-2 text-gray-600 hover:text-white transition-colors"><Edit3 size={16} /></button>
-                                     <button className="p-2 text-gray-600 hover:text-white transition-colors"><Eye size={16} /></button>
-                                     <button className="p-2 text-gray-600 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                                     <button 
+                                      onClick={() => setEditingEvent(ev)}
+                                      className="p-2 text-gray-600 hover:text-white transition-colors"
+                                     >
+                                      <Edit3 size={16} />
+                                     </button>
+                                     <button 
+                                      onClick={() => handleDeleteEvent(ev.id)}
+                                      className="p-2 text-gray-600 hover:text-red-500 transition-colors"
+                                     >
+                                      <Trash2 size={16} />
+                                     </button>
                                   </div>
                                </td>
                             </tr>
@@ -305,9 +347,123 @@ export const Admin: React.FC = () => {
         )}
       </main>
 
+      {/* MODAL: EDITAR/CREAR EVENTO */}
+      {editingEvent && (
+        <div className="fixed inset-0 z-[250] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl animate-fade-in">
+           <div className="w-full max-w-2xl bg-mat-900 border-2 border-mat-800 rounded-[3.5rem] p-12 relative shadow-2xl overflow-y-auto max-h-[90vh] custom-scrollbar">
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500"></div>
+              <button onClick={() => setEditingEvent(null)} className="absolute top-10 right-10 text-gray-500 hover:text-white"><X size={28} /></button>
+              
+              <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo mb-10">
+                {editingEvent.id ? 'EDITAR_EVENTO' : 'NUEVA_SESIÓN'}
+              </h2>
+
+              <form onSubmit={handleSaveEvent} className="space-y-8">
+                 <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Título del Evento</label>
+                       <input 
+                        required 
+                        value={editingEvent.title} 
+                        onChange={e => setEditingEvent({...editingEvent, title: e.target.value})}
+                        className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" 
+                        placeholder="P.EJ: ANALOG NIGHT" 
+                       />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Categoría</label>
+                       <input 
+                        required 
+                        value={editingEvent.category} 
+                        onChange={e => setEditingEvent({...editingEvent, category: e.target.value})}
+                        className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" 
+                        placeholder="HI-FI SESSIONS" 
+                       />
+                    </div>
+                 </div>
+
+                 <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Fecha (YYYY-MM-DD)</label>
+                       <input 
+                        required 
+                        type="date"
+                        value={editingEvent.date} 
+                        onChange={e => setEditingEvent({...editingEvent, date: e.target.value})}
+                        className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl outline-none focus:border-mat-500" 
+                       />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Hora (HH:MM)</label>
+                       <input 
+                        required 
+                        type="time"
+                        value={editingEvent.time} 
+                        onChange={e => setEditingEvent({...editingEvent, time: e.target.value})}
+                        className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl outline-none focus:border-mat-500" 
+                       />
+                    </div>
+                 </div>
+
+                 <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Precio (€)</label>
+                       <input 
+                        required 
+                        type="number"
+                        value={editingEvent.price} 
+                        onChange={e => setEditingEvent({...editingEvent, price: parseFloat(e.target.value)})}
+                        className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" 
+                       />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Capacidad (PAX)</label>
+                       <input 
+                        required 
+                        type="number"
+                        value={editingEvent.capacity} 
+                        onChange={e => setEditingEvent({...editingEvent, capacity: parseInt(e.target.value)})}
+                        className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" 
+                       />
+                    </div>
+                 </div>
+
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">URL de Imagen</label>
+                    <input 
+                      required 
+                      value={editingEvent.imageUrl} 
+                      onChange={e => setEditingEvent({...editingEvent, imageUrl: e.target.value})}
+                      className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl outline-none focus:border-mat-500" 
+                      placeholder="https://..." 
+                    />
+                 </div>
+
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Descripción</label>
+                    <textarea 
+                      required 
+                      value={editingEvent.description} 
+                      onChange={e => setEditingEvent({...editingEvent, description: e.target.value})}
+                      className="w-full bg-mat-800 border border-mat-700 p-4 h-32 text-white text-xs italic rounded-xl outline-none focus:border-mat-500 resize-none" 
+                    />
+                 </div>
+
+                 <button 
+                  type="submit" 
+                  disabled={isProcessing}
+                  className="w-full py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-[0.5em] rounded-2xl flex items-center justify-center gap-4 hover:bg-mat-400 transition-all shadow-xl"
+                 >
+                    {isProcessing ? <Loader2 className="animate-spin" /> : <Save size={20} />} GUARDAR EN LA MATRIZ
+                 </button>
+              </form>
+           </div>
+        </div>
+      )}
+
       {/* GLOBAL STATUS BAR */}
       {status && (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] animate-fade-in">
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[300] animate-fade-in">
            <div className="bg-mat-900 border-2 border-mat-500 p-4 px-8 rounded-full shadow-2xl flex items-center gap-4">
               <CheckCircle className="text-mat-500" size={20} />
               <span className="text-[10px] font-black uppercase tracking-widest">{status}</span>

@@ -1,3 +1,4 @@
+
 export const translations = {
   en: {
     "nav.home": "Home",
@@ -26,7 +27,10 @@ export const translations = {
     "chat.welcome": "Welcome to Mat32. I am the manager. How can I help you today?",
     "opendecks.desc": "The booth is yours. Submit your mix and join our monthly rotation of emerging selectors.",
     "seo.private.title": "Collabs & Creative Space Valencia | Mat32",
-    "seo.private.description": "Propose your event at Mat32 Valencia. Workshops, acoustic sessions, and art exhibitions in a high-fidelity environment."
+    "seo.private.description": "Propose your event at Mat32 Valencia. Workshops, acoustic sessions, and art exhibitions in a high-fidelity environment.",
+    "seo.events.title": "Live Music Events in Valencia | Mat32 Ruzafa Agenda",
+    "seo.events.description": "Discover the best live music events in Valencia. Hi-Fi sessions, vinyl DJs, and acoustic sessions in the heart of Ruzafa. Check our weekly cultural agenda.",
+    "seo.events.keywords": "music events valencia, ruzafa gigs, vinyl djs valencia, live music ruzafa, cultural agenda valencia, mat32 events"
   },
   es: {
     "nav.home": "Inicio",
@@ -55,6 +59,9 @@ export const translations = {
     "chat.welcome": "Bienvenido a Mat32. Soy el Manager. ¿En qué puedo ayudarte hoy?",
     "opendecks.desc": "La cabina es tuya. Envía tu sesión y únete a nuestra rotación de selectores.",
     "seo.private.title": "Colaboraciones & Espacio Creativo Valencia | Mat32",
-    "seo.private.description": "Propón tu evento en Mat32 Valencia. Talleres, acústicos y exposiciones de arte en un entorno High Fidelity."
+    "seo.private.description": "Propón tu evento en Mat32 Valencia. Talleres, acústicos y exposiciones de arte en un entorno High Fidelity.",
+    "seo.events.title": "Eventos de Música en Vivo en Valencia | Agenda Mat32 Ruzafa",
+    "seo.events.description": "Descubre los mejores eventos de música en vivo en Valencia. Sesiones Hi-Fi, DJs de vinilo y directos acústicos en el corazón de Ruzafa. Consulta nuestra agenda cultural semanal.",
+    "seo.events.keywords": "eventos musica valencia, conciertos ruzafa, djs vinilo valencia, musica en vivo ruzafa, agenda cultural valencia, mat32 eventos"
   }
 };

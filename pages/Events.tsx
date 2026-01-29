@@ -25,7 +25,12 @@ export const Events: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-mat-900 text-mat-cream">
-      <SEO titleKey="nav.events" descriptionKey="seo.events.description" />
+      <SEO 
+        titleKey="seo.events.title" 
+        descriptionKey="seo.events.description" 
+        keywordsKey="seo.events.keywords"
+        schemaType="MusicEvent"
+      />
 
       <div className="bg-mat-950 py-32 md:py-52 border-b border-mat-800 relative overflow-hidden text-center">
         <Disc className="w-24 h-24 text-mat-500 mx-auto mb-10 animate-spin-slow opacity-20 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
