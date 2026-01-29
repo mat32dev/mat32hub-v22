@@ -30,7 +30,7 @@ export const Events: React.FC = () => {
       <div className="bg-mat-950 py-32 md:py-52 border-b border-mat-800 relative overflow-hidden text-center">
         <Disc className="w-24 h-24 text-mat-500 mx-auto mb-10 animate-spin-slow opacity-20 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         <h1 className="text-7xl md:text-[10rem] font-black uppercase tracking-tighter text-white font-exo leading-[0.8] relative z-10">LA <span className="text-mat-500">AGENDA.</span></h1>
-        <p className="text-gray-500 text-xl mt-8 italic opacity-80 max-w-2xl mx-auto px-6 relative z-10 font-light leading-relaxed">Curaduría musical de alta fidelidad en el sistema Altec A7.</p>
+        <p className="text-gray-500 text-xl mt-8 italic opacity-80 max-w-2xl mx-auto px-6 relative z-10 font-light leading-relaxed"> Selección musical de alta fidelidad en el sistema Altec A7.</p>
       </div>
 
       <div className="container mx-auto px-6 py-24 max-w-6xl">
