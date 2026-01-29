@@ -1,10 +1,12 @@
-import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem, Sale, MenuItem, MenuCategory } from '../types';
+
+import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem, Sale, MenuItem, MenuCategory, UserSession, UserRole } from '../types';
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUqaYPiWSjt37UxQnpL6ZgSb5Rsr-oA-mdNPFxdtkYtHXI0U9DL6eh-cwbfVbvBAhFXw/exec";
 
 class DataService {
   private localKey = 'mat32_matrix_core_v30';
+  private sessionKey = 'mat32_user_session';
   
   constructor() {
     this.initDefaultData();
@@ -37,13 +39,46 @@ class DataService {
     window.dispatchEvent(new CustomEvent('mat32_data_changed'));
   }
 
+  // AUTH SYSTEM
+  async login(email: string, pass: string): Promise<boolean> {
+    let session: UserSession | null = null;
+
+    if (pass === 'mat32_admin') {
+      session = { id: 'admin_1', role: 'ADMIN', name: 'Manager Mat32', email: 'admin@mat32.com' };
+    } else if (pass === 'mat32_dj') {
+      session = { id: 'dj_selector_1', role: 'DJ', name: 'Selector Local', email: 'selector@mat32.com' };
+    } else if (pass === 'mat32_user') {
+      session = { id: 'user_1', role: 'CUSTOMER', name: 'Digger User', email: 'user@mat32.com' };
+    }
+
+    if (session) {
+      localStorage.setItem(this.sessionKey, JSON.stringify(session));
+      localStorage.setItem('mat32_user_name', session.name);
+      window.dispatchEvent(new CustomEvent('mat32_data_changed'));
+      return true;
+    }
+    return false;
+  }
+
+  logout() {
+    localStorage.removeItem(this.sessionKey);
+    window.dispatchEvent(new CustomEvent('mat32_data_changed'));
+  }
+
+  getSession(): UserSession | null {
+    const s = localStorage.getItem(this.sessionKey);
+    return s ? JSON.parse(s) : null;
+  }
+
+  isAuthenticated() { return !!localStorage.getItem(this.sessionKey); }
+  getUserRole(): UserRole | null { return this.getSession()?.role || null; }
+
   // GETTERS
   async getEvents(): Promise<Event[]> { return this.getDB().events || []; }
   async getRecords(): Promise<VinylRecord[]> { return this.getDB().records || []; }
   async getPosts(): Promise<Post[]> { return this.getDB().posts || []; }
   async getCommunityPosts(): Promise<Post[]> { return this.getPosts(); }
   async getGallery(): Promise<GalleryItem[]> { return this.getDB().gallery || []; }
-  async getLocalGallery(): Promise<GalleryItem[]> { return this.getGallery(); }
   async getBarMenu(): Promise<MenuCategory[]> { return BAR_MENU; }
   
   async getEventById(id: string) { return (await this.getEvents()).find(e => e.id === id); }
@@ -51,6 +86,7 @@ class DataService {
   async getPostById(id: string) { return (await this.getPosts()).find(p => p.id === id); }
   async getInbox(): Promise<InboxMessage[]> { return this.getDB().inbox || []; }
   async getSales(): Promise<Sale[]> { return this.getDB().sales || []; }
+  async getSelectors(): Promise<SelectorSubmission[]> { return this.getDB().selectors || []; }
 
   // TAXONOMY
   async getTaxonomyTree() {
@@ -145,14 +181,22 @@ class DataService {
     this.saveDB(db);
   }
 
-  async updateSaleStatus(id: string, status: Sale['status']) {
+  // DJ / SELECTOR
+  async getDJProfile(djId: string) {
     const db = this.getDB();
-    const idx = db.sales.findIndex((s: any) => s.id === id);
-    if (idx > -1) db.sales[idx].status = status;
-    this.saveDB(db);
+    return db.selectors.find((s: any) => s.id === djId);
   }
 
-  // IMPORTACIÓN MASIVA (MATRIX PROTOCOL)
+  async updateDJProfile(djId: string, updates: any) {
+    const db = this.getDB();
+    const idx = db.selectors.findIndex((s: any) => s.id === djId);
+    if (idx > -1) {
+      db.selectors[idx] = { ...db.selectors[idx], ...updates };
+      this.saveDB(db);
+    }
+  }
+
+  // IMPORTACIÓN
   async batchImportRecords(csvInput: string) {
     const db = this.getDB();
     const rows = csvInput.split('\n').filter(r => r.trim() !== '');
@@ -171,10 +215,6 @@ class DataService {
     });
     this.saveDB(db);
     return rows.length;
-  }
-
-  async processMatrixImport(csvData: string) {
-    return this.batchImportRecords(csvData);
   }
 
   async syncDiscogsCollection(username: string) {
@@ -216,17 +256,6 @@ class DataService {
     }
     return res;
   }
-
-  // AUTH
-  isAuthenticated() { return !!localStorage.getItem('mat32_admin_token'); }
-  async login(e: string, p: string) {
-    if (p === 'mat32_secure_access') { 
-      localStorage.setItem('mat32_admin_token', 'true'); 
-      return true; 
-    }
-    return false;
-  }
-  logout() { localStorage.removeItem('mat32_admin_token'); }
 }
 
 export const dataService = new DataService();

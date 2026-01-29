@@ -16,7 +16,8 @@ export const Gallery: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       const [imgData, taxData] = await Promise.all([
-        dataService.getLocalGallery(),
+        // Changed getLocalGallery to getGallery to match DataService implementation
+        dataService.getGallery(),
         dataService.getGalleryTaxonomy()
       ]);
       setImages(imgData);
