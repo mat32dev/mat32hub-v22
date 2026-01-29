@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Settings, Disc, Database, RefreshCw, FileText, Search, 
   Plus, LogOut, CheckCircle, AlertCircle, Loader2, Table,
-  Calendar, ShoppingBag, Mail, Users, Trash2, Edit3, Eye, X, Save, ShieldCheck, UserCheck
+  Calendar, ShoppingBag, Mail, Users, Trash2, Edit3, Eye, X, Save, ShieldCheck, UserCheck, Upload, Image as ImageIcon
 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { Event, VinylRecord, Sale, InboxMessage } from '../types';
@@ -27,6 +27,8 @@ export const Admin: React.FC = () => {
   const [status, setStatus] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Partial<Event> | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -78,16 +80,18 @@ export const Admin: React.FC = () => {
     }
   };
 
-  const handleMatrixImport = async () => {
-    setIsProcessing(true);
-    try {
-      const count = await dataService.processMatrixImport(importText);
-      setStatus(`MATRIX_SYNC_COMPLETE: ${count} registros procesados.`);
-      setTimeout(() => setStatus(null), 5000);
-    } catch (e) {
-      setStatus("ERROR_HUB_PROTOCOL: Formato de datos inválido.");
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && editingEvent) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditingEvent({
+          ...editingEvent,
+          imageUrl: reader.result as string
+        });
+      };
+      reader.readAsDataURL(file);
     }
-    setIsProcessing(false);
   };
 
   const handleSaveEvent = async (e: React.FormEvent) => {
@@ -260,7 +264,7 @@ export const Admin: React.FC = () => {
                  <div className="flex justify-between items-center mb-10">
                     <h3 className="text-2xl font-black uppercase font-exo flex items-center gap-4"><Calendar className="text-mat-500" /> GESTIÓN DE AGENDA</h3>
                     <button 
-                      onClick={() => setEditingEvent({ title: '', price: 0, capacity: 40, date: '', time: '21:00', imageUrl: '', description: '' })}
+                      onClick={() => setEditingEvent({ title: '', category: 'SESSION', price: 0, capacity: 40, date: '', time: '21:00', imageUrl: '', description: '' })}
                       className="px-6 py-3 bg-mat-500 text-white text-[10px] font-black uppercase rounded-xl flex items-center gap-2 hover:bg-mat-400 transition-all"
                     >
                       <Plus size={16} /> NUEVA SESIÓN
@@ -308,22 +312,92 @@ export const Admin: React.FC = () => {
               <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500"></div>
               <button onClick={() => setEditingEvent(null)} className="absolute top-10 right-10 text-gray-500 hover:text-white"><X size={28} /></button>
               <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo mb-10">{editingEvent.id ? 'EDITAR_EVENTO' : 'NUEVA_SESIÓN'}</h2>
+              
               <form onSubmit={handleSaveEvent} className="space-y-8">
                  <div className="grid md:grid-cols-2 gap-8">
-                    <input required value={editingEvent.title} onChange={e => setEditingEvent({...editingEvent, title: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" placeholder="TÍTULO" />
-                    <input required value={editingEvent.category} onChange={e => setEditingEvent({...editingEvent, category: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" placeholder="CATEGORÍA" />
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-1">Título de Sesión</label>
+                       <input required value={editingEvent.title} onChange={e => setEditingEvent({...editingEvent, title: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" placeholder="NOMBRE DEL EVENTO" />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-1">Categoría</label>
+                       <input required value={editingEvent.category} onChange={e => setEditingEvent({...editingEvent, category: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500" placeholder="P.EJ: HI-FI SESSION" />
+                    </div>
                  </div>
+
+                 <div className="space-y-2">
+                    <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-1">Imagen de Portada</label>
+                    <div className="grid md:grid-cols-3 gap-6">
+                       <div className="md:col-span-1">
+                          <div 
+                            onClick={() => fileInputRef.current?.click()}
+                            className="aspect-square bg-mat-800 border-2 border-dashed border-mat-700 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-mat-500 hover:bg-mat-900/50 transition-all overflow-hidden relative group"
+                          >
+                             {editingEvent.imageUrl ? (
+                                <>
+                                  <img src={editingEvent.imageUrl} className="w-full h-full object-cover opacity-50 group-hover:opacity-30 transition-opacity" alt="Preview" />
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                     <RefreshCw size={24} className="text-white mb-2" />
+                                     <span className="text-[8px] font-black text-white uppercase">Cambiar</span>
+                                  </div>
+                                </>
+                             ) : (
+                                <>
+                                  <Upload size={24} className="text-mat-700 group-hover:text-mat-500" />
+                                  <span className="text-[8px] font-black text-gray-500 uppercase text-center px-4">Cargar desde Archivo</span>
+                                </>
+                             )}
+                          </div>
+                          <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            onChange={handleImageUpload} 
+                            accept="image/*" 
+                            className="hidden" 
+                          />
+                       </div>
+                       <div className="md:col-span-2 space-y-4">
+                          <div className="relative">
+                             <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-mat-700" size={16} />
+                             <input value={editingEvent.imageUrl} onChange={e => setEditingEvent({...editingEvent, imageUrl: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 pl-12 text-white text-[9px] font-black rounded-xl outline-none focus:border-mat-500" placeholder="O PEGA UNA URL EXTERNA" />
+                          </div>
+                          <p className="text-[8px] text-gray-600 uppercase tracking-widest leading-relaxed">
+                             Recomendado: 1200x800px. La carga local se optimiza automáticamente para el Hub.
+                          </p>
+                       </div>
+                    </div>
+                 </div>
+
                  <div className="grid md:grid-cols-2 gap-8">
-                    <input required type="date" value={editingEvent.date} onChange={e => setEditingEvent({...editingEvent, date: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl" />
-                    <input required type="time" value={editingEvent.time} onChange={e => setEditingEvent({...editingEvent, time: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl" />
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-1">Fecha</label>
+                       <input required type="date" value={editingEvent.date} onChange={e => setEditingEvent({...editingEvent, date: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl" />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-1">Hora</label>
+                       <input required type="time" value={editingEvent.time} onChange={e => setEditingEvent({...editingEvent, time: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl" />
+                    </div>
                  </div>
+
                  <div className="grid md:grid-cols-2 gap-8">
-                    <input required type="number" value={editingEvent.price} onChange={e => setEditingEvent({...editingEvent, price: parseFloat(e.target.value)})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl" placeholder="PRECIO" />
-                    <input required type="number" value={editingEvent.capacity} onChange={e => setEditingEvent({...editingEvent, capacity: parseInt(e.target.value)})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl" placeholder="AFORO" />
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-1">Precio Ticket (€)</label>
+                       <input required type="number" value={editingEvent.price} onChange={e => setEditingEvent({...editingEvent, price: parseFloat(e.target.value)})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl" placeholder="0 PARA GRATIS" />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-1">Aforo Máximo</label>
+                       <input required type="number" value={editingEvent.capacity} onChange={e => setEditingEvent({...editingEvent, capacity: parseInt(e.target.value)})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl" placeholder="40" />
+                    </div>
                  </div>
-                 <input required value={editingEvent.imageUrl} onChange={e => setEditingEvent({...editingEvent, imageUrl: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-[10px] font-black rounded-xl" placeholder="URL IMAGEN" />
-                 <textarea required value={editingEvent.description} onChange={e => setEditingEvent({...editingEvent, description: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 h-32 text-white text-xs italic rounded-xl resize-none" placeholder="DESCRIPCIÓN" />
-                 <button type="submit" className="w-full py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-[0.5em] rounded-2xl flex items-center justify-center gap-4 hover:bg-mat-400 transition-all shadow-xl"><Save size={20} /> GUARDAR EN LA MATRIZ</button>
+
+                 <div className="space-y-2">
+                    <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-1">Descripción de la Sesión</label>
+                    <textarea required value={editingEvent.description} onChange={e => setEditingEvent({...editingEvent, description: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 h-32 text-white text-xs italic rounded-xl resize-none focus:border-mat-500 outline-none" placeholder="QUÉ SONARÁ, QUIÉN VIENE..." />
+                 </div>
+
+                 <button type="submit" disabled={isProcessing} className="w-full py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-[0.5em] rounded-2xl flex items-center justify-center gap-4 hover:bg-mat-400 transition-all shadow-xl">
+                    {isProcessing ? <Loader2 className="animate-spin" /> : <Save size={20} />} GUARDAR EN LA MATRIZ
+                 </button>
               </form>
            </div>
         </div>
