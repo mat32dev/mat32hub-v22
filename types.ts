@@ -1,13 +1,5 @@
 
 export type ContentType = 'POST' | 'EVENT' | 'PRODUCT' | 'TIP' | 'GALLERY';
-export type UserRole = 'ADMIN' | 'DJ' | 'CUSTOMER';
-
-export interface UserSession {
-  id: string;
-  role: UserRole;
-  name: string;
-  email: string;
-}
 
 export interface SellerProfile {
   id: string;
@@ -90,6 +82,7 @@ export interface GalleryItem {
   category: string;
 }
 
+// Added missing InstagramPost interface
 export interface InstagramPost {
   id: string;
   imageUrl: string;
