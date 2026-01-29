@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Mail, MapPin, Clock, Calendar, CheckCircle, AlertCircle, Loader2, Send, MessageSquare, Instagram, Info, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, MapPin, Clock, Calendar, CheckCircle, Loader2, Send, MessageSquare, Info } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { useLanguage } from '../context/LanguageContext';
 import { dataService } from '../services/dataService';
 
 export const Contact: React.FC = () => {
   const { t } = useLanguage();
-  const location = useLocation();
   const [bookingForm, setBookingForm] = useState({
     name: '',
     email: '',
@@ -16,12 +14,11 @@ export const Contact: React.FC = () => {
     guests: 2
   });
   const [bookingStatus, setBookingStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!bookingForm.name || !bookingForm.email) {
-      alert("Por favor completa los campos.");
+      alert("Por favor completa los campos obligatorios.");
       return;
     }
     setBookingStatus('submitting');
@@ -41,7 +38,7 @@ export const Contact: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-mat-900 flex flex-col font-sans">
-      <SEO titleKey="Contacto y Reservas | Mat32 Ruzafa Valencia" descriptionKey="Reserva en el mejor bar Hi-Fi de Valencia." />
+      <SEO titleKey="Contacto y Reservas | Mat32 Ruzafa Valencia" descriptionKey="Reserva tu mesa en el santuario Hi-Fi de Valencia. Espacio exclusivo en Ruzafa para melómanos." />
       
       <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -50,7 +47,7 @@ export const Contact: React.FC = () => {
         </div>
         <div className="container mx-auto px-6 relative z-10 text-center pt-20">
           <div className="inline-flex items-center gap-3 px-6 py-2 bg-mat-900 border border-mat-500 text-mat-500 text-[10px] font-black uppercase tracking-[0.5em] rounded-full mb-8 shadow-2xl">
-            <MessageSquare className="w-4 h-4" /> HUB CONNECTION
+            <MessageSquare className="w-4 h-4" /> DIRECT_CONNECTION
           </div>
           <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter text-white font-exo leading-none mb-6 animate-fade-in">
             {t('nav.contact').toUpperCase()} <span className="text-mat-500">VALENCIA.</span>
@@ -62,13 +59,21 @@ export const Contact: React.FC = () => {
         <div className="grid lg:grid-cols-12 gap-16 md:gap-24 items-start">
           <div className="lg:col-span-5 space-y-12 text-gray-400">
              <div className="space-y-6">
-                <div className="p-8 bg-mat-800 border-2 border-mat-700 rounded-[2.5rem] shadow-xl">
+                <div className="p-8 bg-mat-800 border-2 border-mat-700 rounded-[2.5rem] shadow-xl relative overflow-hidden group">
+                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><MapPin size={80} /></div>
                    <h4 className="text-[10px] font-black text-mat-500 uppercase tracking-widest mb-4">UBICACIÓN</h4>
-                   <p className="text-white text-xl font-exo font-black uppercase">Calle Matías Perelló, 32<br/>46005 Valencia, Ruzafa</p>
+                   <p className="text-white text-xl font-exo font-black uppercase tracking-tighter">Calle Matías Perelló, 32<br/>46005 Valencia, Ruzafa</p>
                 </div>
-                <div className="p-8 bg-mat-800 border-2 border-mat-700 rounded-[2.5rem] shadow-xl">
-                   <h4 className="text-[10px] font-black text-mat-500 uppercase tracking-widest mb-4">HORARIO</h4>
+                <div className="p-8 bg-mat-800 border-2 border-mat-700 rounded-[2.5rem] shadow-xl relative overflow-hidden group">
+                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Clock size={80} /></div>
+                   <h4 className="text-[10px] font-black text-mat-500 uppercase tracking-widest mb-4">HORARIO HUB</h4>
                    <p className="text-white text-sm font-black uppercase tracking-widest">Jueves - Sábado<br/>18:00 - 02:00</p>
+                </div>
+                <div className="p-6 bg-mat-950/50 border border-mat-700 rounded-2xl flex items-start gap-4">
+                   <Info className="text-mat-500 flex-shrink-0" size={18} />
+                   <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest leading-relaxed">
+                      Todas las comunicaciones se inyectan directamente en el Workspace de Mat32. Revisamos solicitudes a diario.
+                   </p>
                 </div>
              </div>
           </div>
@@ -81,7 +86,7 @@ export const Contact: React.FC = () => {
                 <form onSubmit={handleBookingSubmit} className="space-y-6">
                    <div className="grid md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Nombre</label>
+                        <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Alias / Nombre</label>
                         <input required value={bookingForm.name} onChange={e => setBookingForm({...bookingForm, name: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-5 text-white uppercase text-[10px] font-black rounded-2xl outline-none focus:border-mat-500 transition-all" placeholder="TU ALIAS" />
                       </div>
                       <div className="space-y-2">
@@ -109,8 +114,8 @@ export const Contact: React.FC = () => {
                       </div>
                    </div>
                    
-                   <button type="submit" disabled={bookingStatus === 'submitting'} className="w-full py-8 bg-mat-500 hover:bg-mat-400 text-white font-black uppercase tracking-[0.4em] text-[11px] rounded-[2rem] shadow-2xl flex items-center justify-center gap-4 transition-all">
-                      {bookingStatus === 'submitting' ? <Loader2 className="animate-spin" /> : <Send />} ENVIAR RESERVA
+                   <button type="submit" disabled={bookingStatus === 'submitting'} className="w-full py-8 bg-mat-500 hover:bg-mat-400 text-white font-black uppercase tracking-[0.4em] text-[11px] rounded-[2rem] shadow-2xl flex items-center justify-center gap-4 transition-all hover:scale-[1.01] active:scale-95 disabled:opacity-50">
+                      {bookingStatus === 'submitting' ? <Loader2 className="animate-spin" /> : <Send />} ENVIAR SEÑAL_RESERVA
                    </button>
                 </form>
              </div>
@@ -122,11 +127,11 @@ export const Contact: React.FC = () => {
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl animate-fade-in">
            <div className="w-full max-w-md bg-mat-900 border-2 border-emerald-500 p-12 rounded-[4rem] text-center shadow-2xl relative">
               <CheckCircle className="w-20 h-20 text-emerald-500 mx-auto mb-8 animate-bounce" />
-              <h2 className="text-4xl font-black text-white uppercase mb-4 font-exo">SUBMISSION_DONE</h2>
+              <h2 className="text-4xl font-black text-white uppercase mb-4 font-exo tracking-tighter">SIGNAL_SENT</h2>
               <p className="text-gray-400 italic mb-10 leading-relaxed text-sm">
-                Tu solicitud ha sido inyectada. Te responderemos desde <strong>hola@mat32.com</strong>.
+                Tu solicitud ha sido inyectada con éxito. Te responderemos desde <strong>hola@mat32.com</strong> muy pronto.
               </p>
-              <button onClick={() => setBookingStatus('idle')} className="w-full py-5 bg-emerald-500 text-white font-black uppercase tracking-widest rounded-2xl">ENTENDIDO</button>
+              <button onClick={() => setBookingStatus('idle')} className="w-full py-5 bg-emerald-500 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-emerald-400 transition-colors shadow-xl">ENTENDIDO</button>
            </div>
         </div>
       )}

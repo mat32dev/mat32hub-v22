@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Disc, Zap, MapPin, Headphones, Martini, Calendar, Globe, MessageCircle, TrendingUp, ShoppingBag, Music } from 'lucide-react';
+import { ArrowRight, Disc, Zap, MapPin, Headphones, Martini, Calendar, Globe, MessageCircle, TrendingUp, ShoppingBag, Music, Radio, Heart } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { useLanguage } from '../context/LanguageContext';
 import { dataService } from '../services/dataService';
@@ -80,12 +79,12 @@ export const Home: React.FC = () => {
               MAT<span className="text-mat-500">32</span>
             </h1>
             <div className="flex items-center justify-center gap-4 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] md:text-sm -mt-2 md:-mt-6">
-               <MapPin size={16} className="text-white" /> VALENCIA <span className="text-gray-800">|</span> ESPAÑA
+               <MapPin size={16} className="text-white" /> VALENCIA <span className="text-gray-800">|</span> RUZAFA
             </div>
           </div>
 
           <p className="text-gray-400 max-w-2xl mx-auto text-lg md:text-2xl font-light italic mb-14 leading-relaxed px-4 opacity-80">
-            "El santuario Hi-Fi de Ruzafa. Sonido analógico puro, coctelería de autor y cultura de club en Valencia."
+            "El santuario Hi-Fi de Valencia. Sonido analógico puro, coctelería de autor y cultura de club."
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center px-4">
@@ -99,8 +98,43 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* COMMUNITY PULSE - Nueva sección comunitaria */}
+      <section className="py-24 bg-mat-900 border-y border-mat-800/30">
+         <div className="container mx-auto px-6">
+            <div className="grid lg:grid-cols-12 gap-16 items-center">
+               <div className="lg:col-span-5 space-y-8">
+                  <div className="inline-flex items-center gap-3 px-4 py-2 bg-mat-950 border border-mat-500/30 text-mat-500 text-[10px] font-black uppercase tracking-widest rounded-full">
+                     <Radio className="w-4 h-4 animate-pulse" /> COMMUNITY_PULSE
+                  </div>
+                  <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none">VIBRA <span className="text-mat-500">LOCAL.</span></h2>
+                  <p className="text-gray-400 text-lg font-light italic leading-relaxed">
+                     Mat32 no es solo un bar; es el punto de encuentro para diggers, selectores y amantes de la alta fidelidad en Valencia. Intercambia vinilos y conecta con la red.
+                  </p>
+                  <Link to="/community" className="inline-flex items-center gap-4 text-mat-500 font-black uppercase text-[10px] tracking-[0.4em] hover:text-white transition-all group">
+                     ENTRAR AL MURO <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+                  </Link>
+               </div>
+               <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {recentPosts.slice(0, 2).map(post => (
+                     <div key={post.id} className="bg-mat-800 border-2 border-mat-700 p-8 rounded-[2.5rem] shadow-xl hover:border-mat-500 transition-all group">
+                        <div className="flex items-center gap-4 mb-6">
+                           <div className="w-10 h-10 bg-mat-500 rounded-full flex items-center justify-center text-white font-black text-xs">{post.author[0]}</div>
+                           <span className="text-[10px] font-black uppercase text-white">@{post.author}</span>
+                        </div>
+                        <p className="text-gray-300 text-sm italic mb-6 line-clamp-3">"{post.content}"</p>
+                        <div className="flex items-center gap-4 text-[9px] font-black text-gray-500 uppercase">
+                           <span className="flex items-center gap-1.5"><Heart size={14} className="text-mat-500" /> {post.likes}</span>
+                           <span className="flex items-center gap-1.5"><MessageCircle size={14} /> {post.comments.length}</span>
+                        </div>
+                     </div>
+                  ))}
+               </div>
+            </div>
+         </div>
+      </section>
+
       {/* AGENDA SECTION */}
-      <section className="py-32 bg-mat-950 border-y border-mat-800/30">
+      <section className="py-32 bg-mat-950">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
             <div className="max-w-xl">
@@ -108,7 +142,7 @@ export const Home: React.FC = () => {
                 <Calendar size={18} /> PRÓXIMAS SESIONES
               </div>
               <h2 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter font-exo leading-none">LA <span className="text-mat-500">AGENDA.</span></h2>
-              <p className="text-gray-500 text-lg mt-6 italic">Selecciones curadas para el sistema Altec A7 en Ruzafa.</p>
+              <p className="text-gray-500 text-lg mt-6 italic">Selecciones curadas para el sistema Altec A7.</p>
             </div>
             <Link to="/events" className="group text-[11px] font-black text-gray-500 hover:text-white uppercase tracking-widest flex items-center gap-3 transition-colors pb-2 border-b-2 border-mat-800 hover:border-mat-500">
               PROGRAMACIÓN COMPLETA <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
@@ -133,7 +167,7 @@ export const Home: React.FC = () => {
                   <div className="mt-auto pt-6 border-t border-mat-800/50 flex items-center justify-between">
                      <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{event.category}</span>
                      <div className="text-mat-500 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all">
-                        GET TICKET <ArrowRight size={14} />
+                        VER MÁS <ArrowRight size={14} />
                      </div>
                   </div>
                 </div>
@@ -148,7 +182,7 @@ export const Home: React.FC = () => {
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
              <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo mb-6 leading-none">EXPLORA EL <span className="text-mat-500">HUB.</span></h2>
-             <p className="text-gray-500 max-w-xl mx-auto italic">Servicios exclusivos para la comunidad musical de Valencia y amantes del Hi-Fi.</p>
+             <p className="text-gray-500 max-w-xl mx-auto italic">Servicios exclusivos para la comunidad musical de Valencia.</p>
           </div>
           
           <div className="grid lg:grid-cols-3 gap-10">

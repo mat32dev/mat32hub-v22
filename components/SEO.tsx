@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useLocation } from 'react-router-dom';
@@ -14,7 +13,7 @@ export const SEO: React.FC<SEOProps> = ({
   titleKey, 
   descriptionKey, 
   schemaType = 'LocalBusiness',
-  image = "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1200"
+  image = "https://lrilkrktztlabjpxqbyc.supabase.co/storage/v1/object/public/local-gallery/PORTADA_2_mat32.jpg"
 }) => {
   const { t } = useLanguage();
   const location = useLocation();
@@ -68,10 +67,15 @@ export const SEO: React.FC<SEOProps> = ({
       "@graph": [
         {
           "@type": ["BarOrPub", "MusicStore", "LocalBusiness"],
+          "@id": "https://www.mat32.com/#organization",
           "name": "Mat32 Valencia Discos Bar",
-          "description": "El mejor sonido Hi-Fi de Valencia. Alquiler de local para eventos privados en Ruzafa.",
+          "description": siteDescription,
           "url": "https://www.mat32.com",
           "image": image,
+          "logo": {
+             "@type": "ImageObject",
+             "url": "https://www.mat32.com/hero-contact.jpg"
+          },
           "address": {
             "@type": "PostalAddress",
             "streetAddress": "Calle Matías Perelló, 32",
@@ -93,7 +97,10 @@ export const SEO: React.FC<SEOProps> = ({
             }
           ],
           "priceRange": "$$",
-          "telephone": "+34960000032"
+          "telephone": "+34960000032",
+          "sameAs": [
+            "https://www.instagram.com/mat32__"
+          ]
         },
         {
           "@type": "BreadcrumbList",

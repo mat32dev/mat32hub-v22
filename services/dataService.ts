@@ -1,8 +1,8 @@
 import { Post, VinylRecord, Event, SelectorSubmission, MenuCategory, InboxMessage, GalleryItem, Sale } from '../types';
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
-// CONFIGURACIÓN DEL HUB: URL de Google Apps Script de Mat32
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxy99rAms2CReVSbbRORT_mt32s_Sc-lZfNOSJU40S6QsFMUXK6Uw4yFetzJ-WeLFxTw/exec";
+// URL DE PRODUCCIÓN MAT32 WORKSPACE
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTNnhbhq6nRT_wJOnIQT1B5qrxA62bt7sr9vRjKxCBfI3ZqxrWG-kAigiCYHG3_iBMZA/exec";
 
 class DataService {
   private localKey = 'mat32_matrix_v26_crm_core';
@@ -56,14 +56,140 @@ class DataService {
     return { categories, tags };
   }
 
+  // --- HUB ACTIONS ---
+  // Added batchImportRecords to handle CSV imports in Marketplace and Community pages
+  async batchImportRecords(csvInput: string) {
+    const db = this.getDB();
+    const rows = csvInput.split('\n').filter(r => r.trim() !== '');
+    const dataRows = rows[0].toLowerCase().includes('artista') ? rows.slice(1) : rows;
+    
+    dataRows.forEach(row => {
+      const parts = row.split(',').map(s => s.trim());
+      if (parts.length >= 4) {
+        const [artist, title, price, genre] = parts;
+        const id = `r_imp_${Math.random().toString(36).substr(2, 9)}`;
+        db.records.push({
+          id,
+          sku: id.toUpperCase(),
+          artist,
+          title,
+          price: parseFloat(price) || 0,
+          genre,
+          stock: 1,
+          coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
+          description: `Imported record: ${title} by ${artist}`,
+          sellerId: 'mat32_archive',
+          status: 'published',
+          tags: [genre.toLowerCase()],
+          condition: 'VG+',
+          year: '2024',
+          label: 'Unknown',
+          format: 'LP',
+          discogsLink: '#'
+        });
+      }
+    });
+    this.saveDB(db);
+    return dataRows.length;
+  }
+
+  // Added syncDiscogsCollection to simulate external API sync
+  async syncDiscogsCollection(username: string) {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const db = this.getDB();
+    const id = `r_discogs_${Math.random().toString(36).substr(2, 9)}`;
+    db.records.push({
+      id,
+      sku: `DISCOGS-${username.toUpperCase()}`,
+      artist: 'Sync Artist',
+      title: `${username}'s Favorite Record`,
+      price: 25,
+      genre: 'Electronic',
+      stock: 1,
+      coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
+      description: `Synced from Discogs user ${username}`,
+      sellerId: username,
+      status: 'published',
+      tags: ['discogs', 'synced'],
+      condition: 'NM',
+      year: '2023',
+      label: 'Discogs Label',
+      format: 'LP',
+      discogsLink: `https://www.discogs.com/user/${username}/collection`
+    });
+    this.saveDB(db);
+    return 1;
+  }
+
+  // Added createSelector for Open Decks submissions
+  async createSelector(s: Partial<SelectorSubmission>) {
+    const db = this.getDB();
+    const entry = {
+      id: `sel_${Date.now()}`,
+      status: 'pending',
+      ...s
+    } as SelectorSubmission;
+    if (!db.selectors) db.selectors = [];
+    db.selectors.push(entry);
+    this.saveDB(db);
+  }
+
+  // Added processMatrixImport for bulk admin updates
+  async processMatrixImport(csvData: string) {
+    const db = this.getDB();
+    const rows = csvData.split('\n').filter(r => r.trim() !== '');
+    const dataRows = rows[0] && (rows[0].includes('ID') || rows[0].includes('|')) ? rows.slice(1) : rows;
+
+    dataRows.forEach(row => {
+      const parts = row.split('|').map(s => s?.trim());
+      if (parts.length < 4) return;
+      
+      const [id, type, title, content, mediaUrl, price, stock, eventDate, tagsStr] = parts;
+      const tags = tagsStr ? tagsStr.split(' ') : [];
+
+      if (type === 'POST') {
+        const existingIdx = db.posts.findIndex((p: any) => p.id === id);
+        const postData = { id, title, content, imageUrl: mediaUrl, timestamp: 'Importado', tags, author: 'Hub_System', likes: 0, comments: [] };
+        if (existingIdx > -1) db.posts[existingIdx] = postData;
+        else db.posts.unshift(postData);
+      } 
+      else if (type === 'EVENT') {
+        const existingIdx = db.events.findIndex((e: any) => e.id === id);
+        const eventData = { 
+          id, title, description: content, imageUrl: mediaUrl, price: parseFloat(price) || 0, 
+          capacity: parseInt(stock) || 50, date: eventDate || '2025-12-31', time: '21:00', tags, 
+          status: 'published', attendees: 0, category: tags[0]?.replace('#','') || 'General', lineup: [] 
+        };
+        if (existingIdx > -1) db.events[existingIdx] = eventData;
+        else db.events.push(eventData);
+      }
+      else if (type === 'PRODUCT') {
+        const existingIdx = db.records.findIndex((r: any) => r.id === id);
+        const recordData = { 
+          id, sku: id, title, artist: 'Various', price: parseFloat(price) || 20, 
+          stock: parseInt(stock) || 1, coverUrl: mediaUrl, description: content, 
+          genre: tags[0]?.replace('#','') || 'Vinyl', status: 'published', 
+          tags, sellerId: 'hub_vendor', isOpenToTrade: true, condition: 'NM',
+          year: '2025', label: 'Matrix Hub', format: 'LP', discogsLink: '#'
+        };
+        if (existingIdx > -1) db.records[existingIdx] = recordData;
+        else db.records.push(recordData);
+      }
+    });
+
+    this.saveDB(db);
+    return dataRows.length;
+  }
+
+  // Added getGalleryTaxonomy for the gallery filter system
   async getGalleryTaxonomy() {
-    const items = await this.getGallery();
-    const categories = Array.from(new Set(items.map(i => i.category))).filter(Boolean);
-    const tags = Array.from(new Set(items.flatMap(i => i.tags))).filter(Boolean);
+    const gallery = await this.getGallery();
+    const categories = Array.from(new Set(gallery.map(g => g.category))).filter(Boolean);
+    const tags = Array.from(new Set(gallery.flatMap(g => g.tags))).filter(Boolean);
     return { categories, tags };
   }
 
-  // --- CRM: ENVÍO REAL A HOLA@MAT32.COM ---
+  // --- CRM: TRANSMISIÓN SEGURA A HOLA@MAT32.COM ---
   async createInboxMessage(m: Partial<InboxMessage>) { 
     const db = this.getDB(); 
     const entry = { 
@@ -73,34 +199,41 @@ class DataService {
       ...m
     } as InboxMessage;
     
-    // 1. Guardar localmente (Respaldo inmediato)
+    // 1. Persistencia local inmediata
     db.inbox.unshift(entry); 
     this.saveDB(db);
 
-    // 2. Transmisión al Workspace de Mat32
+    // 2. Inyección en Google Workspace via Mat32 Connector
     try {
       await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors', 
         cache: 'no-cache',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(entry)
       });
-      console.log("SIGNAL_SENT: Inyección en hola@mat32.com completada.");
+      console.log("SIGNAL_SENT: Lead inyectado en Mat32 Workspace.");
     } catch (error) {
-      console.error("CRITICAL_ERROR: Fallo en la transmisión al Hub.", error);
+      console.error("DASHBOARD_ERROR: Fallo en la transmisión física.", error);
     }
   }
 
+  // --- ADMIN & AUTH ---
   async recordSale(sale: Partial<Sale>) {
     const db = this.getDB();
     const newSale = { id: `sale_${Date.now()}`, status: 'pending', ...sale } as Sale;
     if (!db.sales) db.sales = [];
     db.sales.unshift(newSale);
     this.saveDB(db);
+    // Notificamos la venta también al inbox
+    await this.createInboxMessage({
+      type: 'sale',
+      sender: sale.customerName || 'Cliente Online',
+      email: sale.customerEmail || '',
+      content: `Nueva venta de ${sale.type} por valor de €${sale.total}`
+    });
   }
 
-  // --- ADMIN & AUTH ---
   async updateMessageStatus(id: string, status: InboxMessage['status']) {
     const db = this.getDB();
     const idx = db.inbox.findIndex((m: any) => m.id === id);
@@ -123,63 +256,6 @@ class DataService {
   }
   logout() { localStorage.removeItem('mat32_admin_token'); }
 
-  // --- CRM OPERATIONS ---
-  async syncDiscogsCollection(username: string) {
-    await new Promise(r => setTimeout(r, 1000));
-    const db = this.getDB();
-    db.records.unshift({ id: `ds_${Date.now()}`, artist: 'Sync', title: `@${username} Collection`, price: 0, status: 'published' } as any);
-    this.saveDB(db);
-    return 1;
-  }
-  
-  async batchImportRecords(csv: string) {
-    await new Promise(r => setTimeout(r, 500));
-    return 1;
-  }
-
-  async processMatrixImport(csvData: string) {
-    const db = this.getDB();
-    const rows = csvData.split('\n').filter(r => r.trim() !== '');
-    const dataRows = rows[0].includes('ID') ? rows.slice(1) : rows;
-
-    dataRows.forEach(row => {
-      const parts = row.split('\t').map(s => s?.trim());
-      if (parts.length < 2) return;
-      const [id, type, title, content, mediaUrl, price, stock, eventDate, tagsStr] = parts;
-      const tags = tagsStr ? tagsStr.split(' ') : [];
-
-      if (type === 'POST') {
-        db.posts.unshift({ id, title, content, imageUrl: mediaUrl, timestamp: 'Importado', tags, author: 'Hub_System', likes: 0, comments: [], type: 'POST', status: 'published' });
-      } 
-      else if (type === 'EVENT') {
-        db.events.push({ id, title, description: content, imageUrl: mediaUrl, price: parseFloat(price) || 0, capacity: parseInt(stock) || 50, date: eventDate, time: '21:00', tags, status: 'published', attendees: 0, category: tags[0]?.replace('#','') || 'General', lineup: [], slug: id, location: 'Mat32', paidPrice: 0, ticketLink: '#', vibe: [] });
-      }
-      else if (type === 'PRODUCT') {
-        db.records.push({ id, sku: id, title, artist: 'Various', price: parseFloat(price) || 20, stock: parseInt(stock) || 1, coverUrl: mediaUrl, description: content, genre: tags[0]?.replace('#','') || 'Vinyl', status: 'published', tags, sellerId: 'hub_vendor', isOpenToTrade: true, condition: 'NM', label: 'Import', year: '2025', format: 'LP', discogsLink: '#', slug: id });
-      }
-    });
-
-    this.saveDB(db);
-    return dataRows.length;
-  }
-
-  async getUserRSVPs(): Promise<string[]> {
-    const db = this.getDB();
-    const userName = localStorage.getItem('mat32_user_name');
-    if (!userName) return [];
-    const rsvps = [];
-    for (const eventId in db.rsvps) {
-      if (db.rsvps[eventId].includes(userName)) rsvps.push(eventId);
-    }
-    return rsvps;
-  }
-
-  async getEventGuestList(eventId: string): Promise<{name: string}[]> {
-    const db = this.getDB();
-    const list = db.rsvps?.[eventId] || [];
-    return list.map((name: string) => ({ name }));
-  }
-
   async toggleRSVP(eventId: string, userName: string, active: boolean) {
     const db = this.getDB();
     if (!db.rsvps) db.rsvps = {};
@@ -192,17 +268,21 @@ class DataService {
     this.saveDB(db);
   }
 
-  async createSelector(s: Partial<SelectorSubmission>) {
+  async getEventGuestList(eventId: string): Promise<{name: string}[]> {
     const db = this.getDB();
-    if (!db.selectors) db.selectors = [];
-    db.selectors.push({ id: `sel_${Date.now()}`, status: 'pending', ...s } as any);
-    this.saveDB(db);
+    const list = db.rsvps?.[eventId] || [];
+    return list.map((name: string) => ({ name }));
   }
 
-  async getSelectors(approvedOnly: boolean = false): Promise<SelectorSubmission[]> {
-    const selectors = this.getDB().selectors || [];
-    if (approvedOnly) return selectors.filter((s: any) => s.status === 'approved');
-    return selectors;
+  async getUserRSVPs(): Promise<string[]> {
+    const db = this.getDB();
+    const userName = localStorage.getItem('mat32_user_name');
+    if (!userName) return [];
+    const rsvps = [];
+    for (const eventId in db.rsvps) {
+      if (db.rsvps[eventId].includes(userName)) rsvps.push(eventId);
+    }
+    return rsvps;
   }
 }
 
