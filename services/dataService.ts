@@ -2,56 +2,36 @@
 import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem, Sale, MenuItem, MenuCategory, UserSession, UserRole } from '../types';
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
-class DataService {
-  private localKey = 'mat32_matrix_production_v1'; // Clave estable definitiva
-  private sessionKey = 'mat32_auth_session';
-  private oldKeys = ['mat32_core_v40', 'mat32_matrix_core_v32', 'mat32_matrix_core'];
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUqaYPiWSjt37UxQnpL6ZgSb5Rsr-oA-mdNPFxdtkYtHXI0U9DL6eh-cwbfVbvBAhFXw/exec";
 
+class DataService {
+  private localKey = 'mat32_matrix_core_v31';
+  private sessionKey = 'mat32_auth_session';
+  
   constructor() {
-    this.initDatabase();
+    this.initDefaultData();
   }
 
-  private initDatabase() {
-    const existingData = localStorage.getItem(this.localKey);
-    
-    if (!existingData) {
-      // Intentar migrar de versiones antiguas antes de cargar MOCKS
-      let migratedData = null;
-      for (const key of this.oldKeys) {
-        const oldData = localStorage.getItem(key);
-        if (oldData) {
-          console.log(`Sistema Mat32: Migrando datos desde ${key}`);
-          migratedData = JSON.parse(oldData);
-          break;
-        }
-      }
-
-      if (migratedData) {
-        this.saveDB(migratedData);
-      } else {
-        const db = {
-          posts: MOCK_POSTS.map(p => ({ ...p, id: p.id || `p_${Math.random().toString(36).substr(2, 9)}`, comments: [], likes: 12, timestamp: 'Reciente' })),
-          records: MOCK_RECORDS.map(r => ({ ...r, id: r.id || `r_${Math.random().toString(36).substr(2, 9)}`, isOpenToTrade: true, sellerId: 'mat32_archive' })),
-          events: MOCK_EVENTS.map(e => ({ ...e, id: e.id || `e_${Math.random().toString(36).substr(2, 9)}`, status: 'published' })),
-          gallery: [
-            { id: 'g1', title: 'Portal Mat32', description: 'Entrada analógica Ruzafa.', imageUrl: 'https://lrilkrktztlabjpxqbyc.supabase.co/storage/v1/object/public/local-gallery/PORTADA_2_mat32.jpg', tags: ['#hifi'], category: 'Interior' }
-          ],
-          selectors: MOCK_SELECTORS,
-          inbox: [] as InboxMessage[],
-          rsvps: {} as Record<string, {name: string}[]>,
-          sales: [] as Sale[]
-        };
-        this.saveDB(db);
-      }
+  private initDefaultData() {
+    if (!localStorage.getItem(this.localKey)) {
+      const db = {
+        posts: MOCK_POSTS.map(p => ({ ...p, id: p.id || `p_${Math.random().toString(36).substr(2, 9)}`, comments: [], likes: 12, timestamp: 'Reciente' })),
+        records: MOCK_RECORDS.map(r => ({ ...r, id: r.id || `r_${Math.random().toString(36).substr(2, 9)}`, isOpenToTrade: true, sellerId: 'mat32_archive' })),
+        events: MOCK_EVENTS.map(e => ({ ...e, id: e.id || `e_${Math.random().toString(36).substr(2, 9)}`, status: 'published' })),
+        gallery: [
+          { id: 'g1', title: 'Portal Mat32', description: 'Entrada analógica Ruzafa.', imageUrl: 'https://lrilkrktztlabjpxqbyc.supabase.co/storage/v1/object/public/local-gallery/PORTADA_2_mat32.jpg', tags: ['#hifi'], category: 'Interior' }
+        ],
+        selectors: MOCK_SELECTORS,
+        inbox: [] as InboxMessage[],
+        rsvps: {} as Record<string, string[]>,
+        sales: [] as Sale[]
+      };
+      this.saveDB(db);
     }
   }
 
   private getDB() {
-    try {
-      return JSON.parse(localStorage.getItem(this.localKey) || '{}');
-    } catch (e) {
-      return {};
-    }
+    return JSON.parse(localStorage.getItem(this.localKey) || '{}');
   }
 
   private saveDB(data: any) {
@@ -59,17 +39,17 @@ class DataService {
     window.dispatchEvent(new CustomEvent('mat32_data_changed'));
   }
 
-  // --- AUTH ---
+  // --- AUTH & ROLES ---
   async login(email: string, pass: string): Promise<boolean> {
     let session: UserSession | null = null;
-    const cleanPass = pass.trim();
-    
-    if (cleanPass === 'mat32_admin') {
-      session = { id: 'admin_1', role: 'ADMIN', name: 'Mat32 Manager', email: email || 'admin@mat32.com' };
-    } else if (cleanPass === 'mat32_dj') {
-      session = { id: 'dj_selector_1', role: 'DJ', name: 'Selector Residente', email: email || 'dj@mat32.com' };
-    } else if (cleanPass === 'mat32_user') {
-      session = { id: 'user_99', role: 'CUSTOMER', name: 'Digger Member', email: email || 'user@mat32.com' };
+
+    // Mock logic for demo purposes
+    if (pass === 'mat32_admin') {
+      session = { id: 'admin_1', role: 'ADMIN', name: 'Mat32 Manager', email: 'admin@mat32.com' };
+    } else if (pass === 'mat32_dj') {
+      session = { id: 'dj_selector_1', role: 'DJ', name: 'Selector Residente', email: 'dj@mat32.com' };
+    } else if (pass === 'mat32_user') {
+      session = { id: 'user_99', role: 'CUSTOMER', name: 'Digger Member', email: 'user@mat32.com' };
     }
 
     if (session) {
@@ -91,12 +71,25 @@ class DataService {
     return s ? JSON.parse(s) : null;
   }
 
-  isAuthenticated() { return !!this.getSession(); }
+  isAuthenticated() { return !!localStorage.getItem(this.sessionKey); }
+  getUserRole(): UserRole | null { return this.getSession()?.role || null; }
 
-  // --- EVENTS CRUD ---
+  // --- GETTERS ---
   async getEvents(): Promise<Event[]> { return this.getDB().events || []; }
-  async getEventById(id: string) { return (await this.getEvents()).find(e => e.id === id); }
+  async getRecords(): Promise<VinylRecord[]> { return this.getDB().records || []; }
+  async getPosts(): Promise<Post[]> { return this.getDB().posts || []; }
+  async getCommunityPosts(): Promise<Post[]> { return this.getPosts(); }
+  async getGallery(): Promise<GalleryItem[]> { return this.getDB().gallery || []; }
+  async getLocalGallery(): Promise<GalleryItem[]> { return this.getGallery(); }
+  async getBarMenu(): Promise<MenuCategory[]> { return BAR_MENU; }
   
+  async getEventById(id: string) { return (await this.getEvents()).find(e => e.id === id); }
+  async getRecordById(id: string) { return (await this.getRecords()).find(r => r.id === id); }
+  async getPostById(id: string) { return (await this.getPosts()).find(p => p.id === id); }
+  async getInbox(): Promise<InboxMessage[]> { return this.getDB().inbox || []; }
+  async getSales(): Promise<Sale[]> { return this.getDB().sales || []; }
+
+  // --- CRUD (Admin Only Logic usually checked in UI) ---
   async createEvent(event: Partial<Event>) {
     const db = this.getDB();
     const newEvent = {
@@ -109,7 +102,6 @@ class DataService {
       vibe: event.vibe || [],
       tags: event.tags || []
     } as Event;
-    if (!db.events) db.events = [];
     db.events.unshift(newEvent);
     this.saveDB(db);
     return newEvent;
@@ -130,117 +122,90 @@ class DataService {
     this.saveDB(db);
   }
 
-  // --- RECORDS CRUD ---
-  async getRecords(): Promise<VinylRecord[]> { return this.getDB().records || []; }
-  async getRecordById(id: string) { return (await this.getRecords()).find(r => r.id === id); }
-
-  async createRecord(record: Partial<VinylRecord>) {
-    const db = this.getDB();
-    const newRecord = {
-      ...record,
-      id: `v_${Date.now()}`,
-      stock: record.stock || 1,
-      status: 'published',
-      tags: record.tags || [],
-      slug: (record.title || '').toLowerCase().replace(/\s+/g, '-')
-    } as VinylRecord;
-    if (!db.records) db.records = [];
-    db.records.unshift(newRecord);
-    this.saveDB(db);
-    return newRecord;
-  }
-
-  async updateRecord(id: string, updates: Partial<VinylRecord>) {
-    const db = this.getDB();
-    const idx = db.records.findIndex((r: any) => r.id === id);
-    if (idx > -1) {
-      db.records[idx] = { ...db.records[idx], ...updates };
-      this.saveDB(db);
-    }
-  }
-
-  async deleteRecord(id: string) {
-    const db = this.getDB();
-    db.records = db.records.filter((r: any) => r.id !== id);
-    this.saveDB(db);
-  }
-
-  // --- DJ SUBMISSIONS ---
-  async getSelectors(): Promise<SelectorSubmission[]> { return this.getDB().selectors || []; }
-  
-  async createSelector(s: Partial<SelectorSubmission>) {
-    const db = this.getDB();
-    const newSel = { id: `sel_${Date.now()}`, status: 'pending', ...s } as SelectorSubmission;
-    if (!db.selectors) db.selectors = [];
-    db.selectors.push(newSel);
-    this.saveDB(db);
-  }
-
-  async updateSelectorStatus(id: string, status: 'approved' | 'rejected' | 'pending') {
-    const db = this.getDB();
-    const idx = db.selectors.findIndex((s: any) => s.id === id);
-    if (idx > -1) {
-      db.selectors[idx].status = status;
-      this.saveDB(db);
-    }
-  }
-
   // --- CRM & INBOX ---
-  async getInbox(): Promise<InboxMessage[]> { return this.getDB().inbox || []; }
   async createInboxMessage(m: Partial<InboxMessage>) { 
     const db = this.getDB(); 
-    const entry = { id: `msg_${Date.now()}`, date: new Date().toISOString(), status: 'pending', ...m } as InboxMessage;
-    if (!db.inbox) db.inbox = [];
+    const entry = { 
+      id: `msg_${Date.now()}`, 
+      date: new Date().toISOString(), 
+      status: 'pending',
+      ...m
+    } as InboxMessage;
+    
     db.inbox.unshift(entry); 
     this.saveDB(db);
+
+    try {
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors', 
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(entry)
+      });
+    } catch (error) {
+      console.error("Fallo de transmisión al Workspace.", error);
+    }
   }
 
-  async getSales(): Promise<Sale[]> { return this.getDB().sales || []; }
   async recordSale(sale: Partial<Sale>) {
     const db = this.getDB();
     const newSale = { id: `sale_${Date.now()}`, status: 'pending', ...sale } as Sale;
     if (!db.sales) db.sales = [];
     db.sales.unshift(newSale);
     this.saveDB(db);
+    await this.createInboxMessage({
+      type: 'sale',
+      sender: sale.customerName || 'Cliente Online',
+      content: `Pedido registrado por valor de €${sale.total}`
+    });
   }
 
-  // --- RSVP ---
-  async getUserRSVPs(): Promise<string[]> {
-    const userName = localStorage.getItem('mat32_user_name');
-    if (!userName) return [];
+  async updateMessageStatus(id: string, status: InboxMessage['status']) {
     const db = this.getDB();
-    const rsvps = db.rsvps || {};
-    return Object.keys(rsvps).filter(eventId => 
-      rsvps[eventId].some((g: any) => g.name === userName)
-    );
+    const idx = db.inbox.findIndex((m: any) => m.id === id);
+    if (idx > -1) db.inbox[idx].status = status;
+    this.saveDB(db);
   }
 
-  async getEventGuestList(eventId: string): Promise<{name: string}[]> {
+  async syncDiscogsCollection(username: string) {
+    await new Promise(r => setTimeout(r, 1500));
+    return 1;
+  }
+
+  async createSelector(s: Partial<SelectorSubmission>) {
     const db = this.getDB();
-    return (db.rsvps && db.rsvps[eventId]) || [];
+    db.selectors.push({ id: `sel_${Date.now()}`, status: 'pending', ...s } as any);
+    this.saveDB(db);
   }
 
+  // --- RSVP SYSTEM ---
   async toggleRSVP(eventId: string, userName: string, active: boolean) {
     const db = this.getDB();
     if (!db.rsvps) db.rsvps = {};
     if (!db.rsvps[eventId]) db.rsvps[eventId] = [];
     if (active) {
-      if (!db.rsvps[eventId].some((g: any) => g.name === userName)) {
-        db.rsvps[eventId].push({ name: userName });
-      }
+      if (!db.rsvps[eventId].includes(userName)) db.rsvps[eventId].push(userName);
     } else {
-      db.rsvps[eventId] = db.rsvps[eventId].filter((g: any) => g.name !== userName);
+      db.rsvps[eventId] = db.rsvps[eventId].filter((n: string) => n !== userName);
     }
     this.saveDB(db);
   }
 
-  // --- OTHERS ---
-  async getPosts(): Promise<Post[]> { return this.getDB().posts || []; }
-  async getCommunityPosts(): Promise<Post[]> { return this.getPosts(); }
-  async getPostById(id: string) { return (await this.getPosts()).find(p => p.id === id); }
-  async getGallery(): Promise<GalleryItem[]> { return this.getDB().gallery || []; }
-  async getLocalGallery(): Promise<GalleryItem[]> { return this.getGallery(); }
-  async getBarMenu(): Promise<MenuCategory[]> { return BAR_MENU; }
+  async getEventGuestList(eventId: string) {
+    const db = this.getDB();
+    return (db.rsvps?.[eventId] || []).map((name: string) => ({ name }));
+  }
+
+  async getUserRSVPs() {
+    const db = this.getDB();
+    const userName = localStorage.getItem('mat32_user_name');
+    if (!userName) return [];
+    const res = [];
+    for (const id in db.rsvps) {
+      if (db.rsvps[id].includes(userName)) res.push(id);
+    }
+    return res;
+  }
   
   async getTaxonomyTree() {
     const records = await this.getRecords();
@@ -253,90 +218,38 @@ class DataService {
   async getGalleryTaxonomy() {
     const gallery = await this.getGallery();
     return {
-      categories: Array.from(new Set(gallery.map(i => i.category))),
-      tags: Array.from(new Set(gallery.flatMap(i => i.tags || [])))
+      categories: Array.from(new Set(gallery.map(g => g.category))),
+      tags: Array.from(new Set(gallery.flatMap(g => g.tags || [])))
     };
   }
 
+  // Fix: Implemented batchImportRecords to process CSV formatted string input
   async batchImportRecords(csv: string): Promise<number> {
     const lines = csv.split('\n').filter(l => l.trim().length > 0);
     const db = this.getDB();
     let count = 0;
-    for (let i = 0; i < lines.length; i++) {
+    const startIdx = (lines[0] && lines[0].toLowerCase().includes('artista')) ? 1 : 0;
+    for (let i = startIdx; i < lines.length; i++) {
       const parts = lines[i].split(',').map(p => p.trim());
       if (parts.length >= 2) {
         db.records.unshift({
           id: `r_batch_${Date.now()}_${count}`,
-          artist: parts[0] || 'Unknown',
-          title: parts[1] || 'Unknown',
+          artist: parts[0] || 'Unknown Artist',
+          title: parts[1] || 'Unknown Title',
           price: parseFloat(parts[2]) || 25,
           genre: parts[3] || 'General',
+          condition: 'NM',
           stock: 1,
           coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
-          status: 'published'
-        } as any);
+          status: 'published',
+          tags: ['batch-import'],
+          sellerId: this.getSession()?.id || 'mat32_admin'
+        });
         count++;
       }
     }
     this.saveDB(db);
     return count;
-  }
-
-  // --- DISCOGS SYNC ---
-  // Fix: Added missing syncDiscogsCollection method to fulfill calls from Community and Marketplace components.
-  async syncDiscogsCollection(username: string): Promise<number> {
-    // Simulate API call to Discogs with a slight delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    const db = this.getDB();
-    
-    // Mock synced data representing items from a user's collection
-    const syncedRecords: VinylRecord[] = [
-      {
-        id: `r_sync_${Date.now()}_1`,
-        sku: `SYNC-${Math.random().toString(36).substr(2, 5)}`,
-        artist: 'Aphex Twin',
-        title: 'Selected Ambient Works 85-92',
-        price: 35,
-        genre: 'Ambient',
-        stock: 1,
-        coverUrl: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=800',
-        status: 'published',
-        tags: ['discogs', 'verified'],
-        slug: 'aphex-twin-saw-85-92',
-        label: 'Apollo',
-        year: '1992',
-        format: '2xLP',
-        condition: 'NM',
-        description: `Imported from ${username}'s Discogs collection.`,
-        sellerId: username,
-        isOpenToTrade: true
-      },
-      {
-        id: `r_sync_${Date.now()}_2`,
-        sku: `SYNC-${Math.random().toString(36).substr(2, 5)}`,
-        artist: 'Kraftwerk',
-        title: 'The Man-Machine',
-        price: 28,
-        genre: 'Electronic',
-        stock: 1,
-        coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
-        status: 'published',
-        tags: ['discogs', 'classic'],
-        slug: 'kraftwerk-man-machine',
-        label: 'Capitol',
-        year: '1978',
-        format: 'LP',
-        condition: 'VG+',
-        description: `Classic synth-pop from ${username}'s collection.`,
-        sellerId: username,
-        isOpenToTrade: true
-      }
-    ];
-
-    if (!db.records) db.records = [];
-    db.records = [...syncedRecords, ...db.records];
-    this.saveDB(db);
-    return syncedRecords.length;
   }
 }
 
