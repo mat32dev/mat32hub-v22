@@ -119,7 +119,7 @@ export const Home: React.FC = () => {
                      EXPLORAR EL MURO <ArrowRight size={16} />
                   </Link>
                </div>
-               <div className="lg:col-span-7 grid md:grid-cols-2 gap-6">
+               <div className="lg:col-span-7 grid md:grid-cols-2 gap-6" style={{ wordBreak: 'break-word' }}>
                   {recentPosts.map(post => (
                     <div key={post.id} className="bg-mat-800 border border-mat-700 p-8 rounded-[2.5rem] shadow-xl">
                         <div className="flex items-center gap-4 mb-6">

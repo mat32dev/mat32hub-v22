@@ -78,7 +78,7 @@ export const Contact: React.FC = () => {
              </div>
           </div>
 
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7" style={{ wordBreak: 'break-word' }}>
              <div className="bg-mat-800 border-2 border-mat-700 p-8 md:p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500"></div>
                 <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo mb-10">RESERVAR MESA</h2>
