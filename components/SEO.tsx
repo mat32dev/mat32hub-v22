@@ -1,5 +1,6 @@
 
-import { useEffect } from 'react';
+// Added React to imports to resolve "Cannot find namespace 'React'" error on line 14
+import React, { useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useLocation } from 'react-router-dom';
 
