@@ -17,7 +17,7 @@ export const SEO: React.FC<SEOProps> = ({
   descriptionKey, 
   keywordsKey,
   schemaType = 'LocalBusiness',
-  image = "https://lrilkrktztlabjpxqbyc.supabase.co/storage/v1/object/public/local-gallery/PORTADA_2_mat32.jpg"
+  image = "https://imagedelivery.net/f4c2d13d7f6a74d21dacac9c2eb7ba5d/7701241e-71ee-4929-18c0-d1d0d9576e00/public"
 }) => {
   const { t } = useLanguage();
   const location = useLocation();

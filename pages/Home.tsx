@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Disc, Zap, MapPin, Globe, Radio, Heart, ShoppingBag, Layers, MessageCircle } from 'lucide-react';
@@ -37,7 +38,7 @@ export const Home: React.FC = () => {
       <section className="relative h-[95vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <CachedImage 
-            src="https://lrilkrktztlabjpxqbyc.supabase.co/storage/v1/object/public/local-gallery/PORTADA_2_mat32.jpg" 
+            src="https://imagedelivery.net/f4c2d13d7f6a74d21dacac9c2eb7ba5d/7701241e-71ee-4929-18c0-d1d0d9576e00/public" 
             className="w-full h-full opacity-40 grayscale"
             alt="Mat32 Hi-Fi Hub Valencia Ruzafa"
             priority={true}

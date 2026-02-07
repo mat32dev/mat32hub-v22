@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Loader2, Send, CheckCircle2, Music, ShieldCheck, Zap, Info } from 'lucide-react';
+import { Loader2, Send, CheckCircle2, Music, ShieldCheck, Zap, Info } from 'lucide-center';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
 
@@ -39,7 +40,7 @@ export const PrivateEvents: React.FC = () => {
       
       <section className="relative min-h-[60vh] flex items-center justify-center pt-20 overflow-hidden">
          <div className="absolute inset-0 z-0">
-           <img src="https://lrilkrktztlabjpxqbyc.supabase.co/storage/v1/object/public/local-gallery/mat32%20inside.jpg" className="w-full h-full object-cover opacity-30 grayscale" />
+           <img src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/5dea483e-141a-4665-8085-5c163d8eda00/public" className="w-full h-full object-cover opacity-30 grayscale" />
            <div className="absolute inset-0 bg-gradient-to-b from-mat-900/90 via-mat-900/40 to-mat-900"></div>
          </div>
          <div className="container mx-auto px-6 text-center relative z-10">

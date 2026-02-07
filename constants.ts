@@ -40,7 +40,7 @@ export const MOCK_POSTS: Post[] = [
     slug: 'pure-analog-vibes-mat32',
     author: 'mat32__',
     content: 'Pure Analog Vibes at Mat32. El sonido de Ruzafa esta tarde con la nueva llegada de Japón. #HiFi #Ruzafa #Valencia',
-    imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800',
+    imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public',
     likes: 156,
     comments: [],
     timestamp: 'Hace 1 hora',
@@ -57,9 +57,9 @@ export const MOCK_EVENTS: Event[] = [
     date: getFutureDate(2),
     time: '20:00',
     location: 'Mat32',
-    description: 'Noche de Soul y Funk con vinilos originales.',
+    description: 'Noche de Soul y Funk con vinilos originales en el corazón de Valencia.',
     category: 'Hi-Fi Sessions',
-    imageUrl: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=800',
+    imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public',
     attendees: 12,
     capacity: 40,
     price: 0,
@@ -69,6 +69,26 @@ export const MOCK_EVENTS: Event[] = [
     vibe: ['Soul', 'Funk'],
     status: 'published',
     tags: ['#soul', '#funk']
+  },
+  {
+    id: 'e_2',
+    title: 'Analog Deep Sessions',
+    slug: 'analog-deep-sessions',
+    date: getFutureDate(5),
+    time: '22:00',
+    location: 'Mat32',
+    description: 'Viaje sonoro a través de la electrónica más profunda con nuestro sistema de sonido Hi-Fi.',
+    category: 'Electronic Hub',
+    imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public',
+    attendees: 8,
+    capacity: 35,
+    price: 0,
+    paidPrice: 0,
+    ticketLink: '#',
+    lineup: [{ name: 'Selector Resident', role: 'Vinyl Specialist' }],
+    vibe: ['Deep', 'Ambient'],
+    status: 'published',
+    tags: ['#electronic', '#hifi']
   }
 ];
 
@@ -150,7 +170,7 @@ export const BAR_MENU: MenuCategory[] = [
 export const MOCK_INSTAGRAM_POSTS: InstagramPost[] = [
   {
     id: 'ig_1',
-    imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800',
+    imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public',
     link: '#',
     likes: 120,
     comments: 12,

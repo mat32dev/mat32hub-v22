@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Mail, MapPin, CheckCircle, Loader2, Send, MessageSquare, Info, AlertCircle } from 'lucide-react';
 import { SEO } from '../components/SEO';
@@ -71,7 +72,7 @@ export const Contact: React.FC = () => {
       
       <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden border-b border-mat-800">
         <div className="absolute inset-0 z-0 bg-mat-950">
-          <img src="https://lrilkrktztlabjpxqbyc.supabase.co/storage/v1/object/public/local-gallery/PORTADA_2_mat32.jpg" alt="Mat32" className="w-full h-full object-cover opacity-20 grayscale" />
+          <img src="https://imagedelivery.net/f4c2d13d7f6a74d21dacac9c2eb7ba5d/7701241e-71ee-4929-18c0-d1d0d9576e00/public" alt="Mat32" className="w-full h-full object-cover opacity-20 grayscale" />
         </div>
         <div className="container mx-auto px-6 relative z-10 text-center pt-20">
           <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter text-white font-exo leading-none mb-6">

@@ -157,3 +157,13 @@ export interface ChatMessage {
   role: 'user' | 'model';
   text: string;
 }
+
+// Added missing UserRole and UserSession for authentication
+export type UserRole = 'ADMIN' | 'DJ' | 'CUSTOMER';
+
+export interface UserSession {
+  id: string;
+  role: UserRole;
+  name: string;
+  email: string;
+}
