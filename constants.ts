@@ -104,7 +104,7 @@ export const MOCK_RECORDS: VinylRecord[] = [
     condition: 'NM',
     price: 45,
     stock: 1,
-    coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
+    coverUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public',
     genre: 'Techno',
     format: 'LP',
     discogsLink: '#',

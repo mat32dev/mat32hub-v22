@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Loader2, Send, CheckCircle2, Music, ShieldCheck, Zap, Info } from 'lucide-center';
+import { Loader2, Send, CheckCircle2, Music, ShieldCheck, Zap, Info } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
 

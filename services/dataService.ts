@@ -3,7 +3,7 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v1'; // Clave estable definitiva
+  private localKey = 'mat32_matrix_production_v1';
   private sessionKey = 'mat32_auth_session';
   private oldKeys = ['mat32_core_v40', 'mat32_matrix_core_v32', 'mat32_matrix_core'];
 
@@ -15,12 +15,10 @@ class DataService {
     const existingData = localStorage.getItem(this.localKey);
     
     if (!existingData) {
-      // Intentar migrar de versiones antiguas antes de cargar MOCKS
       let migratedData = null;
       for (const key of this.oldKeys) {
         const oldData = localStorage.getItem(key);
         if (oldData) {
-          console.log(`Sistema Mat32: Migrando datos desde ${key}`);
           migratedData = JSON.parse(oldData);
           break;
         }
@@ -90,19 +88,12 @@ class DataService {
     window.dispatchEvent(new CustomEvent('mat32_data_changed'));
   }
 
-  // --- AUTH ---
   async login(email: string, pass: string): Promise<boolean> {
     let session: UserSession | null = null;
     const cleanPass = pass.trim();
-    
-    if (cleanPass === 'mat32_admin') {
-      session = { id: 'admin_1', role: 'ADMIN' as UserRole, name: 'Mat32 Manager', email: email || 'admin@mat32.com' };
-    } else if (cleanPass === 'mat32_dj') {
-      session = { id: 'dj_selector_1', role: 'DJ' as UserRole, name: 'Selector Residente', email: email || 'dj@mat32.com' };
-    } else if (cleanPass === 'mat32_user') {
-      session = { id: 'user_99', role: 'CUSTOMER' as UserRole, name: 'Digger Member', email: email || 'user@mat32.com' };
-    }
-
+    if (cleanPass === 'mat32_admin') session = { id: 'admin_1', role: 'ADMIN', name: 'Mat32 Manager', email: email || 'admin@mat32.com' };
+    else if (cleanPass === 'mat32_dj') session = { id: 'dj_selector_1', role: 'DJ', name: 'Selector Residente', email: email || 'dj@mat32.com' };
+    else if (cleanPass === 'mat32_user') session = { id: 'user_99', role: 'CUSTOMER', name: 'Digger Member', email: email || 'user@mat32.com' };
     if (session) {
       localStorage.setItem(this.sessionKey, JSON.stringify(session));
       localStorage.setItem('mat32_user_name', session.name);
@@ -124,22 +115,12 @@ class DataService {
 
   isAuthenticated() { return !!this.getSession(); }
 
-  // --- EVENTS CRUD ---
   async getEvents(): Promise<Event[]> { return this.getDB().events || []; }
   async getEventById(id: string) { return (await this.getEvents()).find(e => e.id === id); }
   
   async createEvent(event: Partial<Event>) {
     const db = this.getDB();
-    const newEvent = {
-      ...event,
-      id: `e_${Date.now()}`,
-      slug: (event.title || '').toLowerCase().replace(/\s+/g, '-'),
-      attendees: 0,
-      status: 'published',
-      lineup: event.lineup || [],
-      vibe: event.vibe || [],
-      tags: event.tags || []
-    } as Event;
+    const newEvent = { ...event, id: `e_${Date.now()}`, slug: (event.title || '').toLowerCase().replace(/\s+/g, '-'), attendees: 0, status: 'published', lineup: event.lineup || [], vibe: event.vibe || [], tags: event.tags || [] } as Event;
     if (!db.events) db.events = [];
     db.events.unshift(newEvent);
     this.saveDB(db);
@@ -149,10 +130,7 @@ class DataService {
   async updateEvent(id: string, updates: Partial<Event>) {
     const db = this.getDB();
     const idx = db.events.findIndex((e: any) => e.id === id);
-    if (idx > -1) {
-      db.events[idx] = { ...db.events[idx], ...updates };
-      this.saveDB(db);
-    }
+    if (idx > -1) { db.events[idx] = { ...db.events[idx], ...updates }; this.saveDB(db); }
   }
 
   async deleteEvent(id: string) {
@@ -161,20 +139,12 @@ class DataService {
     this.saveDB(db);
   }
 
-  // --- RECORDS CRUD ---
   async getRecords(): Promise<VinylRecord[]> { return this.getDB().records || []; }
   async getRecordById(id: string) { return (await this.getRecords()).find(r => r.id === id); }
 
   async createRecord(record: Partial<VinylRecord>) {
     const db = this.getDB();
-    const newRecord = {
-      ...record,
-      id: `v_${Date.now()}`,
-      stock: record.stock || 1,
-      status: 'published',
-      tags: record.tags || [],
-      slug: (record.title || '').toLowerCase().replace(/\s+/g, '-')
-    } as VinylRecord;
+    const newRecord = { ...record, id: `v_${Date.now()}`, stock: record.stock || 1, status: 'published', tags: record.tags || [], slug: (record.title || '').toLowerCase().replace(/\s+/g, '-') } as VinylRecord;
     if (!db.records) db.records = [];
     db.records.unshift(newRecord);
     this.saveDB(db);
@@ -184,10 +154,7 @@ class DataService {
   async updateRecord(id: string, updates: Partial<VinylRecord>) {
     const db = this.getDB();
     const idx = db.records.findIndex((r: any) => r.id === id);
-    if (idx > -1) {
-      db.records[idx] = { ...db.records[idx], ...updates };
-      this.saveDB(db);
-    }
+    if (idx > -1) { db.records[idx] = { ...db.records[idx], ...updates }; this.saveDB(db); }
   }
 
   async deleteRecord(id: string) {
@@ -196,9 +163,7 @@ class DataService {
     this.saveDB(db);
   }
 
-  // --- DJ SUBMISSIONS ---
   async getSelectors(): Promise<SelectorSubmission[]> { return this.getDB().selectors || []; }
-  
   async createSelector(s: Partial<SelectorSubmission>) {
     const db = this.getDB();
     const newSel = { id: `sel_${Date.now()}`, status: 'pending', ...s } as SelectorSubmission;
@@ -207,16 +172,6 @@ class DataService {
     this.saveDB(db);
   }
 
-  async updateSelectorStatus(id: string, status: 'approved' | 'rejected' | 'pending') {
-    const db = this.getDB();
-    const idx = db.selectors.findIndex((s: any) => s.id === id);
-    if (idx > -1) {
-      db.selectors[idx].status = status;
-      this.saveDB(db);
-    }
-  }
-
-  // --- CRM & INBOX ---
   async getInbox(): Promise<InboxMessage[]> { return this.getDB().inbox || []; }
   async createInboxMessage(m: Partial<InboxMessage>) { 
     const db = this.getDB(); 
@@ -235,15 +190,12 @@ class DataService {
     this.saveDB(db);
   }
 
-  // --- RSVP ---
   async getUserRSVPs(): Promise<string[]> {
     const userName = localStorage.getItem('mat32_user_name');
     if (!userName) return [];
     const db = this.getDB();
     const rsvps = db.rsvps || {};
-    return Object.keys(rsvps).filter(eventId => 
-      rsvps[eventId].some((g: any) => g.name === userName)
-    );
+    return Object.keys(rsvps).filter(eventId => rsvps[eventId].some((g: any) => g.name === userName));
   }
 
   async getEventGuestList(eventId: string): Promise<{name: string}[]> {
@@ -255,17 +207,11 @@ class DataService {
     const db = this.getDB();
     if (!db.rsvps) db.rsvps = {};
     if (!db.rsvps[eventId]) db.rsvps[eventId] = [];
-    if (active) {
-      if (!db.rsvps[eventId].some((g: any) => g.name === userName)) {
-        db.rsvps[eventId].push({ name: userName });
-      }
-    } else {
-      db.rsvps[eventId] = db.rsvps[eventId].filter((g: any) => g.name !== userName);
-    }
+    if (active) { if (!db.rsvps[eventId].some((g: any) => g.name === userName)) db.rsvps[eventId].push({ name: userName }); }
+    else { db.rsvps[eventId] = db.rsvps[eventId].filter((g: any) => g.name !== userName); }
     this.saveDB(db);
   }
 
-  // --- OTHERS ---
   async getPosts(): Promise<Post[]> { return this.getDB().posts || []; }
   async getCommunityPosts(): Promise<Post[]> { return this.getPosts(); }
   async getPostById(id: string) { return (await this.getPosts()).find(p => p.id === id); }
@@ -275,18 +221,12 @@ class DataService {
   
   async getTaxonomyTree() {
     const records = await this.getRecords();
-    return {
-      categories: Array.from(new Set(records.map(r => r.genre))),
-      tags: Array.from(new Set(records.flatMap(r => r.tags || [])))
-    };
+    return { categories: Array.from(new Set(records.map(r => r.genre))), tags: Array.from(new Set(records.flatMap(r => r.tags || []))) };
   }
 
   async getGalleryTaxonomy() {
     const gallery = await this.getGallery();
-    return {
-      categories: Array.from(new Set(gallery.map(i => i.category))),
-      tags: Array.from(new Set(gallery.flatMap(i => i.tags || [])))
-    };
+    return { categories: Array.from(new Set(gallery.map(i => i.category))), tags: Array.from(new Set(gallery.flatMap(i => i.tags || []))) };
   }
 
   async batchImportRecords(csv: string): Promise<number> {
@@ -296,16 +236,7 @@ class DataService {
     for (let i = 0; i < lines.length; i++) {
       const parts = lines[i].split(',').map(p => p.trim());
       if (parts.length >= 2) {
-        db.records.unshift({
-          id: `r_batch_${Date.now()}_${count}`,
-          artist: parts[0] || 'Unknown',
-          title: parts[1] || 'Unknown',
-          price: parseFloat(parts[2]) || 25,
-          genre: parts[3] || 'General',
-          stock: 1,
-          coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
-          status: 'published'
-        } as any);
+        db.records.unshift({ id: `r_batch_${Date.now()}_${count}`, artist: parts[0] || 'Unknown', title: parts[1] || 'Unknown', price: parseFloat(parts[2]) || 25, genre: parts[3] || 'General', stock: 1, coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800', status: 'published', discogsLink: '#', slug: `r_batch_${Date.now()}_${count}` } as any);
         count++;
       }
     }
@@ -313,57 +244,13 @@ class DataService {
     return count;
   }
 
-  // --- DISCOGS SYNC ---
   async syncDiscogsCollection(username: string): Promise<number> {
     await new Promise(resolve => setTimeout(resolve, 2000));
     const db = this.getDB();
-    
-    // Fixed: Added missing discogsLink property to mock records
     const syncedRecords: VinylRecord[] = [
-      {
-        id: `r_sync_${Date.now()}_1`,
-        sku: `SYNC-${Math.random().toString(36).substr(2, 5)}`,
-        artist: 'Aphex Twin',
-        title: 'Selected Ambient Works 85-92',
-        price: 35,
-        genre: 'Ambient',
-        stock: 1,
-        coverUrl: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=800',
-        status: 'published',
-        tags: ['discogs', 'verified'],
-        slug: 'aphex-twin-saw-85-92',
-        label: 'Apollo',
-        year: '1992',
-        format: '2xLP',
-        condition: 'NM',
-        description: `Imported from ${username}'s Discogs collection.`,
-        sellerId: username,
-        isOpenToTrade: true,
-        discogsLink: '#'
-      },
-      {
-        id: `r_sync_${Date.now()}_2`,
-        sku: `SYNC-${Math.random().toString(36).substr(2, 5)}`,
-        artist: 'Kraftwerk',
-        title: 'The Man-Machine',
-        price: 28,
-        genre: 'Electronic',
-        stock: 1,
-        coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
-        status: 'published',
-        tags: ['discogs', 'classic'],
-        slug: 'kraftwerk-man-machine',
-        label: 'Capitol',
-        year: '1978',
-        format: 'LP',
-        condition: 'VG+',
-        description: `Classic synth-pop from ${username}'s collection.`,
-        sellerId: username,
-        isOpenToTrade: true,
-        discogsLink: '#'
-      }
+      { id: `r_sync_${Date.now()}_1`, sku: `SYNC-${Math.random().toString(36).substr(2, 5)}`, artist: 'Aphex Twin', title: 'Selected Ambient Works 85-92', price: 35, genre: 'Ambient', stock: 1, coverUrl: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=800', status: 'published', tags: ['discogs', 'verified'], slug: 'aphex-twin-saw-85-92', label: 'Apollo', year: '1992', format: '2xLP', condition: 'NM', description: `Imported from ${username}'s Discogs collection.`, sellerId: username, isOpenToTrade: true, discogsLink: '#' },
+      { id: `r_sync_${Date.now()}_2`, sku: `SYNC-${Math.random().toString(36).substr(2, 5)}`, artist: 'Kraftwerk', title: 'The Man-Machine', price: 28, genre: 'Electronic', stock: 1, coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800', status: 'published', tags: ['discogs', 'classic'], slug: 'kraftwerk-man-machine', label: 'Capitol', year: '1978', format: 'LP', condition: 'VG+', description: `Classic synth-pop from ${username}'s collection.`, sellerId: username, isOpenToTrade: true, discogsLink: '#' }
     ];
-
     if (!db.records) db.records = [];
     db.records = [...syncedRecords, ...db.records];
     this.saveDB(db);
