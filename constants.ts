@@ -34,17 +34,17 @@ export const MOCK_SELLERS: SellerProfile[] = [
 
 export const MOCK_POSTS: Post[] = [
   {
-    id: 'p_ig_1',
+    id: 'p_1',
     type: 'POST',
-    title: 'Pure Analog Vibes at Mat32',
-    slug: 'pure-analog-vibes-mat32',
+    title: 'Nueva llegada desde Tokyo',
+    slug: 'nueva-llegada-tokyo',
     author: 'mat32__',
-    content: 'Pure Analog Vibes at Mat32. El sonido de Ruzafa esta tarde con la nueva llegada de Japón. #HiFi #Ruzafa #Valencia',
-    imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public',
-    likes: 156,
+    content: 'Acabamos de recibir una joya de City Pop. Sonando ahora en el Altec A7. #HiFi #Vinyl #Ruzafa',
+    imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800',
+    likes: 45,
     comments: [],
-    timestamp: 'Hace 1 hora',
-    tags: ['#HiFi', '#Ruzafa'],
+    timestamp: 'Hace 2 horas',
+    tags: ['#HiFi', '#Vinyl'],
     status: 'published'
   }
 ];
@@ -59,7 +59,7 @@ export const MOCK_EVENTS: Event[] = [
     location: 'Mat32',
     description: 'Noche de Soul y Funk con vinilos originales en el corazón de Valencia.',
     category: 'Hi-Fi Sessions',
-    imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public',
+    imageUrl: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=800',
     attendees: 12,
     capacity: 40,
     price: 0,
@@ -77,9 +77,9 @@ export const MOCK_EVENTS: Event[] = [
     date: getFutureDate(5),
     time: '22:00',
     location: 'Mat32',
-    description: 'Viaje sonoro a través de la electrónica más profunda con nuestro sistema de sonido Hi-Fi.',
+    description: 'Viaje sonoro a través de la electrónica más profunda.',
     category: 'Electronic Hub',
-    imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public',
+    imageUrl: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=800',
     attendees: 8,
     capacity: 35,
     price: 0,
@@ -104,7 +104,7 @@ export const MOCK_RECORDS: VinylRecord[] = [
     condition: 'NM',
     price: 45,
     stock: 1,
-    coverUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public',
+    coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800',
     genre: 'Techno',
     format: 'LP',
     discogsLink: '#',
@@ -170,7 +170,7 @@ export const BAR_MENU: MenuCategory[] = [
 export const MOCK_INSTAGRAM_POSTS: InstagramPost[] = [
   {
     id: 'ig_1',
-    imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public',
+    imageUrl: 'https://images.unsplash.com/photo-1514525253361-bee8a48790c3?q=80&w=400',
     link: '#',
     likes: 120,
     comments: 12,

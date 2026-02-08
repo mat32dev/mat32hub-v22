@@ -34,35 +34,11 @@ class DataService {
           gallery: [
             { 
               id: 'g1', 
-              title: 'Fachada Mat32 Ruzafa', 
-              description: 'Nuestra puerta al mundo analógico en Valencia.', 
-              imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/5dea483e-141a-4665-8085-5c163d8eda00/public', 
-              tags: ['#exterior', '#valencia'], 
-              category: 'Local' 
-            },
-            { 
-              id: 'g2', 
-              title: 'Analog Booth', 
-              description: 'Equipamiento Hi-Fi de alta gama para nuestros selectores.', 
-              imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public', 
-              tags: ['#hifi', '#booth'], 
+              title: 'Portal Mat32', 
+              description: 'Entrada analógica Ruzafa.', 
+              imageUrl: 'https://imagedelivery.net/f4c2d13d7f6a74d21dacac9c2eb7ba5d/7701241e-71ee-4929-18c0-d1d0d9576e00/public', 
+              tags: ['#hifi'], 
               category: 'Interior' 
-            },
-            { 
-              id: 'g3', 
-              title: 'The Crate Selection', 
-              description: 'Detalle de nuestra colección curada de vinilos.', 
-              imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public', 
-              tags: ['#vinyl', '#market'], 
-              category: 'Discos' 
-            },
-            { 
-              id: 'g4', 
-              title: 'Night Atmosphere', 
-              description: 'La luz y el sonido se funden en Ruzafa.', 
-              imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public', 
-              tags: ['#bar', '#nightlife'], 
-              category: 'Bar' 
             }
           ],
           selectors: MOCK_SELECTORS,
