@@ -34,11 +34,27 @@ class DataService {
           gallery: [
             { 
               id: 'g1', 
-              title: 'Portal Mat32', 
-              description: 'Entrada analógica Ruzafa.', 
-              imageUrl: 'https://imagedelivery.net/f4c2d13d7f6a74d21dacac9c2eb7ba5d/7701241e-71ee-4929-18c0-d1d0d9576e00/public', 
-              tags: ['#hifi'], 
+              title: 'Santuario Hi-Fi', 
+              description: 'Vista principal de nuestro sistema Altec A7.', 
+              imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public', 
+              tags: ['#hifi', '#booth'], 
+              category: 'Local' 
+            },
+            { 
+              id: 'g2', 
+              title: 'Analog Experience', 
+              description: 'Cultura de vinilo en el corazón de Ruzafa.', 
+              imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/190aead2-fc94-4fed-a7c2-bd341561ca00/public', 
+              tags: ['#vinyl', '#atmosphere'], 
               category: 'Interior' 
+            },
+            { 
+              id: 'g3', 
+              title: 'Portal Ruzafa', 
+              description: 'Nuestra puerta a la comunidad musical.', 
+              imageUrl: 'https://imagedelivery.net/f4c2d13d7f6a74d21dacac9c2eb7ba5d/7701241e-71ee-4929-18c0-d1d0d9576e00/public', 
+              tags: ['#exterior', '#ruzafa'], 
+              category: 'Local' 
             }
           ],
           selectors: MOCK_SELECTORS,

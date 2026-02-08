@@ -38,7 +38,7 @@ export const Home: React.FC = () => {
       <section className="relative h-[95vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <CachedImage 
-            src="https://imagedelivery.net/f4c2d13d7f6a74d21dacac9c2eb7ba5d/7701241e-71ee-4929-18c0-d1d0d9576e00/public" 
+            src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/190aead2-fc94-4fed-a7c2-bd341561ca00/public" 
             className="w-full h-full opacity-40 grayscale"
             alt="Mat32 Hi-Fi Hub Valencia Ruzafa"
             priority={true}
