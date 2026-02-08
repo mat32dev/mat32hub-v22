@@ -7,6 +7,12 @@ const getFutureDate = (daysFromNow: number) => {
   return d.toISOString().split('T')[0];
 };
 
+const getPastDate = (daysAgo: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return d.toISOString().split('T')[0];
+};
+
 export const MOCK_SELLERS: SellerProfile[] = [
   {
     id: 's_mat32',
@@ -89,6 +95,26 @@ export const MOCK_EVENTS: Event[] = [
     vibe: ['Deep', 'Ambient'],
     status: 'published',
     tags: ['#electronic', '#hifi']
+  },
+  {
+    id: 'e_past_1',
+    title: 'Grand Opening Night',
+    slug: 'grand-opening-night',
+    date: getPastDate(15),
+    time: '19:00',
+    location: 'Mat32',
+    description: 'Inauguración oficial de nuestro santuario analógico en Ruzafa.',
+    category: 'Special Event',
+    imageUrl: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=800',
+    attendees: 40,
+    capacity: 40,
+    price: 0,
+    paidPrice: 0,
+    ticketLink: '#',
+    lineup: [{ name: 'All Stars', role: 'Selectores' }],
+    vibe: ['Celebration', 'Inaugural'],
+    status: 'published',
+    tags: ['#opening', '#ruzafa']
   }
 ];
 
