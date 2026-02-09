@@ -3,7 +3,7 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v9.0'; // Versión 9.0: The Ruzafa Digger's Legacy
+  private localKey = 'mat32_matrix_production_v10.0'; // Versión 10.0: The Ruzafa Real-Image Edition
   private sessionKey = 'mat32_auth_session';
 
   constructor() {
@@ -35,8 +35,9 @@ class DataService {
       };
       this.saveDB(db);
       
-      // Purga total de versiones anteriores para optimizar SEO y evitar conflictos de caché
+      // Purga total de TODAS las versiones anteriores para garantizar performance
       const legacyKeys = [
+        'mat32_matrix_production_v9.0',
         'mat32_matrix_production_v8.0',
         'mat32_matrix_production_v7.0',
         'mat32_matrix_production_v6.0',
