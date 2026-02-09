@@ -8,27 +8,27 @@ import { CachedImage } from '../components/CachedImage';
 const SPACE_GALLERY = [
   {
     url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/190aead2-fc94-4fed-a7c2-bd341561ca00/public",
-    title: "Main Hall & Booth",
+    title: "Cabina & Main Room",
     tag: "#SantuarioHiFi"
   },
   {
     url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public",
-    title: "Listening Lounge",
-    tag: "#AnalogVibe"
+    title: "Zona Lounge",
+    tag: "#ListeningZone"
   },
   {
     url: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2000",
-    title: "Signature Bar",
-    tag: "#LiquidSounds"
+    title: "Barra de Autor",
+    tag: "#SignatureBar"
   },
   {
     url: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800",
-    title: "Vinyl Archive",
-    tag: "#TheCrate"
+    title: "Archivo de Vinilos",
+    tag: "#TheArchive"
   },
   {
     url: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=800",
-    title: "Sound System Altec",
+    title: "Sistema Altec A7",
     tag: "#HighFidelity"
   }
 ];
@@ -83,7 +83,7 @@ export const PrivateEvents: React.FC = () => {
         <div className="container mx-auto px-6">
            <div className="flex items-center gap-6 mb-16">
               <Camera size={32} className="text-mat-500" />
-              <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none">GALERIA O <span className="text-mat-500">ESPACIO.</span></h2>
+              <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none">GALERÍA O <span className="text-mat-500">ESPACIO.</span></h2>
               <div className="flex-1 border-b-2 border-mat-800 opacity-20"></div>
            </div>
 

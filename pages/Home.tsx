@@ -8,13 +8,13 @@ import { dataService } from '../services/dataService';
 import { Event, Post, VinylRecord } from '../types';
 import { CachedImage } from '../components/CachedImage';
 
+// HERO_IMAGES: Chica (Lounge) + Las 4 enviadas por el usuario
 const HERO_IMAGES = [
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public",
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/190aead2-fc94-4fed-a7c2-bd341561ca00/public",
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public",
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public",
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public",
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/5dea483e-141a-4665-8085-5c163d8eda00/public"
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public", // Chica / Lounge
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public", // Nueva 1
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public", // Nueva 2
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public", // Nueva 3
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/5dea483e-141a-4665-8085-5c163d8eda00/public"  // Nueva 4
 ];
 
 export const Home: React.FC = () => {
@@ -55,25 +55,21 @@ export const Home: React.FC = () => {
 
   // AUTO-CHANGE HERO EVERY 5 SECONDS
   useEffect(() => {
-    if (isRevealed) return; // Pausar si el usuario reveló la imagen
+    if (isRevealed) return; 
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [isRevealed, currentSlide]);
 
-  // Handle interaction: 1 click reveal, 2 clicks scroll to agenda
   const handleHeroInteraction = (e: React.MouseEvent) => {
-    // Evitar que clicks en botones/links activen la lógica del hero
     if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
 
     if (clickTimer.current) {
-      // DOBLE CLIC DETECTADO
       clearTimeout(clickTimer.current);
       clickTimer.current = null;
       document.getElementById('agenda-section')?.scrollIntoView({ behavior: 'smooth' });
     } else {
-      // PRIMER CLIC
       clickTimer.current = setTimeout(() => {
         setIsRevealed(!isRevealed);
         clickTimer.current = null;
@@ -97,7 +93,7 @@ export const Home: React.FC = () => {
     <div className="bg-mat-900 min-h-screen overflow-x-hidden">
       <SEO titleKey="nav.home" descriptionKey="seo.home.description" />
 
-      {/* 1. HERO INTERACTIVO CON AUTOPLAY 5S */}
+      {/* 1. HERO INTERACTIVO CON VISIBILIDAD MEJORADA */}
       <section 
         className="relative h-[100vh] flex items-center justify-center overflow-hidden cursor-crosshair group select-none"
         onClick={handleHeroInteraction}
@@ -106,26 +102,25 @@ export const Home: React.FC = () => {
           {HERO_IMAGES.map((img, idx) => (
             <div 
               key={idx}
-              className={`absolute inset-0 transition-all duration-[1500ms] ease-in-out transform ${
-                idx === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-110 pointer-events-none'
+              className={`absolute inset-0 transition-all duration-[1200ms] ease-in-out transform ${
+                idx === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-105 pointer-events-none'
               }`}
             >
               <CachedImage 
                 src={img} 
-                className={`w-full h-full transition-all duration-[1200ms] ${
+                className={`w-full h-full transition-all duration-[1500ms] ${
                   isRevealed 
-                    ? 'grayscale-0 opacity-100 brightness-110 blur-0 scale-105' 
-                    : 'grayscale opacity-40 brightness-50 blur-[2px]'
+                    ? 'grayscale-0 opacity-100 brightness-110 blur-0 scale-110' 
+                    : 'grayscale opacity-70 brightness-75 blur-[1px]'
                 }`}
-                alt={`Mat32 Space ${idx}`}
+                alt={`Mat32 Moment ${idx}`}
                 priority={idx === currentSlide}
               />
             </div>
           ))}
-          <div className={`absolute inset-0 bg-gradient-to-b from-mat-950/60 via-transparent to-mat-950 transition-opacity duration-1000 ${isRevealed ? 'opacity-30' : 'opacity-100'}`}></div>
+          <div className={`absolute inset-0 bg-gradient-to-b from-mat-950/40 via-transparent to-mat-950 transition-opacity duration-1000 ${isRevealed ? 'opacity-20' : 'opacity-80'}`}></div>
         </div>
 
-        {/* Controles de Carrusel */}
         <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
           <button onClick={prevSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 transition-all pointer-events-auto">
             <ChevronLeft size={32} />
@@ -163,7 +158,7 @@ export const Home: React.FC = () => {
             </div>
         </div>
 
-        {/* Indicadores de diapositiva */}
+        {/* Indicadores */}
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-4 z-40">
            {HERO_IMAGES.map((_, idx) => (
              <button 
@@ -211,7 +206,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. ARCHIVO DE SESIONES (EVENTOS PASADOS) */}
+      {/* 3. ARCHIVO */}
       <section className="py-32 bg-mat-950/50 border-y border-mat-800/30">
         <div className="container mx-auto px-6">
           <div className="flex items-center gap-6 mb-20">
