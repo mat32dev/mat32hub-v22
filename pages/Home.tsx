@@ -1,18 +1,29 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Disc, Zap, MapPin, Globe, Radio, Heart, ShoppingBag, Layers, MessageCircle } from 'lucide-react';
+import { ArrowRight, Disc, MapPin, Globe, Radio, Heart, ShoppingBag, MessageCircle, ChevronLeft, ChevronRight, MousePointer2 } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { useLanguage } from '../context/LanguageContext';
 import { dataService } from '../services/dataService';
 import { Event, Post, VinylRecord } from '../types';
 import { CachedImage } from '../components/CachedImage';
 
+const HERO_IMAGES = [
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/190aead2-fc94-4fed-a7c2-bd341561ca00/public",
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public"
+];
+
 export const Home: React.FC = () => {
   const { t } = useLanguage();
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [recentRecords, setRecentRecords] = useState<VinylRecord[]>([]);
   const [recentPosts, setRecentPosts] = useState<Post[]>([]);
+  
+  // Carousel State
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isRevealed, setIsRevealed] = useState(false);
+  // Fix: Use ReturnType<typeof setTimeout> instead of NodeJS.Timeout to avoid namespace errors in browser environment
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -30,95 +41,182 @@ export const Home: React.FC = () => {
     return () => window.removeEventListener('mat32_data_changed', loadData);
   }, []);
 
+  // Auto-advance carousel unless revealed
+  useEffect(() => {
+    if (isRevealed) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [isRevealed]);
+
+  // Handle click vs double click
+  const handleHeroInteraction = (e: React.MouseEvent) => {
+    // Avoid triggering if clicking on UI buttons
+    if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
+
+    if (clickTimer.current) {
+      // Double Click Detected: Scroll to Agenda
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+      document.getElementById('agenda-section')?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Potential Single Click: Toggle Reveal after delay
+      clickTimer.current = setTimeout(() => {
+        setIsRevealed(!isRevealed);
+        clickTimer.current = null;
+      }, 250);
+    }
+  };
+
+  const nextSlide = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
+    setIsRevealed(false);
+  };
+
+  const prevSlide = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentSlide((prev) => (prev - 1 + HERO_IMAGES.length) % HERO_IMAGES.length);
+    setIsRevealed(false);
+  };
+
   return (
     <div className="bg-mat-900 min-h-screen">
       <SEO titleKey="nav.home" descriptionKey="seo.home.description" />
 
-      {/* 1. HERO ESTRATÉGICO */}
-      <section className="relative h-[95vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <CachedImage 
-            src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/190aead2-fc94-4fed-a7c2-bd341561ca00/public" 
-            className="w-full h-full opacity-40 grayscale"
-            alt="Mat32 Hi-Fi Hub Valencia Ruzafa"
-            priority={true}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-mat-950/20 via-transparent to-mat-950"></div>
+      {/* 1. HERO INTERACTIVO (CAROUSEL + REVEAL PROTOCOL) */}
+      <section 
+        className="relative h-[100vh] flex items-center justify-center overflow-hidden cursor-crosshair group select-none"
+        onClick={handleHeroInteraction}
+      >
+        {/* Carousel Background Layer */}
+        <div className="absolute inset-0 z-0 bg-black">
+          {HERO_IMAGES.map((img, idx) => (
+            <div 
+              key={idx}
+              className={`absolute inset-0 transition-all duration-[1500ms] ease-in-out transform ${
+                idx === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-110 pointer-events-none'
+              }`}
+            >
+              <CachedImage 
+                src={img} 
+                className={`w-full h-full transition-all duration-[1200ms] ${
+                  isRevealed 
+                    ? 'grayscale-0 opacity-100 brightness-110 blur-0 scale-105' 
+                    : 'grayscale opacity-40 brightness-50 blur-[2px]'
+                }`}
+                alt={`Mat32 Analog Space ${idx}`}
+                priority={idx === currentSlide}
+              />
+            </div>
+          ))}
+          {/* Vibe Overlays */}
+          <div className={`absolute inset-0 bg-gradient-to-b from-mat-950/60 via-transparent to-mat-950 transition-opacity duration-1000 ${isRevealed ? 'opacity-30' : 'opacity-100'}`}></div>
+          <div className={`absolute inset-0 bg-mat-500/5 mix-blend-overlay transition-opacity duration-1000 ${isRevealed ? 'opacity-100' : 'opacity-0'}`}></div>
         </div>
 
-        <div className="container mx-auto px-6 relative z-10 text-center">
-          <div className="mb-8 animate-fade-in">
-             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-mat-500/10 border border-mat-500/20 text-mat-500 font-black text-[10px] uppercase tracking-[0.4em] mb-8">
+        {/* UI Controls (Arrows) */}
+        <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+          <button onClick={prevSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 hover:bg-mat-900 transition-all pointer-events-auto">
+            <ChevronLeft size={32} />
+          </button>
+          <button onClick={nextSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 hover:bg-mat-900 transition-all pointer-events-auto">
+            <ChevronRight size={32} />
+          </button>
+        </div>
+
+        {/* Interaction Prompts */}
+        <div className={`absolute top-32 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-4 transition-all duration-700 ${isRevealed ? 'opacity-0 -translate-y-10' : 'opacity-100 translate-y-0'}`}>
+          <div className="flex items-center gap-6">
+             <div className="flex flex-col items-center gap-2">
+                <div className="w-10 h-10 rounded-full border border-mat-500/50 flex items-center justify-center animate-pulse">
+                   <MousePointer2 size={16} className="text-mat-500" />
+                </div>
+                <span className="text-[8px] font-black text-mat-500 uppercase tracking-[0.4em] bg-mat-950/80 px-4 py-1.5 rounded-full border border-mat-800">CLICK_TO_REVEAL</span>
+             </div>
+             <div className="h-px w-8 bg-mat-800"></div>
+             <div className="flex flex-col items-center gap-2">
+                <div className="flex gap-1">
+                   <div className="w-2 h-2 bg-mat-500 rounded-full animate-bounce"></div>
+                   <div className="w-2 h-2 bg-mat-500 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                </div>
+                <span className="text-[8px] font-black text-gray-500 uppercase tracking-[0.4em] bg-mat-950/80 px-4 py-1.5 rounded-full border border-mat-800">DBL_CLICK_TO_JUMP</span>
+             </div>
+          </div>
+        </div>
+
+        {/* Hero Content Layer */}
+        <div className={`container mx-auto px-6 relative z-10 text-center transition-all duration-1000 transform ${isRevealed ? 'scale-90 opacity-20 blur-md pointer-events-none' : 'scale-100 opacity-100 blur-0'}`}>
+          <div className="animate-fade-in">
+             <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-mat-950/80 border border-mat-500/30 text-mat-500 font-black text-[10px] uppercase tracking-[0.5em] mb-10 backdrop-blur-md">
                 <Globe size={14} className="animate-pulse" /> RUZAFA ANALOG HUB
              </div>
-            <h1 className="text-[18vw] md:text-[11rem] font-black uppercase tracking-tighter text-white leading-none font-exo">
+            <h1 className="text-[18vw] md:text-[12rem] font-black uppercase tracking-tighter text-white leading-[0.8] font-exo drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] mb-8">
               MAT<span className="text-mat-500">32</span>
             </h1>
-            <div className="flex items-center justify-center gap-4 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] md:text-sm -mt-2 md:-mt-4">
-               <MapPin size={16} className="text-white" /> VALENCIA <span className="text-gray-800">|</span> RUZAFA
+            <div className="flex items-center justify-center gap-6 text-mat-500 font-black uppercase tracking-[0.6em] text-xs md:text-base mb-12">
+               <MapPin size={18} className="text-white" /> VALENCIA <span className="text-gray-800">|</span> RUZAFA
             </div>
           </div>
 
-          <p className="text-gray-300 max-w-2xl mx-auto text-lg md:text-2xl font-light italic mb-14 leading-relaxed px-4 opacity-90">
-            "Santuario de alta fidelidad en Ruzafa. Sonido analógico puro, comunidad de vinilos y coctelería de autor."
+          <p className="text-gray-300 max-w-2xl mx-auto text-lg md:text-2xl font-light italic mb-16 leading-relaxed px-4 opacity-90 drop-shadow-lg">
+            "Santuario de alta fidelidad. Donde el tiempo se mide en revoluciones por minuto y el sonido tiene alma analógica."
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center px-4">
-             <Link to="/contact" className="w-full sm:w-auto px-12 py-5 bg-mat-500 text-white font-black text-[11px] uppercase tracking-[0.4em] clip-path-slant shadow-2xl hover:bg-mat-400 transition-all">
+             <Link to="/contact" className="w-full sm:w-auto px-14 py-6 bg-mat-500 text-white font-black text-[11px] uppercase tracking-[0.5em] clip-path-slant shadow-[0_20px_40px_rgba(234,88,12,0.3)] hover:bg-mat-400 transition-all active:scale-95">
                 RESERVAR MESA
              </Link>
-             <Link to="/community" className="w-full sm:w-auto px-12 py-5 bg-mat-800 border-2 border-mat-700 text-white font-black text-[11px] uppercase tracking-[0.4em] clip-path-slant hover:border-mat-500 transition-all flex items-center justify-center gap-3">
+             <Link to="/community" className="w-full sm:w-auto px-14 py-6 bg-mat-900/80 border-2 border-mat-700 text-white font-black text-[11px] uppercase tracking-[0.5em] clip-path-slant hover:border-mat-500 backdrop-blur-md transition-all flex items-center justify-center gap-3 active:scale-95">
                 HUB COMUNIDAD <ArrowRight size={14} />
              </Link>
           </div>
         </div>
-      </section>
 
-      {/* IMAGEN DESTACADA BAJO EL HERO */}
-      <section className="relative h-[60vh] md:h-[80vh] overflow-hidden">
-        <CachedImage 
-          src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public" 
-          alt="Santuario Altec A7 Mat32" 
-          className="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-1000"
-          aspectRatio="aspect-auto"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-transparent to-mat-900/50"></div>
-        <div className="absolute bottom-12 left-12 text-left z-10">
-          <span className="text-mat-500 font-black text-[10px] uppercase tracking-[0.4em] block mb-2">EL SANTUARIO</span>
-          <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter font-exo leading-none">ALTEC A7 <span className="text-mat-500">VOICE.</span></h2>
+        {/* Carousel Pagination Dots */}
+        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-4 z-40">
+          {HERO_IMAGES.map((_, idx) => (
+            <button 
+              key={idx}
+              onClick={(e) => { e.stopPropagation(); setCurrentSlide(idx); setIsRevealed(false); }}
+              className={`h-1.5 transition-all duration-700 rounded-full ${idx === currentSlide ? 'w-16 bg-mat-500' : 'w-4 bg-white/20 hover:bg-white/50'}`}
+              aria-label={`Go to slide ${idx + 1}`}
+            />
+          ))}
         </div>
       </section>
 
-      {/* 2. LA AGENDA */}
-      <section className="py-32 bg-mat-900">
+      {/* 2. LA AGENDA - Anchor for Double Click */}
+      <section id="agenda-section" className="py-32 bg-mat-900 border-t border-mat-800/30">
         <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
             <div>
-              <div className="flex items-center gap-2 text-mat-500 font-black uppercase tracking-[0.4em] text-[10px] mb-4">
-                <Disc size={18} className="animate-spin-slow" /> SESIONES PROGRAMADAS
+              <div className="flex items-center gap-3 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] mb-6">
+                <Disc size={20} className="animate-spin-slow" /> SESIONES_PROGRAMADAS
               </div>
-              <h2 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter font-exo leading-none">LA <span className="text-mat-500">AGENDA.</span></h2>
+              <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter font-exo leading-none">LA <span className="text-mat-500">AGENDA.</span></h2>
             </div>
-            <Link to="/events" className="text-[11px] font-black text-gray-500 hover:text-white uppercase tracking-widest flex items-center gap-3 transition-colors pb-2 border-b-2 border-mat-800">
-              VER TODA LA PROGRAMACIÓN <ArrowRight size={16} />
+            <Link to="/events" className="text-[11px] font-black text-gray-500 hover:text-white uppercase tracking-widest flex items-center gap-4 transition-colors pb-3 border-b-2 border-mat-800 hover:border-mat-500">
+              EXPLORAR PROGRAMACIÓN COMPLETA <ArrowRight size={18} />
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-10">
             {upcomingEvents.map((event) => (
-              <Link key={event.id} to={`/events/${event.id}`} className="group bg-mat-800 border border-mat-700 rounded-[2.5rem] overflow-hidden hover:border-mat-500 transition-all flex flex-col">
+              <Link key={event.id} to={`/events/${event.id}`} className="group bg-mat-800 border border-mat-700 rounded-[3rem] overflow-hidden hover:border-mat-500 transition-all duration-500 flex flex-col shadow-2xl">
                 <div className="aspect-[4/3] relative overflow-hidden bg-black">
-                   <CachedImage src={event.imageUrl} alt={event.title} className="w-full h-full grayscale group-hover:grayscale-0" />
-                   <div className="absolute top-6 right-6 bg-mat-500 text-white text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-xl">
+                   <CachedImage src={event.imageUrl} alt={event.title} className="w-full h-full grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000" />
+                   <div className="absolute top-8 right-8 bg-mat-500 text-white text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-2xl shadow-xl">
                       €{event.price > 0 ? event.price : 'FREE'}
                    </div>
                 </div>
-                <div className="p-8 flex flex-col flex-1">
-                  <div className="text-mat-500 text-[10px] font-black uppercase tracking-widest mb-3">{event.date} @ {event.time}</div>
-                  <h3 className="text-2xl font-black text-white uppercase font-exo leading-tight mb-4 group-hover:text-mat-500 transition-colors">{event.title}</h3>
-                  <div className="mt-auto pt-6 border-t border-mat-700 flex justify-between items-center text-[10px] font-black text-gray-500 uppercase">
-                     <span>{event.category}</span>
-                     <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
+                <div className="p-10 flex flex-col flex-1">
+                  <div className="text-mat-500 text-[11px] font-black uppercase tracking-[0.2em] mb-4">{event.date} @ {event.time}</div>
+                  <h3 className="text-3xl font-black text-white uppercase font-exo leading-tight mb-6 group-hover:text-mat-500 transition-colors">{event.title}</h3>
+                  <div className="mt-auto pt-8 border-t border-mat-700/50 flex justify-between items-center text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                     <span className="flex items-center gap-2"><Radio size={14} /> {event.category}</span>
+                     <ArrowRight size={16} className="group-hover:translate-x-3 transition-transform text-mat-500" />
                   </div>
                 </div>
               </Link>
@@ -128,30 +226,30 @@ export const Home: React.FC = () => {
       </section>
 
       {/* 3. RECIÉN LLEGADOS */}
-      <section className="py-24 bg-mat-950/50">
+      <section className="py-32 bg-mat-950/50">
         <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
              <div>
-                <div className="inline-flex items-center gap-3 text-mat-500 font-black uppercase text-[10px] tracking-widest mb-4">
-                   <ShoppingBag size={18} /> THE_CRATE_DIGGING
+                <div className="inline-flex items-center gap-3 text-mat-500 font-black uppercase text-[10px] tracking-[0.5em] mb-6">
+                   <ShoppingBag size={20} /> THE_CRATE_DIGGING
                 </div>
-                <h2 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter font-exo leading-none">RECIÉN <span className="text-mat-500">LLEGADOS.</span></h2>
+                <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter font-exo leading-none">RECIÉN <span className="text-mat-500">LLEGADOS.</span></h2>
              </div>
-             <Link to="/records" className="text-mat-500 font-black uppercase text-xs tracking-widest flex items-center gap-3 hover:text-white transition-all">
-                VER TODA LA TIENDA <ArrowRight size={16} />
+             <Link to="/records" className="text-mat-500 font-black uppercase text-xs tracking-widest flex items-center gap-4 hover:text-white transition-all pb-3 border-b-2 border-mat-800">
+                VISITAR LA TIENDA <ArrowRight size={18} />
              </Link>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
              {recentRecords.map(record => (
-               <Link key={record.id} to={`/records/${record.id}`} className="group bg-mat-800 border border-mat-700 rounded-[2.5rem] overflow-hidden hover:border-mat-500 transition-all shadow-xl">
+               <Link key={record.id} to={`/records/${record.id}`} className="group bg-mat-800 border border-mat-700 rounded-[3rem] overflow-hidden hover:border-mat-500 transition-all duration-500 shadow-2xl">
                   <div className="aspect-square relative overflow-hidden bg-black">
-                     <CachedImage src={record.coverUrl} alt={record.title} className="grayscale group-hover:grayscale-0 transition-all duration-700" />
-                     <div className="absolute bottom-4 left-4 bg-mat-950/80 backdrop-blur-md px-4 py-2 rounded-xl text-white font-exo font-black text-xl tracking-tighter">€{record.price}</div>
+                     <CachedImage src={record.coverUrl} alt={record.title} className="grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000 opacity-80 group-hover:opacity-100" />
+                     <div className="absolute bottom-6 left-6 bg-mat-950/90 backdrop-blur-xl px-5 py-2.5 rounded-2xl text-white font-exo font-black text-2xl tracking-tighter border border-white/5 shadow-2xl">€{record.price}</div>
                   </div>
-                  <div className="p-6">
-                     <h3 className="text-white font-black uppercase text-sm truncate group-hover:text-mat-500 transition-colors">{record.title}</h3>
-                     <p className="text-gray-500 text-[9px] font-black uppercase tracking-widest">{record.artist}</p>
+                  <div className="p-8">
+                     <h3 className="text-white font-black uppercase text-lg truncate group-hover:text-mat-500 transition-colors font-exo mb-1">{record.title}</h3>
+                     <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">{record.artist}</p>
                   </div>
                </Link>
              ))}
@@ -160,30 +258,36 @@ export const Home: React.FC = () => {
       </section>
 
       {/* 4. COMUNIDAD */}
-      <section className="py-24 bg-mat-900 border-y border-mat-800/30">
+      <section className="py-32 bg-mat-900 border-y border-mat-800/30">
          <div className="container mx-auto px-6">
-            <div className="grid lg:grid-cols-12 gap-16 items-center">
+            <div className="grid lg:grid-cols-12 gap-20 items-center">
                <div className="lg:col-span-5">
-                  <div className="inline-flex items-center gap-3 px-4 py-2 bg-mat-950 border border-mat-500/30 text-mat-500 text-[10px] font-black uppercase tracking-widest rounded-full mb-8">
-                     <Radio className="w-4 h-4 animate-pulse" /> COMMUNITY_PULSE
+                  <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-mat-950 border border-mat-500/30 text-mat-500 text-[10px] font-black uppercase tracking-[0.4em] rounded-full mb-10">
+                     <Radio className="w-5 h-5 animate-pulse" /> COMMUNITY_PULSE
                   </div>
-                  <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo mb-6 leading-none">COMUNI<span className="text-mat-500">DAD.</span></h2>
-                  <p className="text-gray-400 text-lg italic mb-8">Conecta con la red de coleccionistas y melómanos de Valencia. El Hub analógico de Ruzafa nunca duerme.</p>
-                  <Link to="/community" className="text-mat-500 font-black uppercase text-xs tracking-widest flex items-center gap-3 hover:text-white transition-all">
-                     EXPLORAR EL MURO <ArrowRight size={16} />
+                  <h2 className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter font-exo mb-8 leading-none">COMUNI<span className="text-mat-500">DAD.</span></h2>
+                  <p className="text-gray-400 text-xl font-light italic mb-12 leading-relaxed">Conecta con la red de coleccionistas y melómanos de Valencia. El Hub analógico de Ruzafa nunca duerme.</p>
+                  <Link to="/community" className="inline-flex items-center gap-4 px-10 py-5 bg-mat-800 border border-mat-700 text-white font-black uppercase text-[10px] tracking-[0.4em] rounded-2xl hover:border-mat-500 transition-all shadow-xl group">
+                     EXPLORAR EL MURO <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform text-mat-500" />
                   </Link>
                </div>
-               <div className="lg:col-span-7 grid md:grid-cols-2 gap-6" style={{ wordBreak: 'break-word' }}>
+               <div className="lg:col-span-7 grid md:grid-cols-2 gap-8" style={{ wordBreak: 'break-word' }}>
                   {recentPosts.map(post => (
-                    <div key={post.id} className="bg-mat-800 border border-mat-700 p-8 rounded-[2.5rem] shadow-xl">
-                        <div className="flex items-center gap-4 mb-6">
-                           <div className="w-10 h-10 bg-mat-500 rounded-full flex items-center justify-center text-white font-black text-xs">{post.author[0]}</div>
-                           <span className="text-[10px] font-black uppercase text-white">@{post.author}</span>
+                    <div key={post.id} className="bg-mat-800 border border-mat-700 p-10 rounded-[3.5rem] shadow-2xl relative group overflow-hidden">
+                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                           <MessageCircle size={80} />
                         </div>
-                        <p className="text-gray-400 text-sm italic mb-6 line-clamp-3">"{post.content}"</p>
-                        <div className="flex items-center gap-4 text-[9px] font-black text-gray-500 uppercase">
-                           <span className="flex items-center gap-1.5"><Heart size={14} className="text-mat-500" /> {post.likes}</span>
-                           <span className="flex items-center gap-1.5"><MessageCircle size={14} /> {post.comments.length}</span>
+                        <div className="flex items-center gap-5 mb-8">
+                           <div className="w-12 h-12 bg-mat-500 rounded-2xl flex items-center justify-center text-white font-black text-sm shadow-xl shadow-mat-500/20">{post.author[0]}</div>
+                           <div>
+                              <span className="block text-[11px] font-black uppercase text-white tracking-widest">@{post.author}</span>
+                              <span className="text-[9px] text-gray-600 font-bold uppercase tracking-widest">MEMBER_SIGNAL</span>
+                           </div>
+                        </div>
+                        <p className="text-gray-400 text-base italic mb-8 leading-relaxed line-clamp-4 group-hover:text-gray-300 transition-colors">"{post.content}"</p>
+                        <div className="flex items-center gap-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                           <span className="flex items-center gap-2 group-hover:text-mat-500 transition-colors"><Heart size={16} className="text-mat-500" /> {post.likes}</span>
+                           <span className="flex items-center gap-2 group-hover:text-white transition-colors"><MessageCircle size={16} /> {post.comments.length}</span>
                         </div>
                     </div>
                   ))}
