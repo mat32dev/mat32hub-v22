@@ -3,7 +3,7 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v6.0'; // Versión 6.0: Popsike & Paradise Garage Legacy
+  private localKey = 'mat32_matrix_production_v7.0'; // Versión 7.0: The Deep Digger Archive
   private sessionKey = 'mat32_auth_session';
 
   constructor() {
@@ -35,8 +35,9 @@ class DataService {
       };
       this.saveDB(db);
       
-      // Full purge of all legacy database versions
+      // Limpieza exhaustiva de todas las versiones anteriores para optimizar performance y SEO
       const legacyKeys = [
+        'mat32_matrix_production_v6.0',
         'mat32_matrix_production_v5.0',
         'mat32_matrix_production_v4.0',
         'mat32_matrix_production_v3.0',
