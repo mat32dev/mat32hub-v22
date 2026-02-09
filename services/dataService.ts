@@ -3,7 +3,7 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v4.0'; // Versión 4.0: Disco & Garage Heritage
+  private localKey = 'mat32_matrix_production_v5.0'; // Versión 5.0: The Disco & Garage Legacy Edition
   private sessionKey = 'mat32_auth_session';
 
   constructor() {
@@ -35,8 +35,9 @@ class DataService {
       };
       this.saveDB(db);
       
-      // Limpieza profunda de almacenamiento local
+      // Full cleanup of old database versions
       const legacyKeys = [
+        'mat32_matrix_production_v4.0',
         'mat32_matrix_production_v3.0',
         'mat32_matrix_production_v2.0',
         'mat32_matrix_production_v1.1',
