@@ -3,7 +3,7 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v10.0'; // Versión 10.0: The Ruzafa Real-Image Edition
+  private localKey = 'mat32_matrix_production_v13.0'; // Versión 13.0: The Spiritual Jazz Edition
   private sessionKey = 'mat32_auth_session';
 
   constructor() {
@@ -35,8 +35,10 @@ class DataService {
       };
       this.saveDB(db);
       
-      // Purga total de TODAS las versiones anteriores para garantizar performance
       const legacyKeys = [
+        'mat32_matrix_production_v12.0',
+        'mat32_matrix_production_v11.0',
+        'mat32_matrix_production_v10.0',
         'mat32_matrix_production_v9.0',
         'mat32_matrix_production_v8.0',
         'mat32_matrix_production_v7.0',
@@ -225,7 +227,7 @@ class DataService {
     await new Promise(resolve => setTimeout(resolve, 2000));
     const db = this.getDB();
     this.saveDB(db);
-    return 150;
+    return 200;
   }
 }
 

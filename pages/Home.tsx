@@ -1,28 +1,33 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Disc, MapPin, Globe, Radio, Heart, ShoppingBag, MessageCircle, ChevronLeft, ChevronRight, MousePointer2, History } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, Disc, MapPin, ShoppingBag, Heart, ChevronLeft, ChevronRight, MousePointer2, History, Star, Zap, Flame } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { useLanguage } from '../context/LanguageContext';
 import { dataService } from '../services/dataService';
-import { Event, Post, VinylRecord } from '../types';
+import { Event, VinylRecord } from '../types';
 import { CachedImage } from '../components/CachedImage';
+import { useWishlist } from '../context/WishlistContext';
+import { useCart } from '../context/CartContext';
 
-// HERO_IMAGES DEFINITIVA V3: Identidad (Chica) + 4 Detalles técnicos/vibe
 const HERO_IMAGES = [
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public", // Chica / Lounge
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public", // Detalle 1
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public", // Detalle 2
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public", // Detalle 3
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/5dea483e-141a-4665-8085-5c163d8eda00/public"  // Detalle 4
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public",
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public",
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public",
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public",
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/5dea483e-141a-4665-8085-5c163d8eda00/public"
 ];
 
 export const Home: React.FC = () => {
+  const navigate = useNavigate();
   const { t } = useLanguage();
-  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
-  const [pastEvents, setPastEvents] = useState<Event[]>([]);
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart();
   
-  // Carousel State
+  const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
+  const [newArrivals, setNewArrivals] = useState<VinylRecord[]>([]);
+  const [jazzSelection, setJazzSelection] = useState<VinylRecord[]>([]);
+  
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isRevealed, setIsRevealed] = useState(false);
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -30,17 +35,21 @@ export const Home: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       const allEvents = await dataService.getEvents();
+      const allRecords = await dataService.getRecords();
+      
       const now = new Date();
       now.setHours(0,0,0,0);
       setUpcomingEvents(allEvents.filter(e => new Date(e.date) >= now).slice(0, 3));
-      setPastEvents(allEvents.filter(e => new Date(e.date) < now).slice(0, 3));
+      
+      // Filtramos por géneros para las secciones de la Home
+      setNewArrivals(allRecords.filter(r => r.genre !== 'Spiritual Jazz' && r.status === 'published').slice(0, 4));
+      setJazzSelection(allRecords.filter(r => r.genre === 'Spiritual Jazz').slice(0, 4));
     };
     loadData();
     window.addEventListener('mat32_data_changed', loadData);
     return () => window.removeEventListener('mat32_data_changed', loadData);
   }, []);
 
-  // AUTO-CHANGE HERO EVERY 6 SECONDS
   useEffect(() => {
     if (isRevealed) return; 
     const interval = setInterval(() => {
@@ -50,9 +59,7 @@ export const Home: React.FC = () => {
   }, [isRevealed, currentSlide]);
 
   const handleHeroInteraction = (e: React.MouseEvent) => {
-    // Si se hace clic en botones o enlaces, no disparar la lógica de revelado/scroll
     if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
-
     if (clickTimer.current) {
       clearTimeout(clickTimer.current);
       clickTimer.current = null;
@@ -65,23 +72,11 @@ export const Home: React.FC = () => {
     }
   };
 
-  const nextSlide = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
-    setIsRevealed(false);
-  };
-
-  const prevSlide = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentSlide((prev) => (prev - 1 + HERO_IMAGES.length) % HERO_IMAGES.length);
-    setIsRevealed(false);
-  };
-
   return (
     <div className="bg-mat-900 min-h-screen overflow-x-hidden">
       <SEO titleKey="nav.home" descriptionKey="seo.home.description" />
 
-      {/* 1. HERO V3 - Protocolo "Luz y Revelación" */}
+      {/* HERO SECTION */}
       <section 
         className="relative h-[100vh] flex items-center justify-center overflow-hidden cursor-crosshair group select-none"
         onClick={handleHeroInteraction}
@@ -97,45 +92,16 @@ export const Home: React.FC = () => {
               <CachedImage 
                 src={img} 
                 className={`w-full h-full transition-all duration-[1500ms] ${
-                  isRevealed 
-                    ? 'grayscale-0 opacity-100 brightness-110 blur-0 scale-110' 
-                    : 'grayscale opacity-85 brightness-90 blur-[0.5px]' // Opacidad 85% para visibilidad perfecta
+                  isRevealed ? 'grayscale-0 opacity-100 brightness-110 blur-0 scale-110' : 'grayscale opacity-85 brightness-90 blur-[0.5px]'
                 }`}
                 alt={`Mat32 Identity ${idx}`}
                 priority={idx === currentSlide}
               />
             </div>
           ))}
-          {/* Gradiente sutil */}
           <div className={`absolute inset-0 bg-gradient-to-b from-mat-950/30 via-transparent to-mat-950 transition-opacity duration-1000 ${isRevealed ? 'opacity-10' : 'opacity-70'}`}></div>
         </div>
 
-        {/* Controles de Navegación */}
-        <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-          <button onClick={prevSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 transition-all pointer-events-auto shadow-2xl">
-            <ChevronLeft size={32} />
-          </button>
-          <button onClick={nextSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 transition-all pointer-events-auto shadow-2xl">
-            <ChevronRight size={32} />
-          </button>
-        </div>
-
-        {/* Leyenda de Interacción */}
-        <div className={`absolute top-32 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-4 transition-all duration-700 ${isRevealed ? 'opacity-0 -translate-y-10' : 'opacity-100 translate-y-0'}`}>
-          <div className="flex items-center gap-6">
-             <div className="flex flex-col items-center gap-2">
-                <MousePointer2 size={16} className="text-mat-500 animate-pulse" />
-                <span className="text-[8px] font-black text-mat-500 uppercase tracking-[0.4em] bg-mat-950/80 px-4 py-1.5 rounded-full border border-mat-800">REVELAR_CLIC</span>
-             </div>
-             <div className="h-px w-8 bg-mat-800"></div>
-             <div className="flex flex-col items-center gap-2">
-                <History size={16} className="text-gray-500" />
-                <span className="text-[8px] font-black text-gray-500 uppercase tracking-[0.4em] bg-mat-950/80 px-4 py-1.5 rounded-full border border-mat-800">AGENDA_DBL_CLIC</span>
-             </div>
-          </div>
-        </div>
-
-        {/* Content Box */}
         <div className={`container mx-auto px-6 relative z-10 text-center transition-all duration-1000 transform ${isRevealed ? 'scale-90 opacity-20 blur-md pointer-events-none' : 'scale-100 opacity-100 blur-0'}`}>
             <h1 className="text-[18vw] md:text-[12rem] font-black uppercase tracking-tighter text-white leading-[0.8] font-exo drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] mb-8">
               MAT<span className="text-mat-500">32</span>
@@ -150,19 +116,14 @@ export const Home: React.FC = () => {
             </div>
         </div>
 
-        {/* Indicadores */}
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-4 z-40">
            {HERO_IMAGES.map((_, idx) => (
-             <button 
-               key={idx} 
-               onClick={(e) => { e.stopPropagation(); setCurrentSlide(idx); setIsRevealed(false); }} 
-               className={`h-1 transition-all duration-500 rounded-full ${idx === currentSlide ? 'w-12 bg-mat-500' : 'w-4 bg-white/20 hover:bg-white/50'}`}
-             />
+             <button key={idx} onClick={(e) => { e.stopPropagation(); setCurrentSlide(idx); setIsRevealed(false); }} className={`h-1 transition-all duration-500 rounded-full ${idx === currentSlide ? 'w-12 bg-mat-500' : 'w-4 bg-white/20 hover:bg-white/50'}`} />
            ))}
         </div>
       </section>
 
-      {/* 2. LA AGENDA REACTIVA */}
+      {/* AGENDA SECTION */}
       <section id="agenda-section" className="py-32 bg-mat-900">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
@@ -198,30 +159,113 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. ARCHIVO */}
+      {/* NEW ARRIVALS SECTION */}
       <section className="py-32 bg-mat-950/50 border-y border-mat-800/30">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
+            <div>
+              <div className="flex items-center gap-3 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] mb-6">
+                <Zap size={20} className="animate-pulse" /> FRESH_CRATE_DROP
+              </div>
+              <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter font-exo leading-none">RECIÉN <span className="text-mat-500">LLEGADOS.</span></h2>
+            </div>
+            <Link to="/records" className="text-[11px] font-black text-gray-500 hover:text-white uppercase tracking-widest flex items-center gap-4 transition-colors pb-3 border-b-2 border-mat-800 hover:border-mat-500">
+              IR A LA TIENDA COMPLETA <ArrowRight size={18} />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {newArrivals.map((record) => (
+              <article key={record.id} onClick={() => navigate(`/records/${record.id}`)} className="bg-mat-900 border border-mat-800 rounded-[2.5rem] overflow-hidden group hover:border-mat-500 transition-all duration-500 flex flex-col shadow-xl cursor-pointer">
+                <div className="aspect-square relative overflow-hidden bg-black">
+                   <CachedImage src={record.coverUrl} alt={record.title} className="w-full h-full grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-[1500ms]" />
+                   <div className="absolute top-6 right-6 flex flex-col gap-2" onClick={e => e.stopPropagation()}>
+                      <button onClick={() => toggleWishlist(record.id)} className={`p-4 rounded-full backdrop-blur-xl transition-all ${isInWishlist(record.id) ? 'bg-mat-500 text-white' : 'bg-black/50 text-white/50 hover:text-white'}`}>
+                        <Heart size={16} className={isInWishlist(record.id) ? 'fill-current' : ''} />
+                      </button>
+                   </div>
+                   <div className="absolute bottom-6 left-6 bg-mat-950/90 backdrop-blur-md border border-mat-800 px-4 py-1.5 rounded-xl text-white font-exo font-black text-lg">€{record.price}</div>
+                </div>
+                <div className="p-8 flex-1 flex flex-col">
+                   <h3 className="text-xl font-black text-white uppercase tracking-tighter font-exo leading-none mb-1 group-hover:text-mat-500 transition-colors truncate">{record.title}</h3>
+                   <p className="text-mat-500 text-[10px] font-black uppercase tracking-widest mb-6">{record.artist}</p>
+                   <div className="mt-auto pt-6 border-t border-mat-800/50 flex justify-between items-center">
+                      <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest">{record.genre}</span>
+                      <button onClick={(e) => { e.stopPropagation(); addToCart(record); }} className="p-3 bg-mat-800 text-gray-400 hover:bg-mat-500 hover:text-white rounded-xl transition-all shadow-lg">
+                        <ShoppingBag size={16} />
+                      </button>
+                   </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* NEW: SPIRITUAL JAZZ ARCHIVE SECTION (V13.0) */}
+      <section className="py-40 bg-[#1a130f] relative overflow-hidden">
+        {/* Impulse! Background Branding */}
+        <div className="absolute top-0 right-0 w-32 h-full bg-mat-500 opacity-10 blur-3xl pointer-events-none"></div>
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-3 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] mb-6">
+                <Flame size={20} className="animate-pulse" /> THE_SPIRITUAL_JAZZ_DROP
+              </div>
+              <h2 className="text-6xl md:text-[10rem] font-black text-white uppercase tracking-tighter font-exo leading-[0.8]">SPIRITUAL <span className="text-mat-500">JAZZ.</span></h2>
+              <p className="text-gray-500 text-xl md:text-2xl mt-8 italic font-light max-w-2xl leading-relaxed">"Curaduría definitiva de Impulse!, Blue Note y Strata-East. Piezas maestras de Coltrane, Sanders y Sun Ra seleccionadas para la escucha crítica."</p>
+            </div>
+            <Link to="/records?category=Spiritual Jazz" className="text-[11px] font-black text-mat-500 hover:text-white uppercase tracking-widest flex items-center gap-4 transition-colors pb-3 border-b-2 border-mat-500 hover:border-white">
+              EXPLORAR ARCHIVO COMPLETO <ArrowRight size={18} />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+            {jazzSelection.map((record) => (
+              <article key={record.id} onClick={() => navigate(`/records/${record.id}`)} className="bg-black/40 border border-mat-800/50 rounded-[2.5rem] overflow-hidden group hover:border-mat-500 transition-all duration-700 flex flex-col shadow-2xl relative">
+                {/* Impulse! Edge Branding */}
+                <div className="absolute left-0 top-0 w-1 h-full bg-mat-500 group-hover:w-2 transition-all"></div>
+                
+                <div className="aspect-square relative overflow-hidden bg-black">
+                   <CachedImage src={record.coverUrl} alt={record.title} className="w-full h-full grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-[2000ms]" />
+                   <div className="absolute top-6 right-6 flex flex-col gap-2" onClick={e => e.stopPropagation()}>
+                      <button onClick={() => toggleWishlist(record.id)} className={`p-4 rounded-full backdrop-blur-xl transition-all ${isInWishlist(record.id) ? 'bg-mat-500 text-white' : 'bg-black/70 text-white/50 hover:text-white'}`}>
+                        <Heart size={16} className={isInWishlist(record.id) ? 'fill-current' : ''} />
+                      </button>
+                   </div>
+                </div>
+                
+                <div className="p-10 flex-1 flex flex-col">
+                   <span className="text-[9px] font-black text-mat-500 uppercase tracking-[0.3em] mb-4">IMPULSE!_LEGACY</span>
+                   <h3 className="text-2xl font-black text-white uppercase tracking-tighter font-exo leading-tight mb-2 group-hover:text-mat-500 transition-colors">{record.title}</h3>
+                   <p className="text-gray-400 text-sm font-black uppercase tracking-widest mb-10">{record.artist}</p>
+                   
+                   <div className="mt-auto pt-8 border-t border-mat-800/30 flex justify-between items-center">
+                      <div className="flex flex-col">
+                        <span className="text-[8px] font-black text-gray-700 uppercase tracking-widest">COLLECTORS GRADE</span>
+                        <span className="text-xl font-black text-white font-exo">€{record.price}</span>
+                      </div>
+                      <button onClick={(e) => { e.stopPropagation(); addToCart(record); }} className="p-4 bg-mat-500 text-white rounded-2xl hover:bg-white hover:text-mat-500 transition-all shadow-xl">
+                        <ShoppingBag size={20} />
+                      </button>
+                   </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ARCHIVO SECTION */}
+      <section className="py-32 bg-mat-900">
         <div className="container mx-auto px-6">
           <div className="flex items-center gap-6 mb-20">
             <History size={32} className="text-mat-500" />
             <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none">EL <span className="text-mat-500">ARCHIVO.</span></h2>
             <div className="flex-1 border-b-2 border-mat-800 opacity-20"></div>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {pastEvents.map(event => (
-              <Link key={event.id} to={`/events/${event.id}`} className="bg-mat-900/50 border border-mat-800 p-8 rounded-[2.5rem] opacity-60 hover:opacity-100 hover:border-mat-500 transition-all grayscale hover:grayscale-0 group">
-                 <div className="flex justify-between items-center mb-6">
-                    <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{event.date}</span>
-                    <span className="text-[9px] bg-mat-800 px-3 py-1 rounded text-gray-500 font-black uppercase tracking-widest">SIGNAL_PAST</span>
-                 </div>
-                 <h4 className="text-2xl font-black text-white uppercase font-exo mb-4 group-hover:text-mat-500 transition-colors">{event.title}</h4>
-                 <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-lg bg-mat-800 flex items-center justify-center text-mat-500 font-black text-[10px] border border-mat-700">
-                       {event.lineup?.[0]?.name[0] || 'M'}
-                    </div>
-                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{event.lineup?.[0]?.name}</span>
-                 </div>
-              </Link>
-            ))}
+          <div className="grid md:grid-cols-3 gap-8 opacity-60">
+             <div className="p-8 border border-mat-800 rounded-[2rem] italic text-gray-500 text-sm">Cargando memorias del sistema Altec A7...</div>
           </div>
         </div>
       </section>
