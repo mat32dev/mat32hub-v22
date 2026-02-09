@@ -1,5 +1,5 @@
 
-import { Event, Post, VinylRecord, MenuCategory, SelectorSubmission, SellerProfile, InstagramPost } from './types';
+import { Event, Post, VinylRecord, MenuCategory, SellerProfile, Artist, SelectorSubmission } from './types';
 
 const getFutureDate = (daysFromNow: number) => {
   const d = new Date();
@@ -13,6 +13,12 @@ const getPastDate = (daysAgo: number) => {
   return d.toISOString().split('T')[0];
 };
 
+export const MOCK_ARTISTS: Record<string, Artist> = {
+  'soulman': { id: 'art_soul', name: 'Soulman', role: 'Main Selector', instagram: '@soulman_vlc' },
+  'analog_digger': { id: 'art_digger', name: 'Analog Digger', role: 'Vinyl Specialist', instagram: '@analog_digger' },
+  'mat32_crew': { id: 'art_crew', name: 'Mat32 Crew', role: 'Selectors', instagram: '@mat32__' }
+};
+
 export const MOCK_SELLERS: SellerProfile[] = [
   {
     id: 's_mat32',
@@ -24,17 +30,6 @@ export const MOCK_SELLERS: SellerProfile[] = [
     location: 'Ruzafa',
     isVerified: true,
     specialty: ['Jazz Fusion', 'City Pop', 'Ambient']
-  },
-  {
-    id: 's_raretraxxx',
-    name: 'RareTraxxx Store',
-    email: 'store@raretraxxx.com',
-    discogsUsername: 'raretraxxx',
-    avatarUrl: 'https://i.pravatar.cc/150?u=rare',
-    bio: 'Amigos de la casa especializados en Techno de Detroit y House clásico.',
-    location: 'Extramurs',
-    isVerified: true,
-    specialty: ['Techno', 'Deep House']
   }
 ];
 
@@ -62,7 +57,7 @@ export const MOCK_EVENTS: Event[] = [
     slug: 'ruzafa-soul-funk',
     date: getFutureDate(2),
     time: '20:00',
-    location: 'Mat32',
+    location: 'Mat32 Ruzafa',
     description: 'Noche de Soul y Funk con vinilos originales en el corazón de Valencia.',
     category: 'Hi-Fi Sessions',
     imageUrl: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=800',
@@ -71,7 +66,7 @@ export const MOCK_EVENTS: Event[] = [
     price: 0,
     paidPrice: 10,
     ticketLink: '#',
-    lineup: [{ name: 'Soulman', role: 'Main Selector' }],
+    lineup: [MOCK_ARTISTS['soulman']],
     vibe: ['Soul', 'Funk'],
     status: 'published',
     tags: ['#soul', '#funk']
@@ -82,8 +77,8 @@ export const MOCK_EVENTS: Event[] = [
     slug: 'analog-deep-sessions',
     date: getFutureDate(5),
     time: '22:00',
-    location: 'Mat32',
-    description: 'Viaje sonoro a través de la electrónica más profunda.',
+    location: 'Mat32 Ruzafa',
+    description: 'Viaje sonoro a través de la electrónica más profunda con sonido Altec A7.',
     category: 'Electronic Hub',
     imageUrl: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=800',
     attendees: 8,
@@ -91,7 +86,7 @@ export const MOCK_EVENTS: Event[] = [
     price: 0,
     paidPrice: 0,
     ticketLink: '#',
-    lineup: [{ name: 'Selector Resident', role: 'Vinyl Specialist' }],
+    lineup: [MOCK_ARTISTS['analog_digger']],
     vibe: ['Deep', 'Ambient'],
     status: 'published',
     tags: ['#electronic', '#hifi']
@@ -102,19 +97,41 @@ export const MOCK_EVENTS: Event[] = [
     slug: 'grand-opening-night',
     date: getPastDate(15),
     time: '19:00',
-    location: 'Mat32',
+    location: 'Mat32 Ruzafa',
     description: 'Inauguración oficial de nuestro santuario analógico en Ruzafa.',
     category: 'Special Event',
-    imageUrl: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=800',
+    imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/190aead2-fc94-4fed-a7c2-bd341561ca00/public',
     attendees: 40,
     capacity: 40,
     price: 0,
     paidPrice: 0,
     ticketLink: '#',
-    lineup: [{ name: 'All Stars', role: 'Selectores' }],
+    lineup: [MOCK_ARTISTS['mat32_crew']],
     vibe: ['Celebration', 'Inaugural'],
     status: 'published',
-    tags: ['#opening', '#ruzafa']
+    tags: ['#opening', '#ruzafa'],
+    isPast: true
+  },
+  {
+    id: 'e_past_2',
+    title: 'Vinyl & Cocktails Vol. 1',
+    slug: 'vinyl-cocktails-v1',
+    date: getPastDate(30),
+    time: '20:30',
+    location: 'Mat32 Ruzafa',
+    description: 'La primera de nuestras sesiones de escucha atenta con coctelería de autor.',
+    category: 'Listening Session',
+    imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public',
+    attendees: 30,
+    capacity: 40,
+    price: 0,
+    paidPrice: 0,
+    ticketLink: '#',
+    lineup: [MOCK_ARTISTS['mat32_crew']],
+    vibe: ['Relax', 'Analog'],
+    status: 'published',
+    tags: ['#hifi', '#cocktails'],
+    isPast: true
   }
 ];
 
@@ -141,65 +158,22 @@ export const MOCK_RECORDS: VinylRecord[] = [
   }
 ];
 
-export const MOCK_SELECTORS: SelectorSubmission[] = [
-  {
-    id: 'sel_1',
-    artistName: 'Marco V',
-    genres: ['House', 'Techno'],
-    format: 'Vinyl Only',
-    mixUrl: 'https://soundcloud.com/example',
-    bio: 'Selector de la escena local de Valencia.',
-    status: 'approved'
-  }
-];
-
 export const BAR_MENU: MenuCategory[] = [
   {
     title: 'BÁSICOS',
     items: [
       { name: 'AGUA / CAFÉ / INFUSIÓN', price: '2,50', highlight: false },
-      { name: 'REFRESCO', price: '3,50', highlight: false },
-      { name: 'CHUPITO', price: '3,50', highlight: false }
+      { name: 'REFRESCO', price: '3,50', highlight: false }
     ]
   },
   {
     title: 'CERVEZA & VINO',
     items: [
-      { name: 'CERVEZA CAÑA 20cl', price: '2,50', highlight: false },
       { name: 'COPA DE VINO D.O VALENCIA', price: '4,00', highlight: true },
-      { name: 'CERVEZA ESTRELLA GALICIA 33cl', price: '4,00', highlight: false },
-      { name: 'CERVEZA ESTRELLA GALICIA 50cl', price: '5,00', highlight: false }
-    ]
-  },
-  {
-    title: 'APERITIVOS',
-    items: [
-      { name: 'VERMOUTH', price: '5,00', highlight: false },
-      { name: 'POMADA', price: '5,00', highlight: false },
-      { name: 'MARTINI BLANCO / ROSSO', price: '6,00', highlight: false },
-      { name: 'APEROL SPRITZ', price: '7,00', highlight: true }
-    ]
-  },
-  {
-    title: 'COMBINADOS & COCKTAILS',
-    items: [
-      { name: 'WHISKY SOUR', price: '8,00', highlight: false },
-      { name: 'COPA COMBINADO 50ml', price: '9,00', highlight: false },
-      { name: 'COMBINADO + RED BULL', price: '10,00', highlight: false },
-      { name: 'MOSCOW MULE', price: '10,00', highlight: true },
-      { name: 'MOJITO', price: '10,00', highlight: false },
-      { name: 'COMBINADO PREMIUM', price: '12,00', highlight: false }
+      { name: 'CERVEZA ESTRELLA GALICIA 33cl', price: '4,00', highlight: false }
     ]
   }
 ];
 
-export const MOCK_INSTAGRAM_POSTS: InstagramPost[] = [
-  {
-    id: 'ig_1',
-    imageUrl: 'https://images.unsplash.com/photo-1514525253361-bee8a48790c3?q=80&w=400',
-    link: '#',
-    likes: 120,
-    comments: 12,
-    caption: 'Pure Analog Vibes'
-  }
-];
+// Mock data for Open Decks selectors to fix dataService.ts import error
+export const MOCK_SELECTORS: SelectorSubmission[] = [];

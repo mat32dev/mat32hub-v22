@@ -37,6 +37,14 @@ export interface VinylRecord {
   tags: string[];
 }
 
+export interface Artist {
+  id: string;
+  name: string;
+  role: string;
+  instagram?: string;
+  avatarUrl?: string;
+}
+
 export interface Event {
   id: string;
   title: string;
@@ -52,13 +60,14 @@ export interface Event {
   price: number;
   paidPrice: number;
   ticketLink: string;
-  lineup: { name: string; role: string }[];
+  lineup: Artist[];
   vibe: string[];
   status: 'published' | 'draft';
   tags: string[];
   freeUntil?: string;
   freeCapacity?: number;
   isOpenDecks?: boolean;
+  isPast?: boolean;
 }
 
 export interface Sale {
@@ -82,7 +91,6 @@ export interface GalleryItem {
   category: string;
 }
 
-// Added missing InstagramPost interface
 export interface InstagramPost {
   id: string;
   imageUrl: string;
@@ -158,7 +166,6 @@ export interface ChatMessage {
   text: string;
 }
 
-// Added missing UserRole and UserSession for authentication
 export type UserRole = 'ADMIN' | 'DJ' | 'CUSTOMER';
 
 export interface UserSession {
