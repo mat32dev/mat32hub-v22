@@ -9,166 +9,151 @@ export const MOCK_ARTISTS: Record<string, Artist> = {
 
 export const MOCK_SELLERS: SellerProfile[] = [
   {
-    id: 's_mat32',
-    name: 'Mat32 Archive',
-    email: 'archive@mat32.com',
-    discogsUsername: 'ACTIVISTA',
+    id: 'discos_ruzafa',
+    name: 'Discos Ruzafa',
+    email: 'ruzafa@mat32.com',
+    discogsUsername: 'discos-ruzafa',
     avatarUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public',
-    bio: 'Paradise Garage & Loft Legacy Archive. Salsoul, West End, Prelude y rarezas de Detroit.',
-    location: 'Ruzafa',
+    bio: 'Especialistas en Disco, Boogie y rarezas de New York. Curaduría estricta.',
+    location: 'Valencia, Ruzafa',
     isVerified: true,
-    specialty: ['Disco', 'Boogie', 'Classic House', 'Edit Culture']
+    specialty: ['Disco', 'Paradise Garage', 'Classic House']
   }
 ];
 
-// ICONIC LABELS & SLEEVES (URLs reales de Discogs para Maxis)
-const LABEL_SLEEVES: Record<string, string> = {
-  "Salsoul Records": "https://i.discogs.com/p0-vN_Vz5O0V8V2zG-R1w6K8W-M=/fit-in/300x300/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/L-897-1543590000.jpeg.jpg",
-  "Prelude Records": "https://i.discogs.com/f7jYy-E-E-E-E/fit-in/300x300/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/L-154-1543590000.jpeg.jpg",
-  "West End Records": "https://i.discogs.com/jE-099k7e3r9E-E-E-E/fit-in/300x300/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/L-486-1543590000.jpeg.jpg",
-  "Radar": "https://i.discogs.com/L-112-Radar/fit-in/300x300.jpeg",
-  "Sound Signature": "https://i.discogs.com/L-1010-SoundSignature/fit-in/300x300.jpeg",
-  "KDJ": "https://i.discogs.com/L-1020-KDJ/fit-in/300x300.jpeg",
-  "Gold Mind": "https://i.discogs.com/L-122-GoldMind/fit-in/300x300.jpeg",
-  "P&P": "https://i.discogs.com/L-567-PP/fit-in/300x300.jpeg"
-};
+const DISCOGS_BASE_URL = "https://www.discogs.com/es/user/discos-ruzafa";
 
-const DISCO_GEMS_DATABASE = [
-  { a: "Double Exposure", t: "Ten Percent", l: "Salsoul Records", y: "1976", g: "Disco", p: 45, f: "12\"", img: "https://i.discogs.com/f9-XFm8_U3Yqf8W0VfJ_x-5f_Xk=/fit-in/600x600/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/R-94008-1188406541.jpeg.jpg", d: "Walter Gibbons 12\" Mix. Matrix #SZS-5508. Shiny vinyl, clean labels. Iconic first 12 inch commercial release." },
-  { a: "Taana Gardner", t: "Heartbeat", l: "West End Records", y: "1981", g: "Boogie", p: 38, f: "12\"", img: "https://i.discogs.com/R-48601-1335012345.jpeg.jpg", d: "Larry Levan Mix. WES-22132. Club classic. Heavy bass response, vinyl is EX with minor surface marks." },
-  { a: "Theo Parrish", t: "First Floor Metaphor", l: "Sound Signature", y: "1998", g: "Detroit House", p: 65, f: "LP", img: "https://i.discogs.com/R-1010-1241512345.jpeg.jpg", d: "Triple vinyl LP. SS004. Raw Detroit sound. Minimal shelf wear on sleeve, vinyl is NM." },
-  { a: "Loleatta Holloway", t: "Love Sensation", l: "Gold Mind", y: "1980", g: "Disco", p: 28, f: "12\"", img: "https://i.discogs.com/R-122114-1144012345.jpeg.jpg", d: "Tom Moulton Mix. G-12-4001. Original pressing. Full power vocals. Side A is flawless." },
-  { a: "D-Train", t: "You're The One For Me", l: "Prelude Records", y: "1981", g: "Boogie", p: 24, f: "12\"", img: "https://i.discogs.com/R-135-1144012345.jpeg.jpg", d: "François K Remix. PRL D 621. Classic Prelude synth groove. Matrix: MASTERING BY FRANKFORD/WAYNE." },
-  { a: "Moodymann", t: "Don't Be Misled", l: "KDJ", y: "1996", g: "Detroit House", p: 75, f: "12\"", img: "https://i.discogs.com/R-115-1144012345.jpeg.jpg", d: "KDJ-001. Very rare first pressing. Hand-stamped label style. Deep lo-fi house textures." },
-  { a: "Rahaan", t: "Chicago Edits Vol. 1", l: "Radar", y: "2005", g: "Edits", p: 19, f: "12\"", img: "https://i.discogs.com/R-112-1144012345.jpeg.jpg", d: "RAD-001. Limitad edition Chicago DJ edits. Mint copy, never played in club." },
-  { a: "First Choice", t: "Let No Man Put Asunder", l: "Salsoul Records", y: "1977", g: "Disco", p: 32, f: "12\"", img: "https://i.discogs.com/R-10020-1241512345.jpeg.jpg", d: "Shep Pettibone Mix. SG 368. Essential Salsoul tool. Strong VG+ copy." },
-  { a: "Sharon Redd", t: "Can You Handle It", l: "Prelude Records", y: "1980", g: "Boogie", p: 22, f: "12\"", img: "https://i.discogs.com/R-154-1144012345.jpeg.jpg", d: "PRL D 604. François Kevorkian mix. Heavy funk bass line. Original Prelude company sleeve." },
-  { a: "Loose Joints", t: "Is It All Over My Face?", l: "West End Records", y: "1980", g: "Disco", p: 50, f: "12\"", img: "https://i.discogs.com/R-168-1144012345.jpeg.jpg", d: "Larry Levan Mix. WES 22129. Arthur Russell production. Iconic Paradise Garage anthem." },
-  { a: "Instant Funk", t: "I Got My Mind Made Up", l: "Salsoul Records", y: "1978", g: "Disco Funk", p: 18, f: "12\"", img: "https://i.discogs.com/R-898-123456789.jpeg.jpg", d: "SG 207. Larry Levan remix. Heavyweight vinyl pressing. Clean copy with no spindle marks." },
-  { a: "The Salsoul Orchestra", t: "Nice 'N' Naasty", l: "Salsoul Records", y: "1976", g: "Disco", p: 26, f: "LP", img: "https://i.discogs.com/R-94010-123456789.jpeg.jpg", d: "SZS-5507. Full LP including 'It's Good For The Soul'. Orchestral disco masterpiece. VG+ condition." },
-  { a: "Joe Bataan", t: "The Bottle", l: "Salsoul Records", y: "1975", g: "Latin Disco", p: 42, f: "12\"", img: "https://i.discogs.com/R-567-123456789.jpeg.jpg", d: "Rare 12\" promo version. Gil Scott-Heron cover. Latin soul fire. Vinyl is NM." },
-  { a: "Sparque", t: "Let's Go Dancin'", l: "West End Records", y: "1981", g: "Boogie", p: 29, f: "12\"", img: "https://i.discogs.com/R-486-123456789.jpeg.jpg", d: "WES 22135. Produced by Milton Hamilton. Top-tier NYC boogie. Original labels." },
-  { a: "Carol Williams", t: "'Lectric Lady", l: "Salsoul Records", y: "1976", g: "Soul Disco", p: 20, f: "LP", img: "https://i.discogs.com/R-94009-123456789.jpeg.jpg", d: "SZS-5506. Vincent Montana Jr. production. Philly soul meets disco. Beautiful cover art." },
-  { a: "Ripple", t: "The Beat Goes On", l: "Salsoul Records", y: "1977", g: "Disco", p: 25, f: "12\"", img: "https://i.discogs.com/R-897-123456789.jpeg.jpg", d: "SG 205. One of the most sampled breaks in house history. Clean, loud pressing." }
+const POPSIKE_GEMS = [
+  { a: "Double Exposure", t: "Ten Percent", l: "Salsoul Records", y: "1976", g: "Disco", p: 75, f: "12\"", img: "https://i.discogs.com/f9-XFm8_U3Yqf8W0VfJ_x-5f_Xk=/fit-in/600x600/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/R-94008-1188406541.jpeg.jpg", d: "Walter Gibbons Remix. Matrix #SZS-5508-A. VG+ copy with minimal surface noise. A classic Popsike top-seller for audiophiles." },
+  { a: "Taana Gardner", t: "Heartbeat", l: "West End Records", y: "1981", g: "Boogie", p: 85, f: "12\"", img: "https://i.discogs.com/R-48601-1335012345.jpeg.jpg", d: "Larry Levan Mix. WES-22132. Deep bass response. Deadwax: 'MASTERING BY FRANKFORD/WAYNE'. Extremely clean VG+ labels." },
+  { a: "Loleatta Holloway", t: "Love Sensation", l: "Gold Mind", y: "1980", g: "Disco", p: 55, f: "12\"", img: "https://i.discogs.com/R-122114-1144012345.jpeg.jpg", d: "Tom Moulton Mix. Matrix: G-12-4001. First commercial 12\". Powerful vocal section, shiny vinyl with zero scratches." },
+  { a: "D-Train", t: "You're The One For Me", l: "Prelude Records", y: "1981", g: "Boogie", p: 42, f: "12\"", img: "https://i.discogs.com/R-135-1144012345.jpeg.jpg", d: "François K Remix. PRL D 621. Classic Prelude synth groove. Matrix: 'F/W' etched. Excellent dynamics for club sound systems." },
+  { a: "First Choice", t: "Let No Man Put Asunder", l: "Salsoul Records", y: "1977", g: "Disco", p: 48, f: "12\"", img: "https://i.discogs.com/R-10020-1241512345.jpeg.jpg", d: "Shep Pettibone Mix. SG 368. Essential Salsoul tool. VG+ copy with original company sleeve. No spindle marks." },
+  { a: "Loose Joints", t: "Is It All Over My Face?", l: "West End Records", y: "1980", g: "Disco", p: 120, f: "12\"", img: "https://i.discogs.com/R-168-1144012345.jpeg.jpg", d: "Larry Levan Female Vocal Mix. WES 22129. Arthur Russell production. A rare Popsike find in this VG+ condition." },
+  { a: "Candido", t: "Jingo", l: "Salsoul Records", y: "1979", g: "Latin Disco", p: 65, f: "12\"", img: "https://i.discogs.com/R-897-123456789.jpeg.jpg", d: "SG 205. Stunning percussion break. Heavily played at The Loft. Very strong VG+, plays almost NM." },
+  { a: "Theo Parrish", t: "Moonlite", l: "Sound Signature", y: "1999", g: "Detroit House", p: 95, f: "12\"", img: "https://i.discogs.com/R-1010-1241512345.jpeg.jpg", d: "SS007. Raw Detroit production. Hand-stamped label style. Popsike rarity for modern collectors. Zero wear on grooves." },
+  { a: "Moodymann", t: "Don't Be Misled", l: "KDJ", y: "1996", g: "Detroit House", p: 150, f: "12\"", img: "https://i.discogs.com/R-115-1144012345.jpeg.jpg", d: "KDJ-001. First press. Extremely rare hand-made jacket variant. Museum piece for Detroit heads." },
+  { a: "Ripple", t: "The Beat Goes On", l: "Salsoul Records", y: "1977", g: "Funk Disco", p: 38, f: "12\"", img: "https://i.discogs.com/R-898-123456789.jpeg.jpg", d: "SG 207. Larry Levan remix. Heavyweight vinyl pressing. Clean copy with original Salsoul jacket." },
+  { a: "The Salsoul Orchestra", t: "Nice 'N' Naasty", l: "Salsoul Records", y: "1976", g: "Disco", p: 32, f: "LP", img: "https://i.discogs.com/R-94010-123456789.jpeg.jpg", d: "SZS-5507. Full LP. Vincent Montana Jr production. Includes orchestral hits. Jacket shows minor storage wear." },
+  { a: "Joe Bataan", t: "The Bottle", l: "Salsoul Records", y: "1975", g: "Latin Disco", p: 110, f: "12\"", img: "https://i.discogs.com/R-567-123456789.jpeg.jpg", d: "Rare promo version. Gil Scott-Heron cover. Matrix: 'S-401'. Highly sought after by Latin Soul collectors." },
+  { a: "Sparque", t: "Let's Go Dancin'", l: "West End Records", y: "1981", g: "Boogie", p: 45, f: "12\"", img: "https://i.discogs.com/R-486-123456789.jpeg.jpg", d: "WES 22135. Produced by Milton Hamilton. Larry Levan's Garage favorite. Mint labels, VG+ vinyl." },
+  { a: "Sharon Redd", t: "Beat The Street", l: "Prelude Records", y: "1982", g: "Electro Disco", p: 28, f: "12\"", img: "https://i.discogs.com/R-154-1144012345.jpeg.jpg", d: "PRL D 604. François Kevorkian mix. Heavy funk bass line. Original Prelude company sleeve in excellent condition." },
+  { a: "Patti Labelle", t: "Music Is My Way Of Life", l: "Salsoul Records", y: "1979", g: "Disco", p: 60, f: "12\"", img: "https://i.discogs.com/R-94008-1188406541.jpeg.jpg", d: "Rare commercial 12\" version. Matrix: SZS-5508. High BPM classic. Vinyl is shiny, plays loud." }
 ];
 
-const generateUnique150Catalog = (): VinylRecord[] => {
+const generateUnique90Archive = (): VinylRecord[] => {
   const records: VinylRecord[] = [];
-  const pressVariants = [
-    "Original US Pressing", 
-    "Promo Copy - White Label", 
-    "Test Pressing (Frankford/Wayne)", 
-    "Japanese Import (w/ Obi)", 
-    "UK First Pressing", 
-    "French Distribution (Disques Vogue)", 
-    "Canadian Import", 
-    "German Import (Teldec)"
+  const editions = [
+    "Original US First Press", 
+    "Promo Only - White Label", 
+    "Mastered by Frankford/Wayne", 
+    "Japanese Pressing w/ Obi", 
+    "UK Import - DJ Edition", 
+    "Canadian Rare Distribution", 
+    "Vogue French Pressing", 
+    "German Import Archive Copy"
   ];
   
-  const auctionNotes = [
-    "Matrix: MASTERING BY FRANKFORD/WAYNE etched in deadwax.",
-    "Very clean labels, no spindle wear visible.",
-    "Jacket shows minor corner wear, vinyl is pristine.",
-    "Loud and clear pressing, perfect for high-end Hi-Fi systems.",
-    "Includes original company inner sleeve in great condition.",
-    "Promotional copy, rarely found in this NM state.",
-    "Deadstock find from a NYC record warehouse.",
-    "Auditioned on Altec A7, soundstage is wide and detailed."
+  const technicalNotes = [
+    "Etched matrix numbers in deadwax confirm first pressing.",
+    "Jacket is clean with no ring wear. Vinyl looks unplayed.",
+    "High-end frequency response tested on Altec A7 speakers.",
+    "Labels are bright and crisp. No spindle marks detected.",
+    "Original company inner sleeve included. Museum quality.",
+    "Popsike historical high for this condition is exceeded here.",
+    "Deadstock discovery from a closed New York distributor.",
+    "Superior dynamics. This copy has been professionally cleaned."
   ];
 
   for (let i = 0; i < 150; i++) {
-    const seed = DISCO_GEMS_DATABASE[i % DISCO_GEMS_DATABASE.length];
-    const variantIdx = Math.floor(i / DISCO_GEMS_DATABASE.length) % pressVariants.length;
-    const noteIdx = (i + 3) % auctionNotes.length;
+    const seed = POPSIKE_GEMS[i % POPSIKE_GEMS.length];
+    const edition = editions[Math.floor(i / POPSIKE_GEMS.length) % editions.length];
+    const note = technicalNotes[(i + 7) % technicalNotes.length];
     
-    // IMAGE LOGIC: 12" uses Label Sleeve | LP uses Full Artwork
-    let finalCover = seed.f === "12\"" && LABEL_SLEEVES[seed.l] ? LABEL_SLEEVES[seed.l] : seed.img;
-    
-    // Precios oscilando los 25€ pero con picos realistas de Popsike
-    const basePrice = i % 10 === 0 ? seed.p + 25 : (i % 3 === 0 ? seed.p - 10 : seed.p);
-    const finalPrice = Math.max(15, basePrice);
-
-    const isSold = i % 6 === 0; // ~16% Sold out rate
+    // SEO-Friendly slugs and unique prices
+    const priceVariance = (i % 5) * 5;
+    const finalPrice = seed.p + priceVariance;
+    const isSold = i % 8 === 0;
 
     records.push({
-      id: `disco_gem_${i + 1}`,
-      sku: `MAT-HUB-${5000 + i}`,
+      id: `ruzafa_digger_${i + 1}`,
+      sku: `MAT32-RZ-${6000 + i}`,
       artist: seed.a,
-      title: `${seed.t} (${pressVariants[variantIdx]})`,
+      title: `${seed.t} (${edition})`,
       slug: `${seed.a.toLowerCase().replace(/\s+/g, '-')}-${seed.t.toLowerCase().replace(/\s+/g, '-')}-${i}`,
       label: seed.l,
       year: seed.y,
       format: seed.f,
-      condition: i % 15 === 0 ? "Mint" : "NM",
+      condition: "VG+",
       genre: seed.g,
       price: finalPrice,
       stock: isSold ? 0 : 1,
-      coverUrl: finalCover,
-      discogsLink: `https://www.discogs.com/user/ACTIVISTA/collection`,
-      description: `${seed.d} ${auctionNotes[noteIdx]} Checked in our laboratory.`,
-      sellerId: 's_mat32',
+      coverUrl: seed.img,
+      discogsLink: DISCOGS_BASE_URL,
+      description: `${seed.d} ${note}`,
+      sellerId: 'discos_ruzafa',
       status: isSold ? 'sold' : 'published',
-      tags: [seed.g.toLowerCase(), 'popsike_ref', 'original_press', seed.l.toLowerCase().replace(/\s+/g, '_')]
+      tags: [seed.g.toLowerCase(), 'popsike_certified', 'high_vg_plus', seed.l.toLowerCase().replace(/\s+/g, '_')]
     });
   }
   return records;
 };
 
-export const MOCK_RECORDS: VinylRecord[] = generateUnique150Catalog();
+export const MOCK_RECORDS: VinylRecord[] = generateUnique90Archive();
 
 export const MOCK_POSTS: Post[] = [
   {
-    id: 'p_hub_1',
+    id: 'p_rz_1',
     type: 'POST',
-    title: 'Popsike Archive: West End Rarities',
-    slug: 'popsike-archive-west-end',
-    author: 'analog_digger',
-    content: 'Inyectamos 150 piezas únicas de la era dorada de NY. Desde copias promocionales de Walter Gibbons hasta rarezas de Detroit House. #Popsike #WestEnd #Salsoul',
+    title: 'Nueva Colección: The Ruzafa Legacy',
+    slug: 'ruzafa-legacy-drop',
+    author: 'discos_ruzafa',
+    content: 'Hemos inyectado 150 piezas únicas con precios de mercado real (Popsike). Desde prensas originales de Walter Gibbons hasta rarezas de Detroit House. #DiscosRuzafa #VinylHub',
     imageUrl: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/ac1a7472-de26-46de-37f3-7ec5509f5900/public",
-    likes: 312,
+    likes: 450,
     comments: [],
-    timestamp: 'Hace 5 minutos',
-    tags: ['#DiscoLegacy', '#RareGroove'],
+    timestamp: 'Hace 2 minutos',
+    tags: ['#Audiophile', '#DiscoMarket'],
     status: 'published'
   }
 ];
 
 export const MOCK_EVENTS: Event[] = [
   {
-    id: 'e_hub_1',
-    title: 'The Walter Gibbons Protocol',
-    slug: 'walter-gibbons-protocol',
-    date: '2025-03-01',
+    id: 'e_rz_1',
+    title: 'Paradise Garage Night',
+    slug: 'paradise-garage-vlc',
+    date: '2025-03-15',
     time: '21:00',
     location: 'Mat32 Ruzafa',
-    description: 'Noche dedicada al pionero del 12\". Sesión de escucha crítica con el sistema Altec A7.',
+    description: 'Sesión monográfica dedicada a Larry Levan. Solo 12 pulgadas originales de West End y Salsoul.',
     category: 'Listening Session',
     imageUrl: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=800',
-    attendees: 48,
+    attendees: 50,
     capacity: 50,
     price: 0,
     paidPrice: 15,
     ticketLink: '#',
     lineup: [MOCK_ARTISTS['analog_digger']],
-    vibe: ['Disco', 'Garage'],
+    vibe: ['Paradise Garage', 'New York Disco'],
     status: 'published',
-    tags: ['#waltergibbons', '#hifi']
+    tags: ['#larrylevan', '#disco']
   }
 ];
 
 export const BAR_MENU: MenuCategory[] = [
   {
-    title: 'MIXOLOGÍA DE ALTA FIDELIDAD',
+    title: 'DRINKS BY DISCOS RUZAFA',
     items: [
-      { name: 'WEST END SOUR', price: '10,50', description: 'Bourbon, Limón, Clara de huevo y Bitters de naranja.', highlight: true },
-      { name: 'SALSOUL PUNCH', price: '9,50', description: 'Ron añejo, Fruta de la pasión y Lima.', highlight: true }
+      { name: 'GIBBONS MARTINI', price: '11,50', description: 'Ginebra Premium, Vermut seco y una nota de jazz.', highlight: true },
+      { name: 'SALSOUL SPRITZ', price: '10,00', description: 'Aperol, Cava y una explosión de Soul.', highlight: true }
     ]
   },
   {
-    title: 'DIGGER DRINKS',
+    title: 'LOCAL BREWS',
     items: [
-      { name: 'VINO D.O VALENCIA', price: '4,50', highlight: true },
-      { name: 'CERVEZA RUZAFA', price: '5,50', highlight: false }
+      { name: 'VINO RUZAFA', price: '4,50', highlight: true },
+      { name: 'CRAFT BEER', price: '6,00', highlight: false }
     ]
   }
 ];
