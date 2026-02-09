@@ -8,21 +8,20 @@ import { dataService } from '../services/dataService';
 import { Event, Post, VinylRecord } from '../types';
 import { CachedImage } from '../components/CachedImage';
 
-// HERO_IMAGES: Chica (Lounge) + Las 4 enviadas por el usuario
+// HERO_IMAGES DEFINITIVA V3: Chica (Lounge) + Las 4 enviadas por el usuario
+// Se elimina la foto del espacio general que ahora vive en Alquiler.
 const HERO_IMAGES = [
   "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public", // Chica / Lounge
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public", // Nueva 1
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public", // Nueva 2
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public", // Nueva 3
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/5dea483e-141a-4665-8085-5c163d8eda00/public"  // Nueva 4
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public", // Detalle 1
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public", // Detalle 2
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public", // Detalle 3
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/5dea483e-141a-4665-8085-5c163d8eda00/public"  // Detalle 4
 ];
 
 export const Home: React.FC = () => {
   const { t } = useLanguage();
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [pastEvents, setPastEvents] = useState<Event[]>([]);
-  const [recentRecords, setRecentRecords] = useState<VinylRecord[]>([]);
-  const [recentPosts, setRecentPosts] = useState<Post[]>([]);
   
   // Carousel State
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -31,22 +30,11 @@ export const Home: React.FC = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const [allEvents, allRecords, posts] = await Promise.all([
-        dataService.getEvents(),
-        dataService.getRecords(),
-        dataService.getCommunityPosts()
-      ]);
-      
+      const allEvents = await dataService.getEvents();
       const now = new Date();
       now.setHours(0,0,0,0);
-
-      const upcoming = allEvents.filter(e => new Date(e.date) >= now).slice(0, 3);
-      const past = allEvents.filter(e => new Date(e.date) < now).slice(0, 3);
-
-      setUpcomingEvents(upcoming);
-      setPastEvents(past);
-      setRecentRecords(allRecords.slice(0, 4));
-      setRecentPosts(posts.slice(0, 2));
+      setUpcomingEvents(allEvents.filter(e => new Date(e.date) >= now).slice(0, 3));
+      setPastEvents(allEvents.filter(e => new Date(e.date) < now).slice(0, 3));
     };
     loadData();
     window.addEventListener('mat32_data_changed', loadData);
@@ -93,7 +81,7 @@ export const Home: React.FC = () => {
     <div className="bg-mat-900 min-h-screen overflow-x-hidden">
       <SEO titleKey="nav.home" descriptionKey="seo.home.description" />
 
-      {/* 1. HERO INTERACTIVO CON VISIBILIDAD MEJORADA */}
+      {/* 1. HERO INTERACTIVO V3 - MEJOR VISIBILIDAD */}
       <section 
         className="relative h-[100vh] flex items-center justify-center overflow-hidden cursor-crosshair group select-none"
         onClick={handleHeroInteraction}
@@ -111,16 +99,18 @@ export const Home: React.FC = () => {
                 className={`w-full h-full transition-all duration-[1500ms] ${
                   isRevealed 
                     ? 'grayscale-0 opacity-100 brightness-110 blur-0 scale-110' 
-                    : 'grayscale opacity-70 brightness-75 blur-[1px]'
+                    : 'grayscale opacity-85 brightness-90 blur-[0.5px]' // Subida opacidad y brillo base
                 }`}
-                alt={`Mat32 Moment ${idx}`}
+                alt={`Mat32 Identity ${idx}`}
                 priority={idx === currentSlide}
               />
             </div>
           ))}
-          <div className={`absolute inset-0 bg-gradient-to-b from-mat-950/40 via-transparent to-mat-950 transition-opacity duration-1000 ${isRevealed ? 'opacity-20' : 'opacity-80'}`}></div>
+          {/* Gradiente más sutil para que las fotos respiren más */}
+          <div className={`absolute inset-0 bg-gradient-to-b from-mat-950/30 via-transparent to-mat-950 transition-opacity duration-1000 ${isRevealed ? 'opacity-10' : 'opacity-70'}`}></div>
         </div>
 
+        {/* Controles de Navegación */}
         <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
           <button onClick={prevSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 transition-all pointer-events-auto">
             <ChevronLeft size={32} />
@@ -158,7 +148,7 @@ export const Home: React.FC = () => {
             </div>
         </div>
 
-        {/* Indicadores */}
+        {/* Indicadores de diapositiva */}
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-4 z-40">
            {HERO_IMAGES.map((_, idx) => (
              <button 
