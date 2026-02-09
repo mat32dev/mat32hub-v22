@@ -47,14 +47,6 @@ class DataService {
               imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/190aead2-fc94-4fed-a7c2-bd341561ca00/public', 
               tags: ['#vinyl', '#atmosphere'], 
               category: 'Interior' 
-            },
-            { 
-              id: 'g3', 
-              title: 'Portal Ruzafa', 
-              description: 'Nuestra puerta a la comunidad musical.', 
-              imageUrl: 'https://imagedelivery.net/f4c2d13d7f6a74d21dacac9c2eb7ba5d/7701241e-71ee-4929-18c0-d1d0d9576e00/public', 
-              tags: ['#exterior', '#ruzafa'], 
-              category: 'Local' 
             }
           ],
           selectors: MOCK_SELECTORS,
@@ -83,9 +75,20 @@ class DataService {
   async login(email: string, pass: string): Promise<boolean> {
     let session: UserSession | null = null;
     const cleanPass = pass.trim();
-    if (cleanPass === 'mat32_admin') session = { id: 'admin_1', role: 'ADMIN', name: 'Mat32 Manager', email: email || 'admin@mat32.com' };
-    else if (cleanPass === 'mat32_dj') session = { id: 'dj_selector_1', role: 'DJ', name: 'Selector Residente', email: email || 'dj@mat32.com' };
-    else if (cleanPass === 'mat32_user') session = { id: 'user_99', role: 'CUSTOMER', name: 'Digger Member', email: email || 'user@mat32.com' };
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Acceso Administrador Principal
+    if (cleanEmail === 'hola@mat32.com' && cleanPass === 'mat32_access_2025') {
+      session = { id: 'admin_master', role: 'ADMIN', name: 'Mat32 Manager', email: cleanEmail };
+    } 
+    // Acceso alternativo antiguo para compatibilidad de pruebas
+    else if (cleanEmail === 'admin@mat32.com' && cleanPass === 'mat32_admin') {
+      session = { id: 'admin_1', role: 'ADMIN', name: 'Admin Backup', email: cleanEmail };
+    }
+    else if (cleanPass === 'mat32_dj') {
+      session = { id: 'dj_selector_1', role: 'DJ', name: 'Selector Residente', email: cleanEmail || 'dj@mat32.com' };
+    }
+
     if (session) {
       localStorage.setItem(this.sessionKey, JSON.stringify(session));
       localStorage.setItem('mat32_user_name', session.name);
