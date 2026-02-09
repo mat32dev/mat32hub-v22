@@ -3,7 +3,7 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v2.0'; // Versión 2.0: Full Discogs Collection Activista
+  private localKey = 'mat32_matrix_production_v4.0'; // Versión 4.0: Disco & Garage Heritage
   private sessionKey = 'mat32_auth_session';
 
   constructor() {
@@ -16,7 +16,7 @@ class DataService {
     if (!existingData) {
       const db = {
         posts: MOCK_POSTS.map(p => ({ ...p, id: p.id || `p_${Math.random().toString(36).substr(2, 9)}`, comments: [], likes: 12, timestamp: 'Reciente' })),
-        records: MOCK_RECORDS, // Los 150 items inyectados
+        records: MOCK_RECORDS, 
         events: MOCK_EVENTS.map(e => ({ ...e, id: e.id || `e_${Math.random().toString(36).substr(2, 9)}`, status: 'published' })),
         gallery: [
           { 
@@ -34,9 +34,15 @@ class DataService {
         sales: [] as Sale[]
       };
       this.saveDB(db);
-      // Limpiar versiones antiguas para ahorrar espacio
-      localStorage.removeItem('mat32_matrix_production_v1.1');
-      localStorage.removeItem('mat32_matrix_production_v1');
+      
+      // Limpieza profunda de almacenamiento local
+      const legacyKeys = [
+        'mat32_matrix_production_v3.0',
+        'mat32_matrix_production_v2.0',
+        'mat32_matrix_production_v1.1',
+        'mat32_matrix_production_v1'
+      ];
+      legacyKeys.forEach(k => localStorage.removeItem(k));
     }
   }
 
@@ -212,7 +218,6 @@ class DataService {
   async syncDiscogsCollection(username: string): Promise<number> {
     await new Promise(resolve => setTimeout(resolve, 2000));
     const db = this.getDB();
-    // Simulación de sync basado en los 150 items
     this.saveDB(db);
     return 150;
   }
