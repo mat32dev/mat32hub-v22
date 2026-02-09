@@ -42,14 +42,14 @@ const DISCO_SEEDS = [
   { a: "Moodymann", t: "Silentintroduction", ed: "(KDJ)", d: "KDJ-001. Hand-stamped label.", s: "https://bandcamp.com/EmbeddedPlayer/album=1833177726/size=large/bgcol=333333/linkcol=ea580c/minimal=true/transparent=true/" }
 ];
 
-const generateUnique200ArchiveV23 = (): VinylRecord[] => {
+const generateUnique200ArchiveV24 = (): VinylRecord[] => {
   const records: VinylRecord[] = [];
   
   for (let i = 0; i < 50; i++) {
     const seed = JAZZ_SEEDS[i % JAZZ_SEEDS.length];
     records.push({
-      id: `rz_jazz_v23_${i + 1}`,
-      sku: `MAT32-JZ-23-${i}`,
+      id: `rz_jazz_v24_${i + 1}`,
+      sku: `MAT32-JZ-24-${i}`,
       artist: seed.a,
       title: seed.t,
       slug: `${seed.a.toLowerCase().replace(/\s+/g, '-')}-${seed.t.toLowerCase().replace(/\s+/g, '-')}-${i}`,
@@ -73,8 +73,8 @@ const generateUnique200ArchiveV23 = (): VinylRecord[] => {
   for (let i = 0; i < 150; i++) {
     const seed = DISCO_SEEDS[i % DISCO_SEEDS.length];
     records.push({
-      id: `rz_disco_v23_${i + 1}`,
-      sku: `MAT32-RZ-23-${i}`,
+      id: `rz_disco_v24_${i + 1}`,
+      sku: `MAT32-RZ-24-${i}`,
       artist: seed.a,
       title: seed.t,
       slug: `${seed.a.toLowerCase().replace(/\s+/g, '-')}-${seed.t.toLowerCase().replace(/\s+/g, '-')}-${i}`,
@@ -97,34 +97,34 @@ const generateUnique200ArchiveV23 = (): VinylRecord[] => {
   return records;
 };
 
-export const MOCK_RECORDS: VinylRecord[] = generateUnique200ArchiveV23();
+export const MOCK_RECORDS: VinylRecord[] = generateUnique200ArchiveV24();
 
 export const MOCK_POSTS: Post[] = [
   {
-    id: 'p_rz_23',
+    id: 'p_rz_24',
     type: 'POST',
-    title: 'Archive v23.0: Community Connection Protocol',
-    slug: 'community-connection-v23',
+    title: 'Archive v24.0: Future Signals 2026',
+    slug: 'future-signals-v24',
     author: 'discos_ruzafa',
-    content: 'Priorizando la agenda de febrero para la comunidad. Open Decks y sesiones de escucha crítica ya disponibles. #Mat32 #Community #Valencia',
+    content: 'Programación de 2026 inyectada. Open Decks Feb 12 y 19. El Hub se expande hacia el futuro. #Mat32 #2026 #AnalogFuture',
     imageUrl: "",
-    likes: 4500,
+    likes: 5100,
     comments: [],
-    timestamp: 'Hace unos instantes',
-    tags: ['#DiggerHub', '#HiFiLife'],
+    timestamp: 'Justo ahora',
+    tags: ['#FutureVibe', '#HiFi'],
     status: 'published'
   }
 ];
 
 export const MOCK_EVENTS: Event[] = [
   {
-    id: 'e_open_listening_12_feb',
+    id: 'e_open_listening_12_feb_2026',
     title: 'Open Decks: Listening Session I',
-    slug: 'open-decks-listening-feb-12',
-    date: '2025-02-12',
+    slug: 'open-decks-listening-feb-12-2026',
+    date: '2026-02-12',
     time: '19:30',
     location: 'Mat32 Ruzafa',
-    description: 'Protocolo de escucha abierta. Trae tus discos favoritos de cualquier género y compártelos en nuestro sistema Altec A7. La cabina es tuya.',
+    description: 'Protocolo de escucha abierta 2026. Trae tus discos favoritos y compártelos en nuestro sistema Altec A7. La cabina es tuya.',
     category: 'Open Decks',
     imageUrl: '',
     attendees: 0,
@@ -135,16 +135,16 @@ export const MOCK_EVENTS: Event[] = [
     lineup: [MOCK_ARTISTS['mat32_crew']],
     vibe: ['Community Sharing', 'Vinyl Only', 'High Fidelity'],
     status: 'published',
-    tags: ['#opendecks', '#listening', '#ruzafa']
+    tags: ['#opendecks', '#listening', '#2026']
   },
   {
-    id: 'e_open_listening_19_feb',
+    id: 'e_open_listening_19_feb_2026',
     title: 'Open Decks: Listening Session II',
-    slug: 'open-decks-listening-feb-19',
-    date: '2025-02-19',
+    slug: 'open-decks-listening-feb-19-2026',
+    date: '2026-02-19',
     time: '19:30',
     location: 'Mat32 Ruzafa',
-    description: 'Segunda jornada de escucha comunitaria de febrero. Micro-abierto para selectores de vinilo locales. Curaduría libre.',
+    description: 'Segunda jornada de escucha comunitaria 2026. Micro-abierto para selectores de vinilo locales. Curaduría libre.',
     category: 'Open Decks',
     imageUrl: '',
     attendees: 0,
@@ -155,7 +155,7 @@ export const MOCK_EVENTS: Event[] = [
     lineup: [MOCK_ARTISTS['mat32_crew']],
     vibe: ['Discovery', 'Analog Ritual', 'Selector Series'],
     status: 'published',
-    tags: ['#opendecks', '#community', '#valencia']
+    tags: ['#opendecks', '#community', '#2026']
   }
 ];
 
