@@ -24,32 +24,32 @@ export const MOCK_SELLERS: SellerProfile[] = [
 export const DISCOGS_PROFILE_URL = "https://www.discogs.com/es/user/discos-ruzafa";
 
 const JAZZ_SEEDS = [
-  { a: "John Coltrane", t: "A Love Supreme", ed: "(Impulse!)", d: "Original Gatefold First Pressing." },
-  { a: "Alice Coltrane", t: "Journey In Satchidananda", ed: "(Impulse!)", d: "Original First Pressing." },
-  { a: "Pharoah Sanders", t: "Karma", ed: "(Impulse!)", d: "Original First Pressing." },
-  { a: "Sun Ra", t: "Lanquidity", ed: "(Philly Jazz)", d: "Rare Philly Jazz Edition." },
-  { a: "McCoy Tyner", t: "Sahara", ed: "(Milestone)", d: "Rudy Van Gelder Master." },
-  { a: "Archie Shepp", t: "Attica Blues", ed: "(Impulse!)", d: "Original US Gatefold." },
-  { a: "Don Cherry", t: "Brown Rice", ed: "(Horizon)", d: "US Horizon Original." },
-  { a: "Clifford Jordan", t: "Glass Bead Games", ed: "(Strata-East)", d: "Original Strata-East." }
+  { a: "John Coltrane", t: "A Love Supreme", ed: "(Impulse!)", d: "Original Gatefold First Pressing.", s: "https://bandcamp.com/EmbeddedPlayer/album=2308115201/size=large/bgcol=333333/linkcol=ea580c/minimal=true/transparent=true/" },
+  { a: "Alice Coltrane", t: "Journey In Satchidananda", ed: "(Impulse!)", d: "Original First Pressing.", s: "https://bandcamp.com/EmbeddedPlayer/album=4013444211/size=large/bgcol=333333/linkcol=ea580c/minimal=true/transparent=true/" },
+  { a: "Pharoah Sanders", t: "Karma", ed: "(Impulse!)", d: "Original First Pressing.", s: "https://bandcamp.com/EmbeddedPlayer/album=3082522770/size=large/bgcol=333333/linkcol=ea580c/minimal=true/transparent=true/" },
+  { a: "Sun Ra", t: "Lanquidity", ed: "(Philly Jazz)", d: "Rare Philly Jazz Edition.", s: "https://bandcamp.com/EmbeddedPlayer/album=3769152285/size=large/bgcol=333333/linkcol=ea580c/minimal=true/transparent=true/" },
+  { a: "Archie Shepp", t: "Attica Blues", ed: "(Impulse!)", d: "Original US Gatefold.", s: "https://bandcamp.com/EmbeddedPlayer/album=3324546413/size=large/bgcol=333333/linkcol=ea580c/minimal=true/transparent=true/" },
+  { a: "McCoy Tyner", t: "Sahara", ed: "(Milestone)", d: "Rudy Van Gelder Master.", s: "" },
+  { a: "Don Cherry", t: "Brown Rice", ed: "(Horizon)", d: "US Horizon Original.", s: "" },
+  { a: "Clifford Jordan", t: "Glass Bead Games", ed: "(Strata-East)", d: "Original Strata-East.", s: "" }
 ];
 
 const DISCO_SEEDS = [
-  { a: "Double Exposure", t: "Ten Percent", ed: "(Salsoul)", d: "Walter Gibbons Mix." },
-  { a: "Taana Gardner", t: "Heartbeat", ed: "(West End)", d: "Larry Levan Mix." },
-  { a: "Loleatta Holloway", t: "Love Sensation", ed: "(Gold Mind)", d: "Tom Moulton Mix." },
-  { a: "D-Train", t: "Keep On", ed: "(Prelude)", d: "François K Remix." },
-  { a: "Moodymann", t: "Silentintroduction", ed: "(KDJ)", d: "KDJ-001. Hand-stamped label." }
+  { a: "Double Exposure", t: "Ten Percent", ed: "(Salsoul)", d: "Walter Gibbons Mix.", s: "" },
+  { a: "Taana Gardner", t: "Heartbeat", ed: "(West End)", d: "Larry Levan Mix.", s: "" },
+  { a: "Loleatta Holloway", t: "Love Sensation", ed: "(Gold Mind)", d: "Tom Moulton Mix.", s: "" },
+  { a: "D-Train", t: "Keep On", ed: "(Prelude)", d: "François K Remix.", s: "" },
+  { a: "Moodymann", t: "Silentintroduction", ed: "(KDJ)", d: "KDJ-001. Hand-stamped label.", s: "https://bandcamp.com/EmbeddedPlayer/album=1833177726/size=large/bgcol=333333/linkcol=ea580c/minimal=true/transparent=true/" }
 ];
 
-const generateUnique200ArchiveV20 = (): VinylRecord[] => {
+const generateUnique200ArchiveV22 = (): VinylRecord[] => {
   const records: VinylRecord[] = [];
   
   for (let i = 0; i < 50; i++) {
     const seed = JAZZ_SEEDS[i % JAZZ_SEEDS.length];
     records.push({
-      id: `rz_jazz_v20_${i + 1}`,
-      sku: `MAT32-JZ-20-${i}`,
+      id: `rz_jazz_v22_${i + 1}`,
+      sku: `MAT32-JZ-22-${i}`,
       artist: seed.a,
       title: seed.t,
       slug: `${seed.a.toLowerCase().replace(/\s+/g, '-')}-${seed.t.toLowerCase().replace(/\s+/g, '-')}-${i}`,
@@ -62,6 +62,7 @@ const generateUnique200ArchiveV20 = (): VinylRecord[] => {
       stock: 1,
       coverUrl: "", 
       discogsLink: DISCOGS_PROFILE_URL,
+      streamingLink: seed.s,
       description: `${seed.ed} - ${seed.d}`,
       sellerId: 'discos_ruzafa',
       status: 'published',
@@ -72,8 +73,8 @@ const generateUnique200ArchiveV20 = (): VinylRecord[] => {
   for (let i = 0; i < 150; i++) {
     const seed = DISCO_SEEDS[i % DISCO_SEEDS.length];
     records.push({
-      id: `rz_disco_v20_${i + 1}`,
-      sku: `MAT32-RZ-20-${i}`,
+      id: `rz_disco_v22_${i + 1}`,
+      sku: `MAT32-RZ-22-${i}`,
       artist: seed.a,
       title: seed.t,
       slug: `${seed.a.toLowerCase().replace(/\s+/g, '-')}-${seed.t.toLowerCase().replace(/\s+/g, '-')}-${i}`,
@@ -86,6 +87,7 @@ const generateUnique200ArchiveV20 = (): VinylRecord[] => {
       stock: 1,
       coverUrl: "",
       discogsLink: DISCOGS_PROFILE_URL,
+      streamingLink: seed.s,
       description: `${seed.ed} - ${seed.d}`,
       sellerId: 'discos_ruzafa',
       status: 'published',
@@ -95,105 +97,65 @@ const generateUnique200ArchiveV20 = (): VinylRecord[] => {
   return records;
 };
 
-export const MOCK_RECORDS: VinylRecord[] = generateUnique200ArchiveV20();
+export const MOCK_RECORDS: VinylRecord[] = generateUnique200ArchiveV22();
 
 export const MOCK_POSTS: Post[] = [
   {
-    id: 'p_rz_20',
+    id: 'p_rz_22',
     type: 'POST',
-    title: 'Archive v20.0: Centennial Expansion',
-    slug: 'centennial-expansion-v20',
+    title: 'Archive v22.0: The Full Menu Protocol',
+    slug: 'full-menu-v22',
     author: 'discos_ruzafa',
-    content: 'Actualización técnica: Aforo oficial ampliado a 100 personas. Agenda 2025 reprogramada para Febrero y Abril. El Hub crece. #Mat32 #Valencia #HiFiCulture',
+    content: 'Carta del bar restaurada y nuevas Listening Sessions programadas. El ritual analógico continúa en Ruzafa. #Mat32 #Valencia #ListeningSession',
     imageUrl: "",
-    likes: 3200,
+    likes: 4200,
     comments: [],
-    timestamp: 'Hoy',
-    tags: ['#Centennial', '#CommunityHub'],
+    timestamp: 'Hace 5 minutos',
+    tags: ['#BarCulture', '#HiFi'],
     status: 'published'
   }
 ];
 
 export const MOCK_EVENTS: Event[] = [
   {
-    id: 'e_thurs_feb_1',
-    title: 'Open Decks: Community Signal',
-    slug: 'open-decks-feb-2025',
-    date: '2025-02-13',
-    time: '20:00',
-    location: 'Mat32 Ruzafa',
-    description: 'La cabina es tuya. Trae tus discos y comparte tu selección en nuestro sistema Altec A7. Aforo aumentado para la comunidad.',
-    category: 'Open Decks',
-    imageUrl: '',
-    attendees: 0,
-    capacity: 100, // CAPACIDAD ACTUALIZADA
-    price: 0,
-    paidPrice: 0,
-    ticketLink: '#',
-    lineup: [MOCK_ARTISTS['mat32_crew']],
-    vibe: ['Community', 'Sharing', 'Vinyl Only'],
-    status: 'published',
-    tags: ['#opendecks', '#free']
-  },
-  {
-    id: 'e_thurs_feb_2',
-    title: 'Jazz Ritual: Listening Session',
-    slug: 'jazz-ritual-feb-2025',
-    date: '2025-02-27',
+    id: 'e_listening_12_jun',
+    title: 'Listening Session: Blue Note Deep Dive',
+    slug: 'blue-note-listening-session',
+    date: '2025-06-12',
     time: '21:00',
     location: 'Mat32 Ruzafa',
-    description: 'Escucha crítica de piezas maestras del Jazz en alta fidelidad. Análisis técnico del surco.',
+    description: 'Exploración técnica del surco en las producciones de Rudy Van Gelder para Blue Note. Jazz puro en Altec A7.',
     category: 'Listening Session',
     imageUrl: '',
     attendees: 0,
-    capacity: 100, // CAPACIDAD ACTUALIZADA
+    capacity: 100,
     price: 0,
     paidPrice: 0,
     ticketLink: '#',
     lineup: [MOCK_ARTISTS['analog_digger']],
-    vibe: ['Technical', 'Pure Jazz', 'Altec A7'],
+    vibe: ['Technical', 'Pure Jazz', 'Van Gelder Sound'],
     status: 'published',
-    tags: ['#jazz', '#listening']
+    tags: ['#jazz', '#bluenote', '#listening']
   },
   {
-    id: 'e_thurs_apr_1',
-    title: 'Open Decks: Selector Series',
-    slug: 'open-decks-apr-2025',
-    date: '2025-04-10',
-    time: '20:00',
-    location: 'Mat32 Ruzafa',
-    description: 'Jornada de primavera para selectores locales. Prueba tus nuevas adquisiciones en nuestro sistema.',
-    category: 'Open Decks',
-    imageUrl: '',
-    attendees: 0,
-    capacity: 100, // CAPACIDAD ACTUALIZADA
-    price: 0,
-    paidPrice: 0,
-    ticketLink: '#',
-    lineup: [MOCK_ARTISTS['mat32_crew']],
-    vibe: ['Discovery', 'Warm Sound'],
-    status: 'published',
-    tags: ['#opendecks', '#free']
-  },
-  {
-    id: 'e_thurs_apr_2',
-    title: 'Disco Archives: Pure 12-inch',
-    slug: 'disco-archives-apr-2025',
-    date: '2025-04-24',
+    id: 'e_listening_19_jun',
+    title: 'Listening Session: Salsoul Archive',
+    slug: 'salsoul-archive-session',
+    date: '2025-06-19',
     time: '21:00',
     location: 'Mat32 Ruzafa',
-    description: 'Exploración de rarezas Disco y Soul en formato 12 pulgadas. Potencia analógica.',
+    description: 'Análisis y disfrute de los maxi-singles del sello Salsoul. La orquesta Disco en su máxima fidelidad.',
     category: 'Listening Session',
     imageUrl: '',
     attendees: 0,
-    capacity: 100, // CAPACIDAD ACTUALIZADA
+    capacity: 100,
     price: 0,
     paidPrice: 0,
     ticketLink: '#',
     lineup: [MOCK_ARTISTS['soulman']],
-    vibe: ['Disco', 'Soul', 'Analog Drive'],
+    vibe: ['Disco', 'Orchestral', 'Analog Drive'],
     status: 'published',
-    tags: ['#disco', '#analog']
+    tags: ['#disco', '#salsoul', '#archive']
   }
 ];
 
@@ -201,8 +163,33 @@ export const BAR_MENU: MenuCategory[] = [
   {
     title: 'SIGNATURE DRINKS',
     items: [
-      { name: 'MARTINI 32', price: '14,00', description: 'Ginebra Premium y esencia cítrica.', highlight: true },
-      { name: 'NEGRONI RUZAFA', price: '12,50', description: 'El clásico perfeccionado para audiófilos.', highlight: true }
+      { name: 'MARTINI 32', price: '14,00', description: 'Ginebra Premium y esencia cítrica de Valencia.', highlight: true },
+      { name: 'NEGRONI RUZAFA', price: '12,50', description: 'El clásico equilibrado para largas sesiones de escucha.', highlight: true },
+      { name: 'ANALOG OLD FASHIONED', price: '13,50', description: 'Borbón, bitters de cacao y piel de naranja ahumada.' }
+    ]
+  },
+  {
+    title: 'CLASSIC SELECTION',
+    items: [
+      { name: 'GIN TONIC PREMIUM', price: '11,00', description: 'Selección de botánicos según la vibración de la noche.' },
+      { name: 'MOSCOW MULE', price: '10,50', description: 'Ginger beer artesanal y toque de lima fresca.' },
+      { name: 'MEZCAL MARGARITA', price: '13,00', description: 'Toque ahumado y sal de gusano.' }
+    ]
+  },
+  {
+    title: 'WINE & BEER',
+    items: [
+      { name: 'TINTO VALENCIA (COPA)', price: '4,50', description: 'Bobal seleccionado de pequeños productores locales.' },
+      { name: 'BLANCO MARINA ALTA (COPA)', price: '4,00', description: 'Seco, afrutado y fresco.' },
+      { name: 'CRAFT BEER MAT32', price: '5,50', description: 'IPA de edición limitada para el local.' },
+      { name: 'CERVEZA DE GRIFO', price: '3,50', description: 'Fría y directa.' }
+    ]
+  },
+  {
+    title: 'HI-FI SNACKS',
+    items: [
+      { name: 'TABLA DE QUESOS CURADOS', price: '15,00', description: 'Selección de quesos nacionales y frutos secos.' },
+      { name: 'OLIVAS RUZAFA', price: '3,50', description: 'Aliño secreto de la casa.' }
     ]
   }
 ];

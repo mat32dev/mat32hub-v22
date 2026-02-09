@@ -3,7 +3,7 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v20.0'; // Versión 20.0: Centennial Hub Protocol
+  private localKey = 'mat32_matrix_production_v22.0'; // Versión 22.0: Full Menu & June Listening
   private sessionKey = 'mat32_auth_session';
 
   constructor() {
@@ -27,6 +27,8 @@ class DataService {
       this.saveDB(db);
       
       const legacyKeys = [
+        'mat32_matrix_production_v21.0',
+        'mat32_matrix_production_v20.0',
         'mat32_matrix_production_v19.0',
         'mat32_matrix_production_v18.0',
         'mat32_matrix_production_v17.0',
@@ -120,11 +122,17 @@ class DataService {
 
   async createRecord(record: Partial<VinylRecord>) {
     const db = this.getDB();
-    const newRecord = { ...record, id: `v_${Date.now()}`, stock: 1, status: 'published' } as VinylRecord;
+    const newRecord = { ...record, id: `v_${Date.now()}`, stock: 1, status: 'published', slug: (record.title || '').toLowerCase().replace(/\s+/g, '-') } as VinylRecord;
     if (!db.records) db.records = [];
     db.records.unshift(newRecord);
     this.saveDB(db);
     return newRecord;
+  }
+
+  async updateRecord(id: string, updates: Partial<VinylRecord>) {
+    const db = this.getDB();
+    const idx = db.records.findIndex((r: any) => r.id === id);
+    if (idx > -1) { db.records[idx] = { ...db.records[idx], ...updates }; this.saveDB(db); }
   }
 
   async deleteRecord(id: string) {

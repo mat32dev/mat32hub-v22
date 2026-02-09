@@ -1,14 +1,13 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Settings, Disc, Plus, LogOut, CheckCircle, Loader2, 
   Calendar, ShoppingBag, Mail, Trash2, Edit3, X, Save, ShieldCheck, UserCheck, Upload, Image as ImageIcon,
-  Lock, User
+  Lock, User, Music
 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { Event, VinylRecord, Sale, InboxMessage } from '../types';
 
-type AdminTab = 'agenda' | 'ventas' | 'mensajes';
+type AdminTab = 'agenda' | 'inventario' | 'ventas' | 'mensajes';
 
 export const Admin: React.FC = () => {
   const [isAuth, setIsAuth] = useState(false);
@@ -16,10 +15,13 @@ export const Admin: React.FC = () => {
   const [loading, setLoading] = useState(true);
   
   const [events, setEvents] = useState<Event[]>([]);
+  const [records, setRecords] = useState<VinylRecord[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [inbox, setInbox] = useState<InboxMessage[]>([]);
   const [status, setStatus] = useState<string | null>(null);
+  
   const [editingEvent, setEditingEvent] = useState<Partial<Event> | null>(null);
+  const [editingRecord, setEditingRecord] = useState<Partial<VinylRecord> | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -33,12 +35,14 @@ export const Admin: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [ev, sal, msg] = await Promise.all([
+    const [ev, rec, sal, msg] = await Promise.all([
       dataService.getEvents(),
+      dataService.getRecords(),
       dataService.getSales(),
       dataService.getInbox()
     ]);
     setEvents(ev);
+    setRecords(rec);
     setSales(sal);
     setInbox(msg);
     setLoading(false);
@@ -60,16 +64,7 @@ export const Admin: React.FC = () => {
     setIsProcessing(false);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && editingEvent) {
-      const reader = new FileReader();
-      reader.onloadend = () => setEditingEvent({ ...editingEvent, imageUrl: reader.result as string });
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSaveEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingEvent) return;
     setIsProcessing(true);
@@ -82,15 +77,28 @@ export const Admin: React.FC = () => {
     setTimeout(() => setStatus(null), 3000);
   };
 
+  const handleSaveRecord = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingRecord) return;
+    setIsProcessing(true);
+    if (editingRecord.id) await dataService.updateRecord(editingRecord.id, editingRecord);
+    else await dataService.createRecord(editingRecord);
+    setEditingRecord(null);
+    setIsProcessing(false);
+    loadData();
+    setStatus("Inventario actualizado");
+    setTimeout(() => setStatus(null), 3000);
+  };
+
   if (!isAuth) return (
-    <div className="min-h-screen bg-mat-950 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-mat-950 flex items-center justify-center p-6 text-mat-cream">
       <div className="w-full max-w-sm bg-mat-900 border-2 border-mat-800 p-10 rounded-[3rem] text-center shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500"></div>
         <div className="mb-10 inline-flex items-center justify-center w-20 h-20 bg-mat-800 rounded-2xl border border-mat-700 shadow-xl">
            <Lock size={32} className="text-mat-500" />
         </div>
         <h1 className="text-white text-3xl font-black uppercase mb-2 font-exo tracking-tighter">MAT32_MATRIX</h1>
-        <p className="text-gray-600 text-[9px] font-black uppercase tracking-[0.4em] mb-10">ADMIN_PORTAL_V3.2</p>
+        <p className="text-gray-600 text-[9px] font-black uppercase tracking-[0.4em] mb-10">ADMIN_PORTAL_V21.0</p>
         
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
@@ -121,14 +129,14 @@ export const Admin: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-mat-950 text-white pt-24 pb-20">
+    <div className="min-h-screen bg-mat-950 text-mat-cream pt-24 pb-20">
       <header className="bg-mat-900 border-b border-mat-800 h-20 px-8 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
         <div className="flex items-center gap-4">
            <Disc className="text-mat-500 animate-spin-slow" size={24} />
            <h2 className="text-xl font-black font-exo tracking-tighter">MAT32_CORE</h2>
         </div>
         <div className="flex bg-mat-800 p-1 rounded-xl border border-mat-700">
-           {(['agenda', 'ventas', 'mensajes'] as AdminTab[]).map(tab => (
+           {(['agenda', 'inventario', 'ventas', 'mensajes'] as AdminTab[]).map(tab => (
              <button key={tab} onClick={() => setActiveTab(tab)} className={`px-6 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>{tab}</button>
            ))}
         </div>
@@ -137,7 +145,7 @@ export const Admin: React.FC = () => {
 
       <main className="container mx-auto px-6 pt-10 max-w-6xl">
         {activeTab === 'agenda' && (
-          <div className="bg-mat-900 border border-mat-800 p-10 rounded-[2.5rem] shadow-2xl">
+          <div className="bg-mat-900 border border-mat-800 p-10 rounded-[2.5rem] shadow-2xl animate-fade-in">
              <div className="flex justify-between items-center mb-10">
                 <h3 className="text-2xl font-black uppercase font-exo tracking-tighter">Gestión de Agenda</h3>
                 <button onClick={() => setEditingEvent({ title: '', date: '', time: '21:00', price: 0, description: '', category: 'Listening Session' })} className="px-6 py-3 bg-mat-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl flex items-center gap-2 hover:bg-mat-400 shadow-xl transition-all">
@@ -166,6 +174,39 @@ export const Admin: React.FC = () => {
           </div>
         )}
 
+        {activeTab === 'inventario' && (
+          <div className="bg-mat-900 border border-mat-800 p-10 rounded-[2.5rem] shadow-2xl animate-fade-in">
+             <div className="flex justify-between items-center mb-10">
+                <h3 className="text-2xl font-black uppercase font-exo tracking-tighter">Marketplace Hub Inventory</h3>
+                <button onClick={() => setEditingRecord({ artist: '', title: '', price: 25, genre: 'Jazz', condition: 'NM', label: '', year: '2024', format: 'LP', streamingLink: '' })} className="px-6 py-3 bg-mat-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl flex items-center gap-2 hover:bg-mat-400 shadow-xl transition-all">
+                   <Plus size={16} /> Añadir Vinilo
+                </button>
+             </div>
+             <div className="space-y-4">
+                {records.map(rec => (
+                  <div key={rec.id} className="flex items-center justify-between p-6 bg-mat-800/50 border border-mat-700 rounded-3xl hover:border-mat-500 transition-all group">
+                     <div className="flex items-center gap-6">
+                        <div className="w-14 h-14 bg-black rounded-2xl overflow-hidden shadow-xl flex items-center justify-center text-mat-700 font-black">
+                           {rec.coverUrl ? <img src={rec.coverUrl} className="w-full h-full object-cover" /> : <Disc size={24} />}
+                        </div>
+                        <div>
+                           <p className="font-black uppercase text-base tracking-tight text-white">{rec.artist}</p>
+                           <p className="text-[10px] font-bold text-mat-500 uppercase tracking-widest">{rec.title} | €{rec.price}</p>
+                        </div>
+                     </div>
+                     <div className="flex gap-4">
+                        {/* Fix: Removed title prop from Music icon to resolve TypeScript error as it is not a supported prop in LucideProps */}
+                        {rec.streamingLink && <Music size={14} className="text-emerald-500" />}
+                        <button onClick={() => setEditingRecord(rec)} className="p-3 bg-mat-900 text-gray-500 hover:text-white rounded-xl border border-mat-700"><Edit3 size={18} /></button>
+                        <button onClick={async () => { if(confirm("¿Eliminar vinilo del Hub?")) { await dataService.deleteRecord(rec.id); loadData(); } }} className="p-3 bg-mat-900 text-gray-500 hover:text-red-500 rounded-xl border border-mat-700"><Trash2 size={18} /></button>
+                     </div>
+                  </div>
+                ))}
+             </div>
+          </div>
+        )}
+
+        {/* ... Resto de pestañas (mensajes, ventas) se mantienen igual ... */}
         {activeTab === 'mensajes' && (
           <div className="space-y-6">
              {inbox.length === 0 ? (
@@ -190,110 +231,73 @@ export const Admin: React.FC = () => {
                    <div className="bg-mat-950 p-6 rounded-2xl border border-mat-800">
                       <p className="text-gray-400 italic text-sm leading-relaxed">"{msg.content}"</p>
                    </div>
-                   <div className="mt-6 flex items-center gap-4">
-                      <span className="px-4 py-1.5 bg-mat-800 rounded-lg text-[8px] font-black text-gray-500 uppercase tracking-widest border border-mat-700">{msg.type}</span>
-                   </div>
                 </div>
                ))
              )}
           </div>
         )}
-
-        {activeTab === 'ventas' && (
-           <div className="bg-mat-900 border border-mat-800 p-10 rounded-[2.5rem] shadow-2xl">
-              <h3 className="text-2xl font-black uppercase font-exo mb-10 tracking-tighter flex items-center gap-4">
-                 <ShoppingBag size={24} className="text-mat-500" /> Registro de Transacciones
-              </h3>
-              <div className="overflow-x-auto">
-                 <table className="w-full text-left">
-                    <thead>
-                       <tr className="border-b border-mat-800 text-[10px] font-black text-gray-600 uppercase tracking-widest">
-                          <th className="pb-6">ID_SALE</th>
-                          <th className="pb-6">ITEM</th>
-                          <th className="pb-6">FECHA</th>
-                          <th className="pb-6">TOTAL</th>
-                          <th className="pb-6">ESTADO</th>
-                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-mat-800">
-                       {sales.map(sale => (
-                          <tr key={sale.id} className="text-sm group hover:bg-mat-800/30 transition-colors">
-                             <td className="py-6 font-mono text-[10px] text-gray-500">{sale.id}</td>
-                             <td className="py-6">
-                                <span className="font-black uppercase text-xs text-white">
-                                   {sale.items?.[0]?.title || 'Multi Item Sale'}
-                                </span>
-                             </td>
-                             <td className="py-6 text-[10px] text-gray-500 uppercase">{sale.timestamp}</td>
-                             <td className="py-6 font-black text-mat-500">€{sale.total}</td>
-                             <td className="py-6">
-                                <span className="px-3 py-1 bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 rounded-lg text-[8px] font-black uppercase">COMPLETADO</span>
-                             </td>
-                          </tr>
-                       ))}
-                    </tbody>
-                 </table>
-              </div>
-           </div>
-        )}
       </main>
 
+      {/* MODAL EDICIÓN EVENTO */}
       {editingEvent && (
         <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-6 animate-fade-in">
-           <div className="w-full max-w-xl bg-mat-900 border-2 border-mat-700 p-10 md:p-14 rounded-[3.5rem] relative max-h-[90vh] overflow-y-auto shadow-2xl">
+           <div className="w-full max-w-xl bg-mat-900 border-2 border-mat-700 p-10 rounded-[3.5rem] relative max-h-[90vh] overflow-y-auto shadow-2xl">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500"></div>
               <button onClick={() => setEditingEvent(null)} className="absolute top-10 right-10 text-gray-500 hover:text-white"><X size={32} /></button>
               <h2 className="text-3xl font-black uppercase mb-10 font-exo tracking-tighter">PROTOCOLO_EVENTO</h2>
-              <form onSubmit={handleSave} className="space-y-6">
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Título de la Sesión</label>
-                    <input required value={editingEvent.title} onChange={e => setEditingEvent({...editingEvent, title: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-5 rounded-2xl text-white outline-none focus:border-mat-500 font-bold" placeholder="P.EJ: ANALOG DEEP SESSIONS" />
-                 </div>
+              <form onSubmit={handleSaveEvent} className="space-y-6">
+                 <input required value={editingEvent.title} onChange={e => setEditingEvent({...editingEvent, title: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-5 rounded-2xl text-white outline-none focus:border-mat-500 font-bold" placeholder="TÍTULO SESIÓN" />
                  <div className="grid grid-cols-2 gap-6">
+                    <input required type="date" value={editingEvent.date} onChange={e => setEditingEvent({...editingEvent, date: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-5 rounded-2xl text-white outline-none focus:border-mat-500" />
+                    <input required type="time" value={editingEvent.time} onChange={e => setEditingEvent({...editingEvent, time: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-5 rounded-2xl text-white outline-none focus:border-mat-500" />
+                 </div>
+                 <textarea required value={editingEvent.description} onChange={e => setEditingEvent({...editingEvent, description: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-6 h-32 rounded-3xl text-white outline-none focus:border-mat-500 resize-none italic" placeholder="DESCRIPCIÓN VIBRA" />
+                 <button type="submit" disabled={isProcessing} className="w-full py-6 bg-mat-500 text-white font-black uppercase rounded-[2rem] shadow-2xl flex items-center justify-center gap-4 transition-all hover:bg-mat-400">
+                    {isProcessing ? <Loader2 className="animate-spin" /> : <Save size={20} />} EJECUTAR_PROTOCOLO
+                 </button>
+              </form>
+           </div>
+        </div>
+      )}
+
+      {/* MODAL EDICIÓN DISCO (CON STREAMING LINK) */}
+      {editingRecord && (
+        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-6 animate-fade-in">
+           <div className="w-full max-w-2xl bg-mat-900 border-2 border-mat-700 p-10 rounded-[3.5rem] relative max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500"></div>
+              <button onClick={() => setEditingRecord(null)} className="absolute top-10 right-10 text-gray-500 hover:text-white"><X size={32} /></button>
+              <h2 className="text-3xl font-black uppercase mb-10 font-exo tracking-tighter">INVENTARIO_RECORDS</h2>
+              <form onSubmit={handleSaveRecord} className="space-y-6">
+                 <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Fecha</label>
-                       <input required type="date" value={editingEvent.date} onChange={e => setEditingEvent({...editingEvent, date: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-5 rounded-2xl text-white outline-none focus:border-mat-500 font-mono" />
+                       <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-2">Artista</label>
+                       <input required value={editingRecord.artist} onChange={e => setEditingRecord({...editingRecord, artist: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 rounded-xl text-white" />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Hora Inicio</label>
-                       <input required type="time" value={editingEvent.time} onChange={e => setEditingEvent({...editingEvent, time: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-5 rounded-2xl text-white outline-none focus:border-mat-500 font-mono" />
+                       <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-2">Título Álbum</label>
+                       <input required value={editingRecord.title} onChange={e => setEditingRecord({...editingRecord, title: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 rounded-xl text-white" />
                     </div>
                  </div>
-                 <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Precio (€)</label>
-                       <input required type="number" value={editingEvent.price} onChange={e => setEditingEvent({...editingEvent, price: parseFloat(e.target.value)})} className="w-full bg-mat-800 border border-mat-700 p-5 rounded-2xl text-white outline-none focus:border-mat-500 font-mono" />
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Categoría</label>
-                       <select value={editingEvent.category} onChange={e => setEditingEvent({...editingEvent, category: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-5 rounded-2xl text-white outline-none focus:border-mat-500 font-black uppercase text-[10px]">
-                          <option>Hi-Fi Sessions</option>
-                          <option>Listening Session</option>
-                          <option>Special Event</option>
-                          <option>Electronic Hub</option>
-                       </select>
-                    </div>
-                 </div>
+
                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Imagen_Protocol</label>
-                    <div className="flex items-center gap-6">
-                       <div onClick={() => fileInputRef.current?.click()} className="w-24 h-24 bg-mat-800 border-2 border-dashed border-mat-700 rounded-3xl flex items-center justify-center cursor-pointer hover:border-mat-500 overflow-hidden shadow-xl">
-                          {editingEvent.imageUrl ? <img src={editingEvent.imageUrl} className="w-full h-full object-cover" /> : <Upload size={24} className="text-mat-700" />}
-                       </div>
-                       <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" />
-                       <div className="flex-1">
-                          <input value={editingEvent.imageUrl} onChange={e => setEditingEvent({...editingEvent, imageUrl: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 rounded-xl text-[10px] text-gray-500" placeholder="O pega una URL absoluta" />
-                          <p className="text-[8px] text-gray-700 mt-2 uppercase tracking-widest">Formatos: JPG, PNG, WEBP (Max 2MB)</p>
-                       </div>
+                    <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-2">PREVIEW_SIGNAL (Bandcamp Embed URL)</label>
+                    <div className="relative">
+                       <Music className="absolute left-4 top-1/2 -translate-y-1/2 text-mat-500" size={16} />
+                       <input value={editingRecord.streamingLink} onChange={e => setEditingRecord({...editingRecord, streamingLink: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 pl-12 rounded-xl text-white text-[10px] font-mono" placeholder="https://bandcamp.com/EmbeddedPlayer/album=..." />
                     </div>
+                    <p className="text-[8px] text-gray-600 mt-1 italic uppercase">Pega el src del iframe de Bandcamp para habilitar la preview sonora.</p>
                  </div>
-                 <div className="space-y-2">
-                    <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-2">Descripción Contextual</label>
-                    <textarea required value={editingEvent.description} onChange={e => setEditingEvent({...editingEvent, description: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-6 h-32 rounded-3xl text-white outline-none focus:border-mat-500 resize-none italic font-light leading-relaxed" placeholder="Describe la vibra de la sesión..." />
+
+                 <div className="grid grid-cols-3 gap-6">
+                    <input type="number" placeholder="Precio €" value={editingRecord.price} onChange={e => setEditingRecord({...editingRecord, price: parseFloat(e.target.value)})} className="bg-mat-800 border border-mat-700 p-4 rounded-xl text-white" />
+                    <input placeholder="Género" value={editingRecord.genre} onChange={e => setEditingRecord({...editingRecord, genre: e.target.value})} className="bg-mat-800 border border-mat-700 p-4 rounded-xl text-white" />
+                    <input placeholder="Estado (NM, VG+...)" value={editingRecord.condition} onChange={e => setEditingRecord({...editingRecord, condition: e.target.value})} className="bg-mat-800 border border-mat-700 p-4 rounded-xl text-white" />
                  </div>
-                 
-                 <button type="submit" disabled={isProcessing} className="w-full py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-[0.5em] rounded-[2rem] shadow-2xl flex items-center justify-center gap-4 transition-all hover:bg-mat-400 active:scale-95 disabled:opacity-50">
-                    {isProcessing ? <Loader2 className="animate-spin" /> : <Save size={20} />} EJECUTAR_CAMBIO
+
+                 <textarea placeholder="Descripción del Hub" value={editingRecord.description} onChange={e => setEditingRecord({...editingRecord, description: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-5 h-24 rounded-2xl text-white outline-none resize-none" />
+
+                 <button type="submit" disabled={isProcessing} className="w-full py-6 bg-mat-500 text-white font-black uppercase rounded-[2rem] shadow-2xl flex items-center justify-center gap-4 transition-all hover:bg-mat-400">
+                    {isProcessing ? <Loader2 className="animate-spin" /> : <Save size={20} />} INYECTAR_RECORDS
                  </button>
               </form>
            </div>

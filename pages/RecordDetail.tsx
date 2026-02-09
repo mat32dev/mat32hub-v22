@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Disc, ShoppingBag, ArrowLeft, Heart, MessageSquare, Handshake, ShieldCheck, X, Send, Loader2, CheckCircle, Globe, Repeat, ExternalLink, Calendar, Tag, Info } from 'lucide-react';
+import { Disc, ShoppingBag, ArrowLeft, Heart, MessageSquare, Handshake, ShieldCheck, X, Send, Loader2, CheckCircle, Globe, Repeat, ExternalLink, Calendar, Tag, Info, PlayCircle, Volume2 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { SEO } from '../components/SEO';
 import { VinylRecord } from '../types';
@@ -69,10 +69,10 @@ export const RecordDetail: React.FC = () => {
   if (!record) return <div className="min-h-screen bg-mat-900 text-center py-40 text-white">Disco no encontrado. <Link to="/records" className="text-mat-500">Volver</Link></div>;
 
   return (
-    <div className="min-h-screen bg-mat-900 pb-24 font-sans">
+    <div className="min-h-screen bg-mat-900 pb-24 font-sans text-mat-cream">
       <SEO 
         titleKey={`${record.artist} - ${record.title} | The Hub Mat32`} 
-        descriptionKey={`Negocia directamente el vinilo ${record.title} de ${record.artist}. Estado ${record.condition}, género ${record.genre}. Marketplace de coleccionistas en Valencia.`} 
+        descriptionKey={`Escucha la preview y negocia el vinilo ${record.title} de ${record.artist}. Marketplace de coleccionistas en Valencia.`} 
         image={record.coverUrl}
         schemaType="Product"
       />
@@ -83,19 +83,50 @@ export const RecordDetail: React.FC = () => {
         </Link>
 
         <div className="grid lg:grid-cols-12 gap-16 md:gap-24 items-start">
-           <div className="lg:col-span-6 relative group">
-              <div className="aspect-square bg-black border-2 border-mat-800 rounded-[4rem] overflow-hidden shadow-2xl">
-                 <CachedImage src={record.coverUrl} alt={record.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+           <div className="lg:col-span-6 space-y-12">
+              <div className="relative group">
+                <div className="aspect-square bg-black border-2 border-mat-800 rounded-[4rem] overflow-hidden shadow-2xl">
+                   <CachedImage src={record.coverUrl} alt={record.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+                </div>
+                <div className="absolute top-8 right-8 flex flex-col gap-4">
+                   <button 
+                    onClick={() => toggleWishlist(record.id)} 
+                    className={`p-5 rounded-full backdrop-blur-xl shadow-2xl transition-all ${isInWishlist(record.id) ? 'bg-mat-500 text-white' : 'bg-mat-900/60 text-gray-400 hover:text-white'}`}
+                    title={isInWishlist(record.id) ? "Quitar de Wishlist" : "Añadir a Wishlist"}
+                   >
+                      <Heart className={isInWishlist(record.id) ? 'fill-current' : ''} />
+                   </button>
+                </div>
               </div>
-              <div className="absolute top-8 right-8 flex flex-col gap-4">
-                 <button 
-                  onClick={() => toggleWishlist(record.id)} 
-                  className={`p-5 rounded-full backdrop-blur-xl shadow-2xl transition-all ${isInWishlist(record.id) ? 'bg-mat-500 text-white' : 'bg-mat-900/60 text-gray-400 hover:text-white'}`}
-                  title={isInWishlist(record.id) ? "Quitar de Wishlist" : "Añadir a Wishlist"}
-                 >
-                    <Heart className={isInWishlist(record.id) ? 'fill-current' : ''} />
-                 </button>
-              </div>
+
+              {/* STREAMING PREVIEW SECTION (NEW) */}
+              {record.streamingLink && (
+                <section className="bg-mat-800/60 p-10 rounded-[3rem] border-2 border-mat-700 shadow-2xl animate-fade-in">
+                   <div className="flex items-center gap-4 mb-8">
+                      <div className="p-3 bg-mat-500/10 text-mat-500 rounded-xl border border-mat-500/20">
+                         <Volume2 size={24} className="animate-breathing" />
+                      </div>
+                      <div>
+                         <h3 className="text-xl font-black uppercase tracking-tighter font-exo text-white leading-none">PREVIEW_SIGNAL</h3>
+                         <span className="text-[8px] font-black text-mat-500 uppercase tracking-widest">AUDIO_STREAM_ACTIVE</span>
+                      </div>
+                   </div>
+                   
+                   <div className="w-full rounded-2xl overflow-hidden border border-mat-700 shadow-inner bg-mat-950">
+                      <iframe 
+                        style={{ border: 0, width: '100%', height: '120px' }} 
+                        src={record.streamingLink} 
+                        seamless
+                        title={`${record.artist} - ${record.title} Preview`}
+                      >
+                         <a href={record.streamingLink}>Listen to {record.title} by {record.artist}</a>
+                      </iframe>
+                   </div>
+                   <p className="mt-6 text-[9px] text-gray-500 font-bold uppercase tracking-widest italic text-center">
+                     Muestra de audio digital. El sonido final dependerá de tu aguja y previo Hi-Fi.
+                   </p>
+                </section>
+              )}
            </div>
 
            <div className="lg:col-span-6 space-y-12 animate-fade-in">
@@ -111,7 +142,6 @@ export const RecordDetail: React.FC = () => {
                  <h2 className="text-2xl md:text-3xl font-black text-mat-500 uppercase tracking-[0.2em] font-exo opacity-80">{record.artist}</h2>
               </div>
 
-              {/* TECHNICAL PASSPORT */}
               <div className="bg-mat-800/40 p-8 md:p-12 rounded-[3rem] border border-mat-700 space-y-8 shadow-2xl">
                  <div className="flex items-center justify-between border-b border-mat-700 pb-6">
                     <h3 className="text-[10px] font-black text-mat-500 uppercase tracking-[0.5em] flex items-center gap-2">
@@ -181,7 +211,6 @@ export const RecordDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* Negotiation Modal */}
       {showNegotiationModal && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl animate-fade-in">
            <div className="w-full max-w-lg bg-mat-900 border-2 border-mat-800 rounded-[3.5rem] p-12 relative shadow-2xl overflow-hidden">
