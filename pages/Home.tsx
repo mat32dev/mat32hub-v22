@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Disc, MapPin, ShoppingBag, Heart, History, Zap, Flame, User } from 'lucide-react';
+import { ArrowRight, Disc, MapPin, ShoppingBag, Heart, History, Calendar, Clock, Star, Flame, User } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { useLanguage } from '../context/LanguageContext';
 import { dataService } from '../services/dataService';
@@ -9,13 +9,12 @@ import { Event, VinylRecord } from '../types';
 import { CachedImage } from '../components/CachedImage';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
+import { EventCard } from '../components/EventCard';
 
 const HERO_IMAGES = [
   "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public",
   "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public",
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public",
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public",
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/5dea483e-141a-4665-8085-5c163d8eda00/public"
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public"
 ];
 
 export const Home: React.FC = () => {
@@ -39,10 +38,9 @@ export const Home: React.FC = () => {
       
       const now = new Date();
       now.setHours(0,0,0,0);
-      setUpcomingEvents(allEvents.filter(e => new Date(e.date) >= now).slice(0, 3));
+      setUpcomingEvents(allEvents.filter(e => new Date(e.date) >= now).slice(0, 4));
       
-      // Filtramos por géneros v18.0 - Artist-First
-      setNewArrivals(allRecords.filter(r => r.genre !== 'Jazz' && r.status === 'published').slice(0, 4));
+      setNewArrivals(allRecords.filter(r => r.genre === 'Disco' && r.status === 'published').slice(0, 4));
       setJazzSelection(allRecords.filter(r => r.genre === 'Jazz').slice(0, 4));
     };
     loadData();
@@ -109,7 +107,7 @@ export const Home: React.FC = () => {
             <div className="flex items-center justify-center gap-6 text-mat-500 font-black uppercase tracking-[0.6em] text-xs md:text-base mb-12">
                <MapPin size={18} className="text-white" /> VALENCIA <span className="text-gray-800">|</span> RUZAFA
             </div>
-            <p className="text-gray-300 max-w-2xl mx-auto text-lg md:text-2xl font-light italic mb-16 opacity-90 drop-shadow-lg leading-relaxed px-4">"Donde el tiempo se mide en revoluciones por minuto y el sonido tiene alma analógica."</p>
+            <p className="text-gray-300 max-w-2xl mx-auto text-lg md:text-2xl font-light italic mb-16 opacity-90 drop-shadow-lg leading-relaxed px-4">"Donde el tiempo se mide en revoluciones por minuto."</p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center px-4">
                <Link to="/contact" className="w-full sm:w-auto px-14 py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-widest clip-path-slant shadow-2xl hover:bg-mat-400 transition-all active:scale-95">RESERVAR MESA</Link>
                <Link to="/community" className="w-full sm:w-auto px-14 py-6 bg-mat-900/80 border-2 border-mat-700 text-white font-black uppercase text-[11px] tracking-widest clip-path-slant hover:border-mat-500 backdrop-blur-md transition-all active:scale-95">HUB COMUNIDAD</Link>
@@ -117,25 +115,48 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* JAZZ SECTION - PURE LABELS */}
-      <section className="py-40 bg-[#0c0a09] relative overflow-hidden border-y border-mat-800/30">
+      {/* AGENDA SECTION - PRIORITARIA */}
+      <section id="agenda-section" className="py-32 bg-mat-950 border-b border-mat-800">
+        <div className="container mx-auto px-6">
+           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+              <div>
+                <div className="flex items-center gap-3 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] mb-4">
+                  <Star size={18} className="animate-pulse" /> NEXT_PROTOCOLS_V19
+                </div>
+                <h2 className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter font-exo leading-none">AGENDA.</h2>
+              </div>
+              <Link to="/events" className="text-[11px] font-black text-gray-500 hover:text-white uppercase tracking-widest flex items-center gap-4 transition-colors pb-2 border-b-2 border-mat-800 hover:border-mat-500">
+                AGENDA COMPLETA <ArrowRight size={18} />
+              </Link>
+           </div>
+
+           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {upcomingEvents.map(event => (
+                <EventCard key={event.id} event={event} />
+              ))}
+           </div>
+        </div>
+      </section>
+
+      {/* JAZZ SELECTION - PURE ICON */}
+      <section className="py-40 bg-[#0c0a09] relative overflow-hidden border-b border-mat-800/30">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-3 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] mb-6">
-                <Flame size={20} className="animate-pulse" /> THE_LABEL_ARCHIVE_V18
+                <Flame size={20} className="animate-pulse" /> THE_LABEL_ARCHIVE
               </div>
               <h2 className="text-6xl md:text-[10rem] font-black text-white uppercase tracking-tighter font-exo leading-[0.8]">JAZZ <span className="text-mat-500">SELECTION.</span></h2>
-              <p className="text-gray-500 text-xl md:text-2xl mt-8 italic font-light max-w-2xl leading-relaxed">"Curaduría definitiva. Los arquitectos del sonido analógico en el Hub de Mat32."</p>
+              <p className="text-gray-500 text-xl md:text-2xl mt-8 italic font-light max-w-2xl leading-relaxed">"Selección técnica para audiófilos. Los arquitectos del sonido analógico."</p>
             </div>
             <Link to="/records?category=Jazz" className="text-[11px] font-black text-mat-500 hover:text-white uppercase tracking-widest flex items-center gap-4 transition-colors pb-3 border-b-2 border-mat-500 hover:border-white">
-              EXPLORAR ARTISTAS <ArrowRight size={18} />
+              EXPLORAR JAZZ <ArrowRight size={18} />
             </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
             {jazzSelection.map((record) => (
-              <article key={record.id} onClick={() => navigate(`/records/${record.id}`)} className="bg-black/40 border border-mat-800/50 rounded-[2.5rem] overflow-hidden group hover:border-mat-500 transition-all duration-700 flex flex-col shadow-2xl relative">
+              <article key={record.id} onClick={() => navigate(`/records/${record.id}`)} className="bg-black/40 border border-mat-800/50 rounded-[2.5rem] overflow-hidden group hover:border-mat-500 transition-all duration-700 flex flex-col shadow-2xl relative cursor-pointer">
                 <div className="aspect-square relative overflow-hidden bg-black">
                    <CachedImage src={record.coverUrl} alt={record.title} />
                    <div className="absolute top-6 right-6 flex flex-col gap-2" onClick={e => e.stopPropagation()}>
@@ -151,10 +172,7 @@ export const Home: React.FC = () => {
                    <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-10">{record.title}</p>
                    
                    <div className="mt-auto pt-8 border-t border-mat-800/30 flex justify-between items-center">
-                      <div className="flex flex-col">
-                        <span className="text-[8px] font-black text-gray-700 uppercase tracking-widest">RECORD_SIGNAL</span>
-                        <span className="text-[8px] text-gray-800 font-black uppercase tracking-widest">{record.label}</span>
-                      </div>
+                      <span className="text-[8px] text-gray-800 font-black uppercase tracking-widest">{record.label}</span>
                       <button onClick={(e) => { e.stopPropagation(); addToCart(record); }} className="p-4 bg-mat-500 text-white rounded-2xl hover:bg-white hover:text-mat-500 transition-all shadow-xl">
                         <ShoppingBag size={20} />
                       </button>
@@ -166,18 +184,18 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* DISCO SECTION */}
+      {/* DISCO NEW ARRIVALS */}
       <section className="py-32 bg-mat-900">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
             <div>
               <div className="flex items-center gap-3 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] mb-6">
-                <User size={20} className="animate-pulse" /> NEW_DISCO_CRATE
+                <User size={20} className="animate-pulse" /> NEW_DISCO_SIGNAL
               </div>
-              <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter font-exo leading-none">RECIÉN <span className="text-mat-500">LLEGADOS.</span></h2>
+              <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter font-exo leading-none">DISCO <span className="text-mat-500">HITS.</span></h2>
             </div>
-            <Link to="/records" className="text-[11px] font-black text-gray-500 hover:text-white uppercase tracking-widest flex items-center gap-4 transition-colors pb-3 border-b-2 border-mat-800 hover:border-mat-500">
-              TIENDA COMPLETA <ArrowRight size={18} />
+            <Link to="/records?category=Disco" className="text-[11px] font-black text-gray-500 hover:text-white uppercase tracking-widest flex items-center gap-4 transition-colors pb-3 border-b-2 border-mat-800 hover:border-mat-500">
+              TIENDA DISCO <ArrowRight size={18} />
             </Link>
           </div>
 

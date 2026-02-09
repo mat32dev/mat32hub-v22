@@ -129,7 +129,7 @@ export const PrivateEvents: React.FC = () => {
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500"></div>
                   <h4 className="text-[10px] font-black text-mat-500 uppercase tracking-widest mb-10">TECH_SPECS</h4>
                   <ul className="space-y-6 text-white text-sm font-bold uppercase tracking-tight">
-                     <li className="flex justify-between border-b border-mat-700 pb-4"><span>AFORO_MÁX</span> <span className="text-mat-500">50 PAX</span></li>
+                     <li className="flex justify-between border-b border-mat-700 pb-4"><span>AFORO_MÁX</span> <span className="text-mat-500">100 PAX</span></li>
                      <li className="flex justify-between border-b border-mat-700 pb-4"><span>SISTEMA_PA</span> <span className="text-mat-500">ALTEC A7</span></li>
                      <li className="flex justify-between border-b border-mat-700 pb-4"><span>CONTROL</span> <span className="text-mat-500">ROTARY ANALOG</span></li>
                      <li className="flex justify-between"><span>UBICACIÓN</span> <span className="text-mat-500">RUZAFA_VLC</span></li>

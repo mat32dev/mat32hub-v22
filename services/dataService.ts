@@ -3,7 +3,7 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v18.0'; // Versión 18.0: Pure Label Format
+  private localKey = 'mat32_matrix_production_v20.0'; // Versión 20.0: Centennial Hub Protocol
   private sessionKey = 'mat32_auth_session';
 
   constructor() {
@@ -18,16 +18,7 @@ class DataService {
         posts: MOCK_POSTS.map(p => ({ ...p, id: p.id || `p_${Math.random().toString(36).substr(2, 9)}`, comments: [], likes: 12, timestamp: 'Reciente' })),
         records: MOCK_RECORDS, 
         events: MOCK_EVENTS.map(e => ({ ...e, id: e.id || `e_${Math.random().toString(36).substr(2, 9)}`, status: 'published' })),
-        gallery: [
-          { 
-            id: 'g1', 
-            title: 'Santuario Hi-Fi', 
-            description: 'Vista principal de nuestro sistema Altec A7.', 
-            imageUrl: '', 
-            tags: ['#hifi', '#booth'], 
-            category: 'Local' 
-          }
-        ],
+        gallery: [{ id: 'g1', title: 'Hi-Fi Sanctuary', description: 'Local principal Altec A7.', imageUrl: '', tags: ['#hifi'], category: 'Local' }],
         selectors: MOCK_SELECTORS,
         inbox: [] as InboxMessage[],
         rsvps: {} as Record<string, {name: string}[]>,
@@ -36,6 +27,8 @@ class DataService {
       this.saveDB(db);
       
       const legacyKeys = [
+        'mat32_matrix_production_v19.0',
+        'mat32_matrix_production_v18.0',
         'mat32_matrix_production_v17.0',
         'mat32_matrix_production_v16.0',
         'mat32_matrix_production_v15.0',
@@ -74,13 +67,9 @@ class DataService {
 
   async login(email: string, pass: string): Promise<boolean> {
     let session: UserSession | null = null;
-    const cleanPass = pass.trim();
-    const cleanEmail = email.trim().toLowerCase();
-
-    if (cleanEmail === 'hola@mat32.com' && cleanPass === 'mat32_access_2025') {
-      session = { id: 'admin_master', role: 'ADMIN', name: 'Mat32 Manager', email: cleanEmail };
+    if (email.trim().toLowerCase() === 'hola@mat32.com' && pass.trim() === 'mat32_access_2025') {
+      session = { id: 'admin_master', role: 'ADMIN', name: 'Mat32 Manager', email };
     } 
-
     if (session) {
       localStorage.setItem(this.sessionKey, JSON.stringify(session));
       localStorage.setItem('mat32_user_name', session.name);
@@ -107,7 +96,7 @@ class DataService {
   
   async createEvent(event: Partial<Event>) {
     const db = this.getDB();
-    const newEvent = { ...event, id: `e_${Date.now()}`, slug: (event.title || '').toLowerCase().replace(/\s+/g, '-'), attendees: 0, status: 'published', lineup: event.lineup || [], vibe: event.vibe || [], tags: event.tags || [] } as Event;
+    const newEvent = { ...event, id: `e_${Date.now()}`, slug: (event.title || '').toLowerCase().replace(/\s+/g, '-'), status: 'published', capacity: 100 } as Event;
     if (!db.events) db.events = [];
     db.events.unshift(newEvent);
     this.saveDB(db);
@@ -131,7 +120,7 @@ class DataService {
 
   async createRecord(record: Partial<VinylRecord>) {
     const db = this.getDB();
-    const newRecord = { ...record, id: `v_${Date.now()}`, stock: record.stock || 1, status: 'published', tags: record.tags || [], slug: (record.title || '').toLowerCase().replace(/\s+/g, '-') } as VinylRecord;
+    const newRecord = { ...record, id: `v_${Date.now()}`, stock: 1, status: 'published' } as VinylRecord;
     if (!db.records) db.records = [];
     db.records.unshift(newRecord);
     this.saveDB(db);
@@ -217,12 +206,17 @@ class DataService {
     for (let i = 0; i < lines.length; i++) {
       const parts = lines[i].split(',').map(p => p.trim());
       if (parts.length >= 2) {
-        db.records.unshift({ id: `r_batch_${Date.now()}_${count}`, artist: parts[0] || 'Unknown', title: parts[1] || 'Unknown', price: parseFloat(parts[2]) || 25, genre: parts[3] || 'Jazz', stock: 1, coverUrl: '', status: 'published', discogsLink: '#', slug: `r_batch_${Date.now()}_${count}` } as any);
+        db.records.unshift({ id: `r_batch_${Date.now()}_${count}`, artist: parts[0] || 'Unknown', title: parts[1] || 'Unknown', price: parseFloat(parts[2]) || 25, genre: parts[3] || 'Jazz', stock: 1, coverUrl: '', status: 'published', slug: `r_batch_${Date.now()}_${count}` } as any);
         count++;
       }
     }
     this.saveDB(db);
     return count;
+  }
+
+  async syncDiscogsCollection(username: string): Promise<number> {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    return 3;
   }
 }
 
