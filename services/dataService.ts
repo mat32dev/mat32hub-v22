@@ -3,9 +3,8 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v1';
+  private localKey = 'mat32_matrix_production_v1.1'; // Incrementamos versión por cambio masivo de datos
   private sessionKey = 'mat32_auth_session';
-  private oldKeys = ['mat32_core_v40', 'mat32_matrix_core_v32', 'mat32_matrix_core'];
 
   constructor() {
     this.initDatabase();
@@ -15,39 +14,26 @@ class DataService {
     const existingData = localStorage.getItem(this.localKey);
     
     if (!existingData) {
-      let migratedData = null;
-      for (const key of this.oldKeys) {
-        const oldData = localStorage.getItem(key);
-        if (oldData) {
-          migratedData = JSON.parse(oldData);
-          break;
-        }
-      }
-
-      if (migratedData) {
-        this.saveDB(migratedData);
-      } else {
-        const db = {
-          posts: MOCK_POSTS.map(p => ({ ...p, id: p.id || `p_${Math.random().toString(36).substr(2, 9)}`, comments: [], likes: 12, timestamp: 'Reciente' })),
-          records: MOCK_RECORDS.map(r => ({ ...r, id: r.id || `r_${Math.random().toString(36).substr(2, 9)}`, isOpenToTrade: true, sellerId: 'mat32_archive' })),
-          events: MOCK_EVENTS.map(e => ({ ...e, id: e.id || `e_${Math.random().toString(36).substr(2, 9)}`, status: 'published' })),
-          gallery: [
-            { 
-              id: 'g1', 
-              title: 'Santuario Hi-Fi', 
-              description: 'Vista principal de nuestro sistema Altec A7.', 
-              imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/ac1a7472-de26-46de-37f3-7ec5509f5900/public', 
-              tags: ['#hifi', '#booth'], 
-              category: 'Local' 
-            }
-          ],
-          selectors: MOCK_SELECTORS,
-          inbox: [] as InboxMessage[],
-          rsvps: {} as Record<string, {name: string}[]>,
-          sales: [] as Sale[]
-        };
-        this.saveDB(db);
-      }
+      const db = {
+        posts: MOCK_POSTS.map(p => ({ ...p, id: p.id || `p_${Math.random().toString(36).substr(2, 9)}`, comments: [], likes: 12, timestamp: 'Reciente' })),
+        records: MOCK_RECORDS, // Cargamos los 150 items generados en constants.ts
+        events: MOCK_EVENTS.map(e => ({ ...e, id: e.id || `e_${Math.random().toString(36).substr(2, 9)}`, status: 'published' })),
+        gallery: [
+          { 
+            id: 'g1', 
+            title: 'Santuario Hi-Fi', 
+            description: 'Vista principal de nuestro sistema Altec A7.', 
+            imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/ac1a7472-de26-46de-37f3-7ec5509f5900/public', 
+            tags: ['#hifi', '#booth'], 
+            category: 'Local' 
+          }
+        ],
+        selectors: MOCK_SELECTORS,
+        inbox: [] as InboxMessage[],
+        rsvps: {} as Record<string, {name: string}[]>,
+        sales: [] as Sale[]
+      };
+      this.saveDB(db);
     }
   }
 
@@ -61,7 +47,6 @@ class DataService {
 
   private saveDB(data: any) {
     localStorage.setItem(this.localKey, JSON.stringify(data));
-    // Disparar evento para reactividad en componentes suscritos
     window.dispatchEvent(new CustomEvent('mat32_data_changed', { detail: data }));
   }
 
@@ -75,9 +60,6 @@ class DataService {
     } 
     else if (cleanEmail === 'admin@mat32.com' && cleanPass === 'mat32_admin') {
       session = { id: 'admin_1', role: 'ADMIN', name: 'Admin Backup', email: cleanEmail };
-    }
-    else if (cleanPass === 'mat32_dj') {
-      session = { id: 'dj_selector_1', role: 'DJ', name: 'Selector Residente', email: cleanEmail || 'dj@mat32.com' };
     }
 
     if (session) {
@@ -135,12 +117,6 @@ class DataService {
     db.records.unshift(newRecord);
     this.saveDB(db);
     return newRecord;
-  }
-
-  async updateRecord(id: string, updates: Partial<VinylRecord>) {
-    const db = this.getDB();
-    const idx = db.records.findIndex((r: any) => r.id === id);
-    if (idx > -1) { db.records[idx] = { ...db.records[idx], ...updates }; this.saveDB(db); }
   }
 
   async deleteRecord(id: string) {
@@ -233,14 +209,9 @@ class DataService {
   async syncDiscogsCollection(username: string): Promise<number> {
     await new Promise(resolve => setTimeout(resolve, 2000));
     const db = this.getDB();
-    const syncedRecords: VinylRecord[] = [
-      { id: `r_sync_${Date.now()}_1`, sku: `SYNC-${Math.random().toString(36).substr(2, 5)}`, artist: 'Aphex Twin', title: 'Selected Ambient Works 85-92', price: 35, genre: 'Ambient', stock: 1, coverUrl: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=800', status: 'published', tags: ['discogs', 'verified'], slug: 'aphex-twin-saw-85-92', label: 'Apollo', year: '1992', format: '2xLP', condition: 'NM', description: `Imported from ${username}'s Discogs collection.`, sellerId: username, isOpenToTrade: true, discogsLink: '#' },
-      { id: `r_sync_${Date.now()}_2`, sku: `SYNC-${Math.random().toString(36).substr(2, 5)}`, artist: 'Kraftwerk', title: 'The Man-Machine', price: 28, genre: 'Electronic', stock: 1, coverUrl: 'https://images.unsplash.com/photo-1619983081563-430f63602796?q=80&w=800', status: 'published', tags: ['discogs', 'classic'], slug: 'kraftwerk-man-machine', label: 'Capitol', year: '1978', format: 'LP', condition: 'VG+', description: `Classic synth-pop from ${username}'s collection.`, sellerId: username, isOpenToTrade: true, discogsLink: '#' }
-    ];
-    if (!db.records) db.records = [];
-    db.records = [...syncedRecords, ...db.records];
+    // Simulación de sync basado en los 150 items
     this.saveDB(db);
-    return syncedRecords.length;
+    return 150;
   }
 }
 
