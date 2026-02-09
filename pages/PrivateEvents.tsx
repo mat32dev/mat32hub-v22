@@ -7,24 +7,29 @@ import { CachedImage } from '../components/CachedImage';
 
 const SPACE_GALLERY = [
   {
-    url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public",
-    title: "Analog Sanctuary",
-    tag: "#SpaceVibe"
+    url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/190aead2-fc94-4fed-a7c2-bd341561ca00/public",
+    title: "Main Hall & Booth",
+    tag: "#SantuarioHiFi"
   },
   {
-    url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public",
-    title: "Hi-Fi Listening",
-    tag: "#AltecA7"
+    url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public",
+    title: "Listening Lounge",
+    tag: "#AnalogVibe"
   },
   {
-    url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public",
-    title: "Bar Atmosphere",
-    tag: "#SignatureBar"
+    url: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2000",
+    title: "Signature Bar",
+    tag: "#LiquidSounds"
   },
   {
-    url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/5dea483e-141a-4665-8085-5c163d8eda00/public",
-    title: "Vinyl Hub",
-    tag: "#TheArchive"
+    url: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800",
+    title: "Vinyl Archive",
+    tag: "#TheCrate"
+  },
+  {
+    url: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=800",
+    title: "Sound System Altec",
+    tag: "#HighFidelity"
   }
 ];
 
@@ -82,14 +87,14 @@ export const PrivateEvents: React.FC = () => {
               <div className="flex-1 border-b-2 border-mat-800 opacity-20"></div>
            </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {SPACE_GALLERY.map((img, idx) => (
-                <div key={idx} className="relative group rounded-[2.5rem] overflow-hidden border-2 border-mat-800 transition-all duration-700 hover:border-mat-500 shadow-2xl">
+                <div key={idx} className={`relative group rounded-[2.5rem] overflow-hidden border-2 border-mat-800 transition-all duration-700 hover:border-mat-500 shadow-2xl ${idx === 0 ? 'md:col-span-2' : ''}`}>
                    <CachedImage 
                     src={img.url} 
                     alt={img.title} 
                     className="w-full h-full grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
-                    aspectRatio="aspect-square"
+                    aspectRatio={idx === 0 ? "aspect-video" : "aspect-square"}
                    />
                    <div className="absolute inset-0 bg-gradient-to-t from-mat-950/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
                       <span className="text-mat-500 text-[8px] font-black uppercase tracking-widest mb-1">{img.tag}</span>

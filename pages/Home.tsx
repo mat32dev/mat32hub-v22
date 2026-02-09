@@ -9,8 +9,12 @@ import { Event, Post, VinylRecord } from '../types';
 import { CachedImage } from '../components/CachedImage';
 
 const HERO_IMAGES = [
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public",
   "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/190aead2-fc94-4fed-a7c2-bd341561ca00/public",
-  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public"
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public",
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public",
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public",
+  "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/5dea483e-141a-4665-8085-5c163d8eda00/public"
 ];
 
 export const Home: React.FC = () => {
