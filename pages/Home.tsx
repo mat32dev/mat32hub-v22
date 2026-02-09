@@ -8,8 +8,7 @@ import { dataService } from '../services/dataService';
 import { Event, Post, VinylRecord } from '../types';
 import { CachedImage } from '../components/CachedImage';
 
-// HERO_IMAGES DEFINITIVA V3: Chica (Lounge) + Las 4 enviadas por el usuario
-// Se elimina la foto del espacio general que ahora vive en Alquiler.
+// HERO_IMAGES DEFINITIVA V3: Identidad (Chica) + 4 Detalles técnicos/vibe
 const HERO_IMAGES = [
   "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public", // Chica / Lounge
   "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public", // Detalle 1
@@ -41,16 +40,17 @@ export const Home: React.FC = () => {
     return () => window.removeEventListener('mat32_data_changed', loadData);
   }, []);
 
-  // AUTO-CHANGE HERO EVERY 5 SECONDS
+  // AUTO-CHANGE HERO EVERY 6 SECONDS
   useEffect(() => {
     if (isRevealed) return; 
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, 5000);
+    }, 6000);
     return () => clearInterval(interval);
   }, [isRevealed, currentSlide]);
 
   const handleHeroInteraction = (e: React.MouseEvent) => {
+    // Si se hace clic en botones o enlaces, no disparar la lógica de revelado/scroll
     if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
 
     if (clickTimer.current) {
@@ -81,7 +81,7 @@ export const Home: React.FC = () => {
     <div className="bg-mat-900 min-h-screen overflow-x-hidden">
       <SEO titleKey="nav.home" descriptionKey="seo.home.description" />
 
-      {/* 1. HERO INTERACTIVO V3 - MEJOR VISIBILIDAD */}
+      {/* 1. HERO V3 - Protocolo "Luz y Revelación" */}
       <section 
         className="relative h-[100vh] flex items-center justify-center overflow-hidden cursor-crosshair group select-none"
         onClick={handleHeroInteraction}
@@ -99,27 +99,28 @@ export const Home: React.FC = () => {
                 className={`w-full h-full transition-all duration-[1500ms] ${
                   isRevealed 
                     ? 'grayscale-0 opacity-100 brightness-110 blur-0 scale-110' 
-                    : 'grayscale opacity-85 brightness-90 blur-[0.5px]' // Subida opacidad y brillo base
+                    : 'grayscale opacity-85 brightness-90 blur-[0.5px]' // Opacidad 85% para visibilidad perfecta
                 }`}
                 alt={`Mat32 Identity ${idx}`}
                 priority={idx === currentSlide}
               />
             </div>
           ))}
-          {/* Gradiente más sutil para que las fotos respiren más */}
+          {/* Gradiente sutil */}
           <div className={`absolute inset-0 bg-gradient-to-b from-mat-950/30 via-transparent to-mat-950 transition-opacity duration-1000 ${isRevealed ? 'opacity-10' : 'opacity-70'}`}></div>
         </div>
 
         {/* Controles de Navegación */}
         <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-          <button onClick={prevSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 transition-all pointer-events-auto">
+          <button onClick={prevSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 transition-all pointer-events-auto shadow-2xl">
             <ChevronLeft size={32} />
           </button>
-          <button onClick={nextSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 transition-all pointer-events-auto">
+          <button onClick={nextSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 transition-all pointer-events-auto shadow-2xl">
             <ChevronRight size={32} />
           </button>
         </div>
 
+        {/* Leyenda de Interacción */}
         <div className={`absolute top-32 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-4 transition-all duration-700 ${isRevealed ? 'opacity-0 -translate-y-10' : 'opacity-100 translate-y-0'}`}>
           <div className="flex items-center gap-6">
              <div className="flex flex-col items-center gap-2">
@@ -134,6 +135,7 @@ export const Home: React.FC = () => {
           </div>
         </div>
 
+        {/* Content Box */}
         <div className={`container mx-auto px-6 relative z-10 text-center transition-all duration-1000 transform ${isRevealed ? 'scale-90 opacity-20 blur-md pointer-events-none' : 'scale-100 opacity-100 blur-0'}`}>
             <h1 className="text-[18vw] md:text-[12rem] font-black uppercase tracking-tighter text-white leading-[0.8] font-exo drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] mb-8">
               MAT<span className="text-mat-500">32</span>
@@ -148,7 +150,7 @@ export const Home: React.FC = () => {
             </div>
         </div>
 
-        {/* Indicadores de diapositiva */}
+        {/* Indicadores */}
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-4 z-40">
            {HERO_IMAGES.map((_, idx) => (
              <button 
@@ -160,7 +162,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 2. LA AGENDA */}
+      {/* 2. LA AGENDA REACTIVA */}
       <section id="agenda-section" className="py-32 bg-mat-900">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">

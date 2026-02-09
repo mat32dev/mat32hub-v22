@@ -36,17 +36,9 @@ class DataService {
               id: 'g1', 
               title: 'Santuario Hi-Fi', 
               description: 'Vista principal de nuestro sistema Altec A7.', 
-              imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public', 
+              imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/ac1a7472-de26-46de-37f3-7ec5509f5900/public', 
               tags: ['#hifi', '#booth'], 
               category: 'Local' 
-            },
-            { 
-              id: 'g2', 
-              title: 'Analog Experience', 
-              description: 'Cultura de vinilo en el corazón de Ruzafa.', 
-              imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/190aead2-fc94-4fed-a7c2-bd341561ca00/public', 
-              tags: ['#vinyl', '#atmosphere'], 
-              category: 'Interior' 
             }
           ],
           selectors: MOCK_SELECTORS,
@@ -69,7 +61,8 @@ class DataService {
 
   private saveDB(data: any) {
     localStorage.setItem(this.localKey, JSON.stringify(data));
-    window.dispatchEvent(new CustomEvent('mat32_data_changed'));
+    // Disparar evento para reactividad en componentes suscritos
+    window.dispatchEvent(new CustomEvent('mat32_data_changed', { detail: data }));
   }
 
   async login(email: string, pass: string): Promise<boolean> {
@@ -77,11 +70,9 @@ class DataService {
     const cleanPass = pass.trim();
     const cleanEmail = email.trim().toLowerCase();
 
-    // Acceso Administrador Principal
     if (cleanEmail === 'hola@mat32.com' && cleanPass === 'mat32_access_2025') {
       session = { id: 'admin_master', role: 'ADMIN', name: 'Mat32 Manager', email: cleanEmail };
     } 
-    // Acceso alternativo antiguo para compatibilidad de pruebas
     else if (cleanEmail === 'admin@mat32.com' && cleanPass === 'mat32_admin') {
       session = { id: 'admin_1', role: 'ADMIN', name: 'Admin Backup', email: cleanEmail };
     }
