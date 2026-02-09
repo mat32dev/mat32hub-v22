@@ -3,7 +3,7 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v1.1'; // Incrementamos versión por cambio masivo de datos
+  private localKey = 'mat32_matrix_production_v2.0'; // Versión 2.0: Full Discogs Collection Activista
   private sessionKey = 'mat32_auth_session';
 
   constructor() {
@@ -16,7 +16,7 @@ class DataService {
     if (!existingData) {
       const db = {
         posts: MOCK_POSTS.map(p => ({ ...p, id: p.id || `p_${Math.random().toString(36).substr(2, 9)}`, comments: [], likes: 12, timestamp: 'Reciente' })),
-        records: MOCK_RECORDS, // Cargamos los 150 items generados en constants.ts
+        records: MOCK_RECORDS, // Los 150 items inyectados
         events: MOCK_EVENTS.map(e => ({ ...e, id: e.id || `e_${Math.random().toString(36).substr(2, 9)}`, status: 'published' })),
         gallery: [
           { 
@@ -34,6 +34,9 @@ class DataService {
         sales: [] as Sale[]
       };
       this.saveDB(db);
+      // Limpiar versiones antiguas para ahorrar espacio
+      localStorage.removeItem('mat32_matrix_production_v1.1');
+      localStorage.removeItem('mat32_matrix_production_v1');
     }
   }
 

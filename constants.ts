@@ -7,12 +7,6 @@ const getFutureDate = (daysFromNow: number) => {
   return d.toISOString().split('T')[0];
 };
 
-const getPastDate = (daysAgo: number) => {
-  const d = new Date();
-  d.setDate(d.getDate() - daysAgo);
-  return d.toISOString().split('T')[0];
-};
-
 export const MOCK_ARTISTS: Record<string, Artist> = {
   'soulman': { id: 'art_soul', name: 'Soulman', role: 'Main Selector', instagram: '@soulman_vlc' },
   'analog_digger': { id: 'art_digger', name: 'Analog Digger', role: 'Vinyl Specialist', instagram: '@analog_digger' },
@@ -25,58 +19,59 @@ export const MOCK_SELLERS: SellerProfile[] = [
     name: 'Mat32 Archive',
     email: 'archive@mat32.com',
     discogsUsername: 'ACTIVISTA',
-    avatarUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=200',
-    bio: 'Nuestra colección privada de la casa. Joyas que han sonado en el Altec A7.',
+    avatarUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public',
+    bio: 'Colección privada del Hub. Joyas de Detroit, Berlin y Sheffield.',
     location: 'Ruzafa',
     isVerified: true,
-    specialty: ['Techno', 'House', 'IDM', 'Detroit', 'Ambient']
+    specialty: ['Techno', 'IDM', 'Detroit', 'Electro']
   }
 ];
 
-// GENERADOR DE REGISTROS (MOCK DISCOGS LOGIC)
-const generateRecords = (): VinylRecord[] => {
-  const collectionData = [
-    { artist: "Jeff Mills", title: "Waveform Transmissions Vol. 1", label: "Tresor", year: "1992", genre: "Techno", price: 120, desc: "La piedra angular del techno de Detroit en Berlin. Energía pura y minimalismo industrial en estado puro." },
-    { artist: "Aphex Twin", title: "Selected Ambient Works 85-92", label: "Apollo", year: "1992", genre: "IDM", price: 350, desc: "Posiblemente el álbum de electrónica más importante de la historia. Texturas oníricas y ritmos atemporales." },
-    { artist: "Drexciya", title: "Neptune's Lair", label: "Tresor", year: "1999", genre: "Electro", price: 180, desc: "Mitología acuática y ritmos rotos de Detroit. Una obra maestra conceptual del misterioso dúo." },
-    { artist: "Moodymann", title: "Silentintroduction", label: "Planet E", year: "1997", genre: "House", price: 210, desc: "Soul, Funk y House fundidos en el calor de Detroit. El debut que definió una estética única." },
-    { artist: "Boards of Canada", title: "Music Has The Right To Children", label: "Warp", year: "1998", genre: "IDM", price: 280, desc: "Nostalgia analógica y grabaciones de campo. Un viaje psicodélico por paisajes de la infancia escocesa." },
-    { artist: "Robert Hood", title: "Minimal Nation", label: "M-Plant", year: "1994", genre: "Techno", price: 145, desc: "El origen del techno minimalista. Menos es más en esta clase magistral de ritmo y repetición." },
-    { artist: "Theo Parrish", title: "Parallel Dimensions", label: "Sound Signature", year: "2000", genre: "House", price: 195, desc: "House crudo y sin pulir. La experimentación rítmica llevada al límite de la pista de baile." },
-    { artist: "The Other People Place", title: "Lifestyles Of The Laptop Café", label: "Warp", year: "2001", genre: "Electro", price: 420, desc: "Electro emocional y cálido. La obra póstuma más sensible de James Stinson bajo su alias más íntimo." },
-    { artist: "Basic Channel", title: "Quadrant Dub", label: "Basic Channel", year: "1994", genre: "Dub Techno", price: 250, desc: "El nacimiento del sonido Berlin. Reverberaciones infinitas y bajos que definen el espacio." },
-    { artist: "Underground Resistance", title: "Interstellar Fugitives", label: "UR", year: "1998", genre: "Techno", price: 130, desc: "Techno militante y futurista. El sonido de la resistencia social a través de la electrónica." },
-    // ... representaremos los 150 items aquí de forma estructurada
-  ];
+// DATA SOURCE: Simulación de Scrape de la colección "ACTIVISTA" + Relacionados
+const DISCOGS_RAW_DATA = [
+  { a: "Underground Resistance", t: "Interstellar Fugitives", l: "UR", y: "1998", g: "Techno", p: 145, img: "https://i.discogs.com/f9-XFm8_U3Yqf8W0VfJ_x-5f_Xk=/fit-in/600x600/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/R-1534-1163454483.jpeg.jpg", d: "La biblia del techno militante de Detroit. Una compilación que define el sonido de la resistencia." },
+  { a: "Aphex Twin", t: "Selected Ambient Works 85-92", l: "Apollo", y: "1992", g: "IDM", p: 480, img: "https://i.discogs.com/jE-099k7e3r9E-E-E-E/fit-in/600x600/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/R-705-1144023455.jpeg.jpg", d: "Obra maestra atemporal. Picos de venta récord en Discogs por su estado Mint original." },
+  { a: "Drexciya", t: "Neptune's Lair", l: "Tresor", y: "1999", g: "Electro", p: 220, img: "https://i.discogs.com/k9-897y-09-E/fit-in/600x600/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/R-1537-1241512345.jpeg.jpg", d: "El viaje acuático definitivo. Detroit electro en su máxima expresión conceptual." },
+  { a: "Basic Channel", t: "BCD", l: "Basic Channel", y: "1995", g: "Dub Techno", p: 190, img: "https://i.discogs.com/y-89k-09-E/fit-in/600x600/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/R-114-1144012345.jpeg.jpg", d: "El sonido de Berlin condensado. Reverberación, ruido y bajos que alteran el espacio-tiempo." },
+  { a: "Model 500", t: "Deep Space", l: "R&S Records", y: "1995", g: "Techno", p: 135, img: "https://i.discogs.com/x-098y-09-E/fit-in/600x600/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/R-112-1144012345.jpeg.jpg", d: "Juan Atkins explorando los confines del espacio exterior. Futurismo puro desde la Motor City." },
+  { a: "Moodymann", t: "Silentintroduction", l: "Planet E", y: "1997", g: "House", p: 275, img: "https://i.discogs.com/z-098y-09-E/fit-in/600x600/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/R-115-1144012345.jpeg.jpg", d: "Kenny Dixon Jr. en su mejor momento. Sampledelia soul aplicada al house de Detroit." },
+  { a: "Boards Of Canada", t: "Music Has The Right To Children", l: "Warp", y: "1998", g: "IDM", p: 520, img: "https://i.discogs.com/a-098y-09-E/fit-in/600x600/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/R-116-1144012345.jpeg.jpg", d: "Nostalgia analógica en formato LP. Una de las piezas más buscadas de la escudería Warp." },
+  { a: "Robert Hood", t: "Internal Empire", l: "Tresor", y: "1994", g: "Techno", p: 165, img: "https://i.discogs.com/b-098y-09-E/fit-in/600x600/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/R-117-1144012345.jpeg.jpg", d: "Minimalismo industrial. Robert Hood define la eficiencia rítmica en esta pieza de culto." },
+  { a: "The Other People Place", t: "Lifestyles Of The Laptop Café", l: "Warp", y: "2001", g: "Electro", p: 650, img: "https://i.discogs.com/c-098y-09-E/fit-in/600x600/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/R-118-1144012345.jpeg.jpg", d: "Gema oculta de James Stinson. Electro cálido y melancólico para los momentos de soledad." },
+  { a: "Jeff Mills", t: "Live At The Liquid Room, Tokyo", l: "Axis", y: "1996", g: "Techno", p: 140, img: "https://i.discogs.com/d-098y-09-E/fit-in/600x600/filters:strip_metadata():format(jpeg):mode_rgb():quality(90)/discogs-images/R-119-1144012345.jpeg.jpg", d: "La técnica de los tres platos capturada para la historia. El DJ set más famoso del techno." }
+];
 
+const generateRecords = (): VinylRecord[] => {
   const records: VinylRecord[] = [];
   
-  // Llenar hasta 150 mezclando los datos reales con variaciones y relacionados
+  // Generar 150 items basados en el scrape simulado y expansión de catálogo
   for (let i = 0; i < 150; i++) {
-    const data = collectionData[i % collectionData.length];
-    const recordId = `v_${i + 1}`;
+    const raw = DISCOGS_RAW_DATA[i % DISCOGS_RAW_DATA.length];
+    const isRelated = i >= 100;
+    
     records.push({
-      id: recordId,
-      sku: `MAT-${(1000 + i).toString()}`,
-      artist: data.artist,
-      title: data.title + (i >= collectionData.length ? " (Special Edition)" : ""),
-      slug: `${data.artist.toLowerCase().replace(/\s+/g, '-')}-${data.title.toLowerCase().replace(/\s+/g, '-')}-${i}`,
-      label: data.label,
-      year: (parseInt(data.year) + (i >= collectionData.length ? 1 : 0)).toString(),
-      condition: i % 5 === 0 ? "Mint" : "NM",
-      genre: data.genre,
-      price: i % 10 === 0 ? data.price * 1.5 : data.price, // Simulación de rareza
-      stock: 1,
-      coverUrl: `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=800&sig=${i}`,
+      id: `v_${i + 1}`,
+      sku: `MAT-HUB-${1000 + i}`,
+      artist: isRelated ? `${raw.a} (Legacy)` : raw.a,
+      title: isRelated ? `${raw.t} Vol. ${Math.floor(i/10)}` : raw.t,
+      slug: `${raw.a.toLowerCase().replace(/\s+/g, '-')}-${raw.t.toLowerCase().replace(/\s+/g, '-')}-${i}`,
+      label: raw.l,
+      year: (parseInt(raw.y) + (isRelated ? Math.floor(i/50) : 0)).toString(),
       format: "LP",
-      discogsLink: `https://www.discogs.com/user/ACTIVISTA/collection`,
-      description: data.desc,
+      condition: i % 12 === 0 ? "Mint" : "NM",
+      genre: raw.g,
+      price: i % 15 === 0 ? raw.p * 1.8 : raw.p, // Inflación por rareza real
+      stock: 1,
+      coverUrl: i % 2 === 0 
+        ? `https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=800&sig=${i}` // Fallback estético
+        : `https://images.unsplash.com/photo-1603048588665-791ca8aea617?q=80&w=800&sig=${i}`,
+      discogsLink: "https://www.discogs.com/user/ACTIVISTA/collection",
+      description: `${raw.d} Importado directamente de la colección ACTIVISTA. Sonido verificado en Altec A7.`,
       sellerId: 's_mat32',
       status: 'published',
-      tags: [data.genre.toLowerCase(), 'vintage', 'rare']
+      tags: [raw.g.toLowerCase(), 'discogs_verified', 'activista_selection']
     });
   }
-  
   return records;
 };
 
@@ -86,15 +81,15 @@ export const MOCK_POSTS: Post[] = [
   {
     id: 'p_1',
     type: 'POST',
-    title: 'Nueva llegada desde Tokyo',
-    slug: 'nueva-llegada-tokyo',
+    title: 'Nueva llegada: Detroit Masterclass',
+    slug: 'detroit-masterclass',
     author: 'mat32__',
-    content: 'Acabamos de recibir una joya de City Pop. Sonando ahora en el Altec A7. #HiFi #Vinyl #Ruzafa',
+    content: 'Acabamos de recibir una copia inmaculada de Interstellar Fugitives. El que sepa, sabe. #Techno #UR #Detroit',
     imageUrl: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800',
-    likes: 45,
+    likes: 89,
     comments: [],
-    timestamp: 'Hace 2 horas',
-    tags: ['#HiFi', '#Vinyl'],
+    timestamp: 'Hace 1 hora',
+    tags: ['#Detroit', '#VinylHub'],
     status: 'published'
   }
 ];
@@ -102,61 +97,39 @@ export const MOCK_POSTS: Post[] = [
 export const MOCK_EVENTS: Event[] = [
   {
     id: 'e_1',
-    title: 'Ruzafa Soul & Funk',
-    slug: 'ruzafa-soul-funk',
-    date: getFutureDate(2),
-    time: '20:00',
+    title: 'Detroit Legacy Night',
+    slug: 'detroit-legacy',
+    date: getFutureDate(3),
+    time: '21:00',
     location: 'Mat32 Ruzafa',
-    description: 'Noche de Soul y Funk con vinilos originales en el corazón de Valencia.',
-    category: 'Hi-Fi Sessions',
+    description: 'Sesión dedicada a los pioneros de la Motor City. Solo vinilos originales.',
+    category: 'Listening Session',
     imageUrl: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=800',
-    attendees: 12,
+    attendees: 24,
     capacity: 40,
     price: 0,
-    paidPrice: 10,
-    ticketLink: '#',
-    lineup: [MOCK_ARTISTS['soulman']],
-    vibe: ['Soul', 'Funk'],
-    status: 'published',
-    tags: ['#soul', '#funk']
-  },
-  {
-    id: 'e_2',
-    title: 'Analog Deep Sessions',
-    slug: 'analog-deep-sessions',
-    date: getFutureDate(5),
-    time: '22:00',
-    location: 'Mat32 Ruzafa',
-    description: 'Viaje sonoro a través de la electrónica más profunda con sonido Altec A7.',
-    category: 'Electronic Hub',
-    imageUrl: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=800',
-    attendees: 8,
-    capacity: 35,
-    price: 0,
-    paidPrice: 0,
+    paidPrice: 12,
     ticketLink: '#',
     lineup: [MOCK_ARTISTS['analog_digger']],
-    vibe: ['Deep', 'Ambient'],
+    vibe: ['Techno', 'Electro'],
     status: 'published',
-    tags: ['#electronic', '#hifi']
+    tags: ['#detroit', '#hifi']
   }
 ];
 
 export const BAR_MENU: MenuCategory[] = [
   {
-    title: 'COCTELERÍA DE AUTOR',
+    title: 'COCTELERÍA ANALÓGICA',
     items: [
-      { name: 'NEGRONI ANALÓGICO', price: '9,50', description: 'Gin local, Vermut artesano y Campari.', highlight: true },
-      { name: 'MAT32 SOUR', price: '10,00', description: 'Nuestra versión del clásico con pisco y matices cítricos.', highlight: true },
-      { name: 'OLD FASHIONED HI-FI', price: '11,00', description: 'Bourbon macerado en casa con toques de vainilla.', highlight: true }
+      { name: 'NEGRONI HI-FI', price: '9,50', description: 'Gin local, Vermut artesano y Campari.', highlight: true },
+      { name: 'ROTARY SOUR', price: '10,00', description: 'Nuestra versión del pisco sour con matices de jazmín.', highlight: true }
     ]
   },
   {
-    title: 'CERVEZA & VINO',
+    title: 'LISTENING FUEL',
     items: [
-      { name: 'COPA DE VINO D.O VALENCIA', price: '4,00', highlight: true },
-      { name: 'CERVEZA ESTRELLA GALICIA 33cl', price: '4,00', highlight: false },
-      { name: 'CERVEZA ARTESANA LOCAL', price: '5,50', highlight: false }
+      { name: 'VINO D.O VALENCIA', price: '4,50', highlight: true },
+      { name: 'CERVEZA ARTESANA RUZAFA', price: '5,50', highlight: false }
     ]
   }
 ];
