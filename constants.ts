@@ -14,116 +14,118 @@ export const MOCK_SELLERS: SellerProfile[] = [
     email: 'ruzafa@mat32.com',
     discogsUsername: 'discos-ruzafa',
     avatarUrl: '',
-    bio: 'Santuario Hi-Fi en Ruzafa. Especialistas en Spiritual Jazz, Disco y rarezas neoyorquinas. Curaduría estricta para Altec A7.',
+    bio: 'Santuario Hi-Fi en Ruzafa. Especialistas en Jazz, Disco y rarezas. Curaduría estricta para Altec A7.',
     location: 'Valencia, Ruzafa',
     isVerified: true,
-    specialty: ['Spiritual Jazz', 'Disco', 'Audiophile Records']
+    specialty: ['Jazz', 'Disco']
   }
 ];
 
 export const DISCOGS_PROFILE_URL = "https://www.discogs.com/es/user/discos-ruzafa";
 
 const JAZZ_SEEDS = [
-  { a: "John Coltrane", t: "A Love Supreme", ed: "(Original Gatefold First Pressing)", d: "AS-77. Matrix: RVG Stereo etched. Sonic masterpiece for Altec A7." },
-  { a: "Alice Coltrane", t: "Journey In Satchidananda", ed: "(Original First Pressing)", d: "AS-9203. Bell Sound Matrix. Featuring Pharoah Sanders. Essential spiritual trip." },
-  { a: "Pharoah Sanders", t: "Karma", ed: "(Original First Pressing)", d: "AS-9181. Van Gelder Master. The ultimate cosmic jazz experience." },
-  { a: "Sun Ra", t: "Lanquidity", ed: "(Rare Philly Jazz Edition)", d: "PJ-666. Deep groove. Cosmic jazz-funk holy grail." },
-  { a: "Archie Shepp", t: "Attica Blues", ed: "(Original US Gatefold)", d: "AS-9222. Politics and spiritual soul jazz. High-dynamics pressing." },
-  { a: "McCoy Tyner", t: "Sahara", ed: "(Rudy Van Gelder Master)", d: "M-9039. Powerful performance with stunning frequency response." },
-  { a: "Don Cherry", t: "Brown Rice", ed: "(US Horizon Original)", d: "SP-717. Avant-garde spiritual fusion. Top archive copy." },
-  { a: "Clifford Jordan", t: "Glass Bead Games", ed: "(Original Strata-East)", d: "SES-19737/8. Legendary audiophile holy grail." }
+  { a: "John Coltrane", t: "A Love Supreme", ed: "(Impulse!)", d: "Original Gatefold First Pressing. AS-77." },
+  { a: "Alice Coltrane", t: "Journey In Satchidananda", ed: "(Impulse!)", d: "Original First Pressing. AS-9203." },
+  { a: "Pharoah Sanders", t: "Karma", ed: "(Impulse!)", d: "Original First Pressing. AS-9181." },
+  { a: "Sun Ra", t: "Lanquidity", ed: "(Philly Jazz)", d: "Rare Philly Jazz Edition. PJ-666." },
+  { a: "Archie Shepp", t: "Attica Blues", ed: "(Impulse!)", d: "Original US Gatefold. AS-9222." },
+  { a: "McCoy Tyner", t: "Sahara", ed: "(Milestone)", d: "Rudy Van Gelder Master. M-9039." },
+  { a: "Don Cherry", t: "Brown Rice", ed: "(Horizon)", d: "US Horizon Original. SP-717." },
+  { a: "Clifford Jordan", t: "Glass Bead Games", ed: "(Strata-East)", d: "Original Strata-East. SES-19737/8." }
 ];
 
 const DISCO_SEEDS = [
-  { a: "Double Exposure", t: "Ten Percent", ed: "(Salsoul 12\" First Edition)", d: "Walter Gibbons Mix. Matrix #SZS-5508. First commercial 12-inch." },
-  { a: "Taana Gardner", t: "Heartbeat", ed: "(West End Original)", d: "Larry Levan Mix. WES-22132. Paradise Garage anthem." },
-  { a: "Loleatta Holloway", t: "Love Sensation", ed: "(Gold Mind Masterpiece)", d: "Tom Moulton Mix. G-12-4001. Matrix: F/W Master." },
-  { a: "D-Train", t: "Keep On", ed: "(Prelude Synth Classic)", d: "François K Remix. PRL D 621. Pristine VG+ condition." },
-  { a: "Moodymann", t: "Silentintroduction", ed: "(KDJ First Pressing)", d: "KDJ-001. Hand-stamped label. Lo-fi Detroit masterpiece." }
+  { a: "Double Exposure", t: "Ten Percent", ed: "(Salsoul)", d: "Walter Gibbons Mix. Matrix #SZS-5508." },
+  { a: "Taana Gardner", t: "Heartbeat", ed: "(West End)", d: "Larry Levan Mix. WES-22132." },
+  { a: "Loleatta Holloway", t: "Love Sensation", ed: "(Gold Mind)", d: "Tom Moulton Mix. G-12-4001." },
+  { a: "D-Train", t: "Keep On", ed: "(Prelude)", d: "François K Remix. PRL D 621." },
+  { a: "Moodymann", t: "Silentintroduction", ed: "(KDJ)", d: "KDJ-001. Hand-stamped label." }
 ];
 
-const generateUnique200ArchiveV17 = (): VinylRecord[] => {
+const generateUnique200ArchiveV18 = (): VinylRecord[] => {
   const records: VinylRecord[] = [];
   
+  // 50 JAZZ ITEMS (V18 Format: Artist = Musician, Title = LP Name)
   for (let i = 0; i < 50; i++) {
     const seed = JAZZ_SEEDS[i % JAZZ_SEEDS.length];
     records.push({
-      id: `rz_jazz_v17_${i + 1}`,
-      sku: `MAT32-JZ-17-${i}`,
+      id: `rz_jazz_v18_${i + 1}`,
+      sku: `MAT32-JZ-18-${i}`,
       artist: seed.a,
-      title: seed.a,
-      slug: `jazz-${seed.a.toLowerCase().replace(/\s+/g, '-')}-${i}`,
-      label: "Impulse! / Strata-East",
-      year: "1965-1975",
+      title: seed.t, // Título real del disco
+      slug: `${seed.a.toLowerCase().replace(/\s+/g, '-')}-${seed.t.toLowerCase().replace(/\s+/g, '-')}-${i}`,
+      label: seed.ed,
+      year: "1960-1980",
       format: "LP",
       condition: "NM",
-      genre: "Spiritual Jazz",
-      price: 95 + (i % 4) * 25,
+      genre: "Jazz", // Género simplificado
+      price: 95 + (i % 5) * 15,
       stock: 1,
-      coverUrl: "", // ESPACIO VACÍO PARA CARGA MANUAL
+      coverUrl: "", 
       discogsLink: DISCOGS_PROFILE_URL,
-      description: `**${seed.t}** ${seed.ed}. ${seed.d}`,
+      description: `${seed.ed} - ${seed.d}`,
       sellerId: 'discos_ruzafa',
       status: 'published',
-      tags: ['spiritual_jazz', 'archive_select']
+      tags: ['jazz', 'vinyl']
     });
   }
 
+  // 150 DISCO ITEMS (V18 Format)
   for (let i = 0; i < 150; i++) {
     const seed = DISCO_SEEDS[i % DISCO_SEEDS.length];
     records.push({
-      id: `rz_disco_v17_${i + 1}`,
-      sku: `MAT32-RZ-17-${i}`,
+      id: `rz_disco_v18_${i + 1}`,
+      sku: `MAT32-RZ-18-${i}`,
       artist: seed.a,
-      title: seed.a,
-      slug: `disco-${seed.a.toLowerCase().replace(/\s+/g, '-')}-${i}`,
-      label: "Salsoul / West End",
-      year: "1976-1985",
+      title: seed.t, // Título real del disco
+      slug: `${seed.a.toLowerCase().replace(/\s+/g, '-')}-${seed.t.toLowerCase().replace(/\s+/g, '-')}-${i}`,
+      label: seed.ed,
+      year: "1975-1995",
       format: "12\"",
       condition: "VG+",
-      genre: "Disco / Garage",
-      price: 35 + (i % 8) * 5,
-      stock: i % 30 === 0 ? 0 : 1,
-      coverUrl: "", // ESPACIO VACÍO PARA CARGA MANUAL
+      genre: "Disco", // Género simplificado
+      price: 30 + (i % 10) * 5,
+      stock: i % 40 === 0 ? 0 : 1,
+      coverUrl: "",
       discogsLink: DISCOGS_PROFILE_URL,
-      description: `**${seed.t}** ${seed.ed}. ${seed.d}`,
+      description: `${seed.ed} - ${seed.d}`,
       sellerId: 'discos_ruzafa',
-      status: i % 30 === 0 ? 'sold' : 'published',
-      tags: ['disco', 'house', 'p2p_market']
+      status: i % 40 === 0 ? 'sold' : 'published',
+      tags: ['disco', 'vinyl']
     });
   }
   return records;
 };
 
-export const MOCK_RECORDS: VinylRecord[] = generateUnique200ArchiveV17();
+export const MOCK_RECORDS: VinylRecord[] = generateUnique200ArchiveV18();
 
 export const MOCK_POSTS: Post[] = [
   {
-    id: 'p_rz_17',
+    id: 'p_rz_18',
     type: 'POST',
-    title: 'Archive v17.0: Pure Icon Interface',
-    slug: 'pure-icon-v17',
+    title: 'Archive v18.0: The Pure Label Format',
+    slug: 'pure-label-v18',
     author: 'discos_ruzafa',
-    content: 'Interfaz purificada. Todas las carátulas han sido sustituidas por el icono oficial de Mat32. El enfoque ahora es puramente técnico y auditivo. #NoMockups #HiFiProtocol #Mat32',
+    content: 'Actualización del catálogo: Estructura corregida (Artista > Título LP). Géneros unificados a Jazz y Disco. Sin distracciones visuales. #Mat32 #PureVinyl #HiFi',
     imageUrl: "",
-    likes: 2100,
+    likes: 2400,
     comments: [],
-    timestamp: 'Hace segundos',
-    tags: ['#PureVinyl', '#AnalogOnly'],
+    timestamp: 'Justo ahora',
+    tags: ['#VinylOnly', '#PureSignal'],
     status: 'published'
   }
 ];
 
 export const MOCK_EVENTS: Event[] = [
   {
-    id: 'e_rz_17',
-    title: 'Pure Listening: Altec A7 Calibration',
-    slug: 'altec-a7-calibration',
-    date: '2025-05-10',
+    id: 'e_rz_18',
+    title: 'Jazz Session: The Masters',
+    slug: 'jazz-session-masters',
+    date: '2025-05-17',
     time: '21:00',
     location: 'Mat32 Ruzafa',
-    description: 'Sesión técnica de escucha centrada en la pureza de la señal analógica. Sin distracciones visuales.',
-    category: 'Technical Session',
+    description: 'Exploración técnica de grandes maestros del Jazz en nuestro sistema Altec A7.',
+    category: 'Jazz Session',
     imageUrl: '',
     attendees: 50,
     capacity: 50,
@@ -131,18 +133,18 @@ export const MOCK_EVENTS: Event[] = [
     paidPrice: 15,
     ticketLink: '#',
     lineup: [MOCK_ARTISTS['soulman']],
-    vibe: ['Technical Mastery', 'Pure Sound'],
+    vibe: ['Jazz', 'High Fidelity'],
     status: 'published',
-    tags: ['#hifi', '#pure']
+    tags: ['#jazz', '#valencia']
   }
 ];
 
 export const BAR_MENU: MenuCategory[] = [
   {
-    title: 'AUTHENTIC COCKTAILS',
+    title: 'SIGNATURE DRINKS',
     items: [
-      { name: 'SATCHIDANANDA SOUR', price: '14,00', description: 'Gin Premium, jazmín y alma espiritual.', highlight: true },
-      { name: 'ATTICA BLUES', price: '12,50', description: 'Bourbon, amargo de naranja y rebeldía jazz.', highlight: true }
+      { name: 'MARTINI 32', price: '14,00', description: 'Ginebra Premium, vermut seco y esencia cítrica.', highlight: true },
+      { name: 'NEGRONI RUZAFA', price: '12,50', description: 'El clásico perfeccionado para el oyente audiófilo.', highlight: true }
     ]
   }
 ];

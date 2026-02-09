@@ -3,7 +3,7 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v17.0'; // Versión 17.0: Pure Icon Protocol
+  private localKey = 'mat32_matrix_production_v18.0'; // Versión 18.0: Pure Label Format
   private sessionKey = 'mat32_auth_session';
 
   constructor() {
@@ -36,6 +36,7 @@ class DataService {
       this.saveDB(db);
       
       const legacyKeys = [
+        'mat32_matrix_production_v17.0',
         'mat32_matrix_production_v16.0',
         'mat32_matrix_production_v15.0',
         'mat32_matrix_production_v14.0',
@@ -216,17 +217,12 @@ class DataService {
     for (let i = 0; i < lines.length; i++) {
       const parts = lines[i].split(',').map(p => p.trim());
       if (parts.length >= 2) {
-        db.records.unshift({ id: `r_batch_${Date.now()}_${count}`, artist: parts[0] || 'Unknown', title: parts[0] || 'Unknown', price: parseFloat(parts[2]) || 25, genre: parts[3] || 'General', stock: 1, coverUrl: '', status: 'published', discogsLink: '#', slug: `r_batch_${Date.now()}_${count}` } as any);
+        db.records.unshift({ id: `r_batch_${Date.now()}_${count}`, artist: parts[0] || 'Unknown', title: parts[1] || 'Unknown', price: parseFloat(parts[2]) || 25, genre: parts[3] || 'Jazz', stock: 1, coverUrl: '', status: 'published', discogsLink: '#', slug: `r_batch_${Date.now()}_${count}` } as any);
         count++;
       }
     }
     this.saveDB(db);
     return count;
-  }
-
-  async syncDiscogsCollection(username: string): Promise<number> {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    return 0;
   }
 }
 
