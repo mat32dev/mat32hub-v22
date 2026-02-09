@@ -160,20 +160,29 @@ export const MOCK_RECORDS: VinylRecord[] = [
 
 export const BAR_MENU: MenuCategory[] = [
   {
-    title: 'BÁSICOS',
+    title: 'COCTELERÍA DE AUTOR',
+    items: [
+      { name: 'NEGRONI ANALÓGICO', price: '9,50', description: 'Gin local, Vermut artesano y Campari.', highlight: true },
+      { name: 'MAT32 SOUR', price: '10,00', description: 'Nuestra versión del clásico con pisco y matices cítricos.', highlight: true },
+      { name: 'OLD FASHIONED HI-FI', price: '11,00', description: 'Bourbon macerado en casa con toques de vainilla.' }
+    ]
+  },
+  {
+    title: 'BÁSICOS & COMBINADOS',
     items: [
       { name: 'AGUA / CAFÉ / INFUSIÓN', price: '2,50', highlight: false },
-      { name: 'REFRESCO', price: '3,50', highlight: false }
+      { name: 'REFRESCO', price: '3,50', highlight: false },
+      { name: 'COMBINADO PREMIUM', price: '10,00', highlight: false }
     ]
   },
   {
     title: 'CERVEZA & VINO',
     items: [
       { name: 'COPA DE VINO D.O VALENCIA', price: '4,00', highlight: true },
-      { name: 'CERVEZA ESTRELLA GALICIA 33cl', price: '4,00', highlight: false }
+      { name: 'CERVEZA ESTRELLA GALICIA 33cl', price: '4,00', highlight: false },
+      { name: 'CERVEZA ARTESANA LOCAL', price: '5,50', highlight: false }
     ]
   }
 ];
 
-// Mock data for Open Decks selectors to fix dataService.ts import error
 export const MOCK_SELECTORS: SelectorSubmission[] = [];

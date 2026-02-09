@@ -49,16 +49,16 @@ export const Home: React.FC = () => {
     return () => window.removeEventListener('mat32_data_changed', loadData);
   }, []);
 
-  // Auto-advance carousel unless revealed
+  // AUTO-CHANGE HERO EVERY 5 SECONDS
   useEffect(() => {
     if (isRevealed) return;
-    const timer = setInterval(() => {
+    const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
     }, 5000);
-    return () => clearInterval(timer);
+    return () => clearInterval(interval);
   }, [isRevealed]);
 
-  // Interaction: 1 Click = Reveal, 2 Clicks = Jump to Agenda
+  // Handle interaction: 1 click reveal, 2 clicks scroll to agenda
   const handleHeroInteraction = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
 
@@ -90,7 +90,7 @@ export const Home: React.FC = () => {
     <div className="bg-mat-900 min-h-screen overflow-x-hidden">
       <SEO titleKey="nav.home" descriptionKey="seo.home.description" />
 
-      {/* 1. HERO "ANALOG PROTOCOL" */}
+      {/* 1. HERO INTERACTIVO CON AUTOPLAY */}
       <section 
         className="relative h-[100vh] flex items-center justify-center overflow-hidden cursor-crosshair group select-none"
         onClick={handleHeroInteraction}
@@ -116,22 +116,29 @@ export const Home: React.FC = () => {
             </div>
           ))}
           <div className={`absolute inset-0 bg-gradient-to-b from-mat-950/60 via-transparent to-mat-950 transition-opacity duration-1000 ${isRevealed ? 'opacity-30' : 'opacity-100'}`}></div>
+          <div className={`absolute inset-0 bg-mat-500/5 mix-blend-overlay transition-opacity duration-1000 ${isRevealed ? 'opacity-100' : 'opacity-0'}`}></div>
         </div>
 
+        {/* Controles de Carrusel */}
         <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 flex justify-between z-30 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-          <button onClick={prevSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 transition-all pointer-events-auto"><ChevronLeft size={32} /></button>
-          <button onClick={nextSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 transition-all pointer-events-auto"><ChevronRight size={32} /></button>
+          <button onClick={prevSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 transition-all pointer-events-auto">
+            <ChevronLeft size={32} />
+          </button>
+          <button onClick={nextSlide} className="p-5 bg-mat-900/40 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-mat-500 hover:border-mat-500 transition-all pointer-events-auto">
+            <ChevronRight size={32} />
+          </button>
         </div>
 
         <div className={`absolute top-32 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-4 transition-all duration-700 ${isRevealed ? 'opacity-0 -translate-y-10' : 'opacity-100 translate-y-0'}`}>
           <div className="flex items-center gap-6">
              <div className="flex flex-col items-center gap-2">
                 <MousePointer2 size={16} className="text-mat-500 animate-pulse" />
-                <span className="text-[8px] font-black text-mat-500 uppercase tracking-[0.4em] bg-mat-950/80 px-4 py-1.5 rounded-full border border-mat-800">CLICK_REVEAL</span>
+                <span className="text-[8px] font-black text-mat-500 uppercase tracking-[0.4em] bg-mat-950/80 px-4 py-1.5 rounded-full border border-mat-800">REVELAR_CLIC</span>
              </div>
+             <div className="h-px w-8 bg-mat-800"></div>
              <div className="flex flex-col items-center gap-2">
-                <Disc size={16} className="text-gray-500 animate-spin-slow" />
-                <span className="text-[8px] font-black text-gray-500 uppercase tracking-[0.4em] bg-mat-950/80 px-4 py-1.5 rounded-full border border-mat-800">DBL_CLICK_AGENDA</span>
+                <History size={16} className="text-gray-500" />
+                <span className="text-[8px] font-black text-gray-500 uppercase tracking-[0.4em] bg-mat-950/80 px-4 py-1.5 rounded-full border border-mat-800">AGENDA_DBL_CLIC</span>
              </div>
           </div>
         </div>
@@ -143,15 +150,26 @@ export const Home: React.FC = () => {
             <div className="flex items-center justify-center gap-6 text-mat-500 font-black uppercase tracking-[0.6em] text-xs md:text-base mb-12">
                <MapPin size={18} className="text-white" /> VALENCIA <span className="text-gray-800">|</span> RUZAFA
             </div>
-            <p className="text-gray-300 max-w-2xl mx-auto text-lg md:text-2xl font-light italic mb-16 opacity-90">"Donde el sonido tiene alma analógica."</p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-               <Link to="/contact" className="px-14 py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-widest clip-path-slant shadow-2xl hover:bg-mat-400 transition-all">RESERVAR MESA</Link>
-               <Link to="/community" className="px-14 py-6 bg-mat-800 border-2 border-mat-700 text-white font-black uppercase text-[11px] tracking-widest clip-path-slant hover:border-mat-500 transition-all">HUB COMUNIDAD</Link>
+            <p className="text-gray-300 max-w-2xl mx-auto text-lg md:text-2xl font-light italic mb-16 opacity-90 drop-shadow-lg leading-relaxed px-4">"Donde el tiempo se mide en revoluciones por minuto y el sonido tiene alma analógica."</p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center px-4">
+               <Link to="/contact" className="w-full sm:w-auto px-14 py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-widest clip-path-slant shadow-2xl hover:bg-mat-400 transition-all active:scale-95">RESERVAR MESA</Link>
+               <Link to="/community" className="w-full sm:w-auto px-14 py-6 bg-mat-900/80 border-2 border-mat-700 text-white font-black uppercase text-[11px] tracking-widest clip-path-slant hover:border-mat-500 backdrop-blur-md transition-all active:scale-95">HUB COMUNIDAD</Link>
             </div>
+        </div>
+
+        {/* Indicadores de diapositiva */}
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-4 z-40">
+           {HERO_IMAGES.map((_, idx) => (
+             <button 
+               key={idx} 
+               onClick={(e) => { e.stopPropagation(); setCurrentSlide(idx); setIsRevealed(false); }} 
+               className={`h-1 transition-all duration-500 rounded-full ${idx === currentSlide ? 'w-12 bg-mat-500' : 'w-4 bg-white/20 hover:bg-white/50'}`}
+             />
+           ))}
         </div>
       </section>
 
-      {/* 2. LA AGENDA (PROXIMAMENTE) */}
+      {/* 2. LA AGENDA (PRÓXIMAS SESIONES) */}
       <section id="agenda-section" className="py-32 bg-mat-900">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
@@ -162,7 +180,7 @@ export const Home: React.FC = () => {
               <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter font-exo leading-none">LA <span className="text-mat-500">AGENDA.</span></h2>
             </div>
             <Link to="/events" className="text-[11px] font-black text-gray-500 hover:text-white uppercase tracking-widest flex items-center gap-4 transition-colors pb-3 border-b-2 border-mat-800 hover:border-mat-500">
-              EXPLORAR TODA LA PROGRAMACIÓN <ArrowRight size={18} />
+              EXPLORAR PROGRAMACIÓN COMPLETA <ArrowRight size={18} />
             </Link>
           </div>
 
@@ -171,12 +189,12 @@ export const Home: React.FC = () => {
               <Link key={event.id} to={`/events/${event.id}`} className="group bg-mat-800 border border-mat-700 rounded-[3rem] overflow-hidden hover:border-mat-500 transition-all duration-500 flex flex-col shadow-2xl">
                 <div className="aspect-[4/3] relative overflow-hidden bg-black">
                    <CachedImage src={event.imageUrl} alt={event.title} className="w-full h-full grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000" />
-                   <div className="absolute top-8 right-8 bg-mat-500 text-white text-[10px] font-black uppercase px-5 py-2.5 rounded-2xl">€{event.price}</div>
+                   <div className="absolute top-8 right-8 bg-mat-500 text-white text-[10px] font-black uppercase px-5 py-2.5 rounded-2xl shadow-xl">€{event.price}</div>
                 </div>
                 <div className="p-10 flex flex-col flex-1">
                   <span className="text-mat-500 text-[11px] font-black uppercase tracking-[0.2em] mb-4">{event.date} @ {event.time}</span>
                   <h3 className="text-3xl font-black text-white uppercase font-exo leading-tight mb-6 group-hover:text-mat-500 transition-colors">{event.title}</h3>
-                  <div className="mt-auto pt-8 border-t border-mat-700/50 flex justify-between items-center text-[10px] font-black text-gray-500">
+                  <div className="mt-auto pt-8 border-t border-mat-700/50 flex justify-between items-center text-[10px] font-black text-gray-500 uppercase tracking-widest">
                      <span>{event.category}</span>
                      <ArrowRight size={16} className="group-hover:translate-x-3 transition-transform text-mat-500" />
                   </div>
@@ -187,27 +205,27 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. EL ARCHIVO (EVENTOS PASADOS) */}
-      <section className="py-32 bg-mat-950/50">
+      {/* 3. EL ARCHIVO (SESIONES PASADAS) */}
+      <section className="py-32 bg-mat-950/50 border-y border-mat-800/30">
         <div className="container mx-auto px-6">
-          <div className="flex items-center gap-4 mb-16">
-            <History size={24} className="text-mat-500" />
-            <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter font-exo">ARCHIVO <span className="text-mat-500">SESIONES.</span></h2>
-            <div className="flex-1 border-b-2 border-mat-800"></div>
+          <div className="flex items-center gap-6 mb-20">
+            <History size={32} className="text-mat-500" />
+            <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none">EL <span className="text-mat-500">ARCHIVO.</span></h2>
+            <div className="flex-1 border-b-2 border-mat-800 opacity-20"></div>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {pastEvents.map(event => (
-              <Link key={event.id} to={`/events/${event.id}`} className="bg-mat-900/50 border border-mat-800 p-8 rounded-[2.5rem] opacity-60 hover:opacity-100 hover:border-mat-500 transition-all grayscale hover:grayscale-0">
+              <Link key={event.id} to={`/events/${event.id}`} className="bg-mat-900/50 border border-mat-800 p-8 rounded-[2.5rem] opacity-60 hover:opacity-100 hover:border-mat-500 transition-all grayscale hover:grayscale-0 group">
                  <div className="flex justify-between items-center mb-6">
                     <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{event.date}</span>
-                    <span className="text-[9px] bg-mat-800 px-3 py-1 rounded text-gray-500">FINALIZADO</span>
+                    <span className="text-[9px] bg-mat-800 px-3 py-1 rounded text-gray-500 font-black uppercase tracking-widest">SIGNAL_PAST</span>
                  </div>
-                 <h4 className="text-xl font-black text-white uppercase font-exo mb-4">{event.title}</h4>
+                 <h4 className="text-2xl font-black text-white uppercase font-exo mb-4 group-hover:text-mat-500 transition-colors">{event.title}</h4>
                  <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-lg bg-mat-800 flex items-center justify-center text-mat-500 font-black text-xs">
+                    <div className="w-8 h-8 rounded-lg bg-mat-800 flex items-center justify-center text-mat-500 font-black text-[10px] border border-mat-700">
                        {event.lineup?.[0]?.name[0] || 'M'}
                     </div>
-                    <span className="text-[10px] font-bold text-gray-500 uppercase">{event.lineup?.[0]?.name}</span>
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{event.lineup?.[0]?.name}</span>
                  </div>
               </Link>
             ))}
@@ -215,8 +233,8 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 4. RECIEN LLEGADOS & MARKETPLACE */}
-      <section className="py-32 bg-mat-900 border-t border-mat-800/30">
+      {/* 4. RECIÉN LLEGADOS */}
+      <section className="py-32 bg-mat-900">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
              <div>
@@ -235,7 +253,7 @@ export const Home: React.FC = () => {
                <Link key={record.id} to={`/records/${record.id}`} className="group bg-mat-800 border border-mat-700 rounded-[3rem] overflow-hidden hover:border-mat-500 transition-all duration-500 shadow-2xl">
                   <div className="aspect-square relative overflow-hidden bg-black">
                      <CachedImage src={record.coverUrl} alt={record.title} className="grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000 opacity-80 group-hover:opacity-100" />
-                     <div className="absolute bottom-6 left-6 bg-mat-950/90 backdrop-blur-xl px-5 py-2.5 rounded-2xl text-white font-exo font-black text-2xl tracking-tighter">€{record.price}</div>
+                     <div className="absolute bottom-6 left-6 bg-mat-950/90 backdrop-blur-xl px-5 py-2.5 rounded-2xl text-white font-exo font-black text-2xl tracking-tighter shadow-2xl border border-white/5">€{record.price}</div>
                   </div>
                   <div className="p-8">
                      <h3 className="text-white font-black uppercase text-lg truncate group-hover:text-mat-500 transition-colors font-exo mb-1">{record.title}</h3>
@@ -247,8 +265,8 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 5. COMUNIDAD (Pulse) */}
-      <section className="py-32 bg-mat-950 border-y border-mat-800/30">
+      {/* 5. COMUNIDAD */}
+      <section className="py-32 bg-mat-950 border-t border-mat-800/30">
          <div className="container mx-auto px-6">
             <div className="grid lg:grid-cols-12 gap-20 items-center">
                <div className="lg:col-span-5">
@@ -256,7 +274,7 @@ export const Home: React.FC = () => {
                      <Radio className="w-5 h-5 animate-pulse" /> COMMUNITY_PULSE
                   </div>
                   <h2 className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter font-exo mb-8 leading-none">COMUNI<span className="text-mat-500">DAD.</span></h2>
-                  <p className="text-gray-400 text-xl font-light italic mb-12">Conecta con la red de coleccionistas y melómanos de Ruzafa.</p>
+                  <p className="text-gray-400 text-xl font-light italic mb-12 leading-relaxed">Conecta con la red de coleccionistas y melómanos de Ruzafa. El Hub analógico de Valencia nunca duerme.</p>
                   <Link to="/community" className="inline-flex items-center gap-4 px-10 py-5 bg-mat-800 border border-mat-700 text-white font-black uppercase text-[10px] tracking-[0.4em] rounded-2xl hover:border-mat-500 transition-all shadow-xl group">
                      EXPLORAR EL MURO <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform text-mat-500" />
                   </Link>
@@ -268,7 +286,7 @@ export const Home: React.FC = () => {
                            <MessageCircle size={80} />
                         </div>
                         <div className="flex items-center gap-5 mb-8">
-                           <div className="w-12 h-12 bg-mat-500 rounded-2xl flex items-center justify-center text-white font-black text-sm">{post.author[0]}</div>
+                           <div className="w-12 h-12 bg-mat-500 rounded-2xl flex items-center justify-center text-white font-black text-sm shadow-xl shadow-mat-500/20">{post.author[0]}</div>
                            <div>
                               <span className="block text-[11px] font-black uppercase text-white tracking-widest">@{post.author}</span>
                               <span className="text-[9px] text-gray-600 font-bold uppercase tracking-widest">MEMBER_SIGNAL</span>

@@ -41,10 +41,10 @@ export const Bar: React.FC = () => {
              <Sparkles className="w-4 h-4" /> HI-FI LIQUIDS
           </div>
           <h1 className="text-6xl md:text-[10rem] font-black uppercase tracking-tighter text-white mb-6 font-exo leading-none text-glow animate-fade-in">
-            {t('bar.hero.title')}
+            SONIDOS <span className="text-mat-500">LÍQUIDOS.</span>
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto text-xl italic opacity-80 leading-relaxed">
-            {t('bar.hero.desc')}
+            Destilados curados y coctelería de autor diseñada para complementar nuestra atmósfera de alta fidelidad en el corazón de Ruzafa.
           </p>
         </div>
       </div>
@@ -67,7 +67,7 @@ export const Bar: React.FC = () => {
                          <span className={`font-black uppercase tracking-widest text-base transition-colors ${item.highlight ? 'text-mat-500' : 'text-white group-hover:text-mat-500'}`}>{item.name}</span>
                          <span className="font-exo font-black text-mat-cream text-lg">€{item.price}</span>
                        </div>
-                       {item.description && <p className="text-gray-500 text-[9px] font-bold uppercase tracking-widest italic opacity-60">{item.description}</p>}
+                       {item.description && <p className="text-gray-500 text-[9px] font-bold uppercase tracking-widest italic opacity-60 leading-relaxed">{item.description}</p>}
                      </div>
                    ))}
                  </div>
@@ -86,8 +86,8 @@ export const Bar: React.FC = () => {
               <div className="absolute top-0 left-0 w-full h-1 bg-mat-500"></div>
               <div className="relative z-10 space-y-6">
                  <div className="inline-flex items-center gap-3 text-mat-500 font-black uppercase text-[10px] tracking-[0.5em] mb-2"><Clock className="w-5 h-5" /> SUNSET PROTOCOL</div>
-                 <h3 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter font-exo leading-none">{t('bar.aperitivo.title')}</h3>
-                 <p className="text-gray-400 max-w-2xl mx-auto text-lg font-light italic leading-relaxed">{t('bar.aperitivo.desc')}</p>
+                 <h3 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter font-exo leading-none">PROTOCOLO APERITIVO</h3>
+                 <p className="text-gray-400 max-w-2xl mx-auto text-lg font-light italic leading-relaxed">Sesiones con discos seleccionados y bebidas especiales. La transición perfecta hacia la noche con el mejor sonido analógico.</p>
               </div>
               <Martini className="absolute -right-20 -bottom-20 w-[24rem] h-[24rem] text-mat-900 opacity-20 transform rotate-12 pointer-events-none group-hover:scale-110 transition-transform duration-1000" />
            </div>
