@@ -95,7 +95,7 @@ export const MOCK_EVENTS: Event[] = [
     id: 'e_past_1',
     title: 'Grand Opening Night',
     slug: 'grand-opening-night',
-    date: getPastDate(15),
+    date: getPastDate(7),
     time: '19:00',
     location: 'Mat32 Ruzafa',
     description: 'Inauguración oficial de nuestro santuario analógico en Ruzafa.',
@@ -116,7 +116,7 @@ export const MOCK_EVENTS: Event[] = [
     id: 'e_past_2',
     title: 'Vinyl & Cocktails Vol. 1',
     slug: 'vinyl-cocktails-v1',
-    date: getPastDate(30),
+    date: getPastDate(14),
     time: '20:30',
     location: 'Mat32 Ruzafa',
     description: 'La primera de nuestras sesiones de escucha atenta con coctelería de autor.',
@@ -164,15 +164,7 @@ export const BAR_MENU: MenuCategory[] = [
     items: [
       { name: 'NEGRONI ANALÓGICO', price: '9,50', description: 'Gin local, Vermut artesano y Campari.', highlight: true },
       { name: 'MAT32 SOUR', price: '10,00', description: 'Nuestra versión del clásico con pisco y matices cítricos.', highlight: true },
-      { name: 'OLD FASHIONED HI-FI', price: '11,00', description: 'Bourbon macerado en casa con toques de vainilla.' }
-    ]
-  },
-  {
-    title: 'BÁSICOS & COMBINADOS',
-    items: [
-      { name: 'AGUA / CAFÉ / INFUSIÓN', price: '2,50', highlight: false },
-      { name: 'REFRESCO', price: '3,50', highlight: false },
-      { name: 'COMBINADO PREMIUM', price: '10,00', highlight: false }
+      { name: 'OLD FASHIONED HI-FI', price: '11,00', description: 'Bourbon macerado en casa con toques de vainilla.', highlight: true }
     ]
   },
   {
@@ -181,6 +173,13 @@ export const BAR_MENU: MenuCategory[] = [
       { name: 'COPA DE VINO D.O VALENCIA', price: '4,00', highlight: true },
       { name: 'CERVEZA ESTRELLA GALICIA 33cl', price: '4,00', highlight: false },
       { name: 'CERVEZA ARTESANA LOCAL', price: '5,50', highlight: false }
+    ]
+  },
+  {
+    title: 'APERITIVO PROTOCOL',
+    items: [
+      { name: 'VERMUT DE LA CASA', price: '4,50', description: 'Servido con aceituna gordal y sifón.' },
+      { name: 'TABLA DE QUESOS LOCALES', price: '12,00', description: 'Selección de quesos de la Comunidad Valenciana.' }
     ]
   }
 ];
