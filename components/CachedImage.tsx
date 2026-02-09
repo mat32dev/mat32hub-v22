@@ -21,7 +21,18 @@ export const CachedImage: React.FC<CachedImageProps> = ({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   
-  const optimizedSrc = optimizeImageUrl(src, priority ? 1200 : 800);
+  const optimizedSrc = src ? optimizeImageUrl(src, priority ? 1200 : 800) : "";
+
+  // SI NO HAY URL, MOSTRAR EL ICONO DE DISCO DIRECTAMENTE
+  if (!src) {
+    return (
+      <div className={`relative overflow-hidden bg-mat-800 flex flex-col items-center justify-center p-6 border border-mat-700/50 ${aspectRatio} ${className}`}>
+         <Disc className="w-20 h-20 text-mat-700 animate-spin-slow mb-4 opacity-50" />
+         <span className="text-[9px] font-black text-mat-700 uppercase tracking-[0.3em]">MAT32_SIGNAL_READY</span>
+         <div className="absolute inset-0 bg-gradient-to-tr from-mat-950/20 via-transparent to-mat-950/20 pointer-events-none"></div>
+      </div>
+    );
+  }
 
   return (
     <div className={`relative overflow-hidden bg-mat-800 ${aspectRatio} ${className}`}>

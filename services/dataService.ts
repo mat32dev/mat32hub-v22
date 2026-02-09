@@ -3,7 +3,7 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v15.0'; // Versión 15.0: The Artist Legacy Edition
+  private localKey = 'mat32_matrix_production_v17.0'; // Versión 17.0: Pure Icon Protocol
   private sessionKey = 'mat32_auth_session';
 
   constructor() {
@@ -23,7 +23,7 @@ class DataService {
             id: 'g1', 
             title: 'Santuario Hi-Fi', 
             description: 'Vista principal de nuestro sistema Altec A7.', 
-            imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/ac1a7472-de26-46de-37f3-7ec5509f5900/public', 
+            imageUrl: '', 
             tags: ['#hifi', '#booth'], 
             category: 'Local' 
           }
@@ -36,6 +36,8 @@ class DataService {
       this.saveDB(db);
       
       const legacyKeys = [
+        'mat32_matrix_production_v16.0',
+        'mat32_matrix_production_v15.0',
         'mat32_matrix_production_v14.0',
         'mat32_matrix_production_v13.0',
         'mat32_matrix_production_v12.0',
@@ -77,9 +79,6 @@ class DataService {
     if (cleanEmail === 'hola@mat32.com' && cleanPass === 'mat32_access_2025') {
       session = { id: 'admin_master', role: 'ADMIN', name: 'Mat32 Manager', email: cleanEmail };
     } 
-    else if (cleanEmail === 'admin@mat32.com' && cleanPass === 'mat32_admin') {
-      session = { id: 'admin_1', role: 'ADMIN', name: 'Admin Backup', email: cleanEmail };
-    }
 
     if (session) {
       localStorage.setItem(this.sessionKey, JSON.stringify(session));
@@ -217,7 +216,7 @@ class DataService {
     for (let i = 0; i < lines.length; i++) {
       const parts = lines[i].split(',').map(p => p.trim());
       if (parts.length >= 2) {
-        db.records.unshift({ id: `r_batch_${Date.now()}_${count}`, artist: parts[0] || 'Unknown', title: parts[0] || 'Unknown', price: parseFloat(parts[2]) || 25, genre: parts[3] || 'General', stock: 1, coverUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=800', status: 'published', discogsLink: '#', slug: `r_batch_${Date.now()}_${count}` } as any);
+        db.records.unshift({ id: `r_batch_${Date.now()}_${count}`, artist: parts[0] || 'Unknown', title: parts[0] || 'Unknown', price: parseFloat(parts[2]) || 25, genre: parts[3] || 'General', stock: 1, coverUrl: '', status: 'published', discogsLink: '#', slug: `r_batch_${Date.now()}_${count}` } as any);
         count++;
       }
     }
@@ -227,9 +226,7 @@ class DataService {
 
   async syncDiscogsCollection(username: string): Promise<number> {
     await new Promise(resolve => setTimeout(resolve, 2000));
-    const db = this.getDB();
-    this.saveDB(db);
-    return 200;
+    return 0;
   }
 }
 
