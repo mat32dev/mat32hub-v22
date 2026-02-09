@@ -34,7 +34,7 @@ export const Home: React.FC = () => {
     <div className="bg-mat-900 min-h-screen">
       <SEO titleKey="nav.home" descriptionKey="seo.home.description" />
 
-      {/* HERO ESTRATÉGICO */}
+      {/* 1. HERO ESTRATÉGICO */}
       <section className="relative h-[95vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <CachedImage 
@@ -74,72 +74,22 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* COMMUNITY MARKETPLACE PREVIEW - Mejor SEO para productos */}
-      <section className="py-24 bg-mat-950/50">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-             <div>
-                <div className="inline-flex items-center gap-3 text-mat-500 font-black uppercase text-[10px] tracking-widest mb-4">
-                   <ShoppingBag size={18} /> THE_CRATE_DIGGING
-                </div>
-                <h2 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter font-exo leading-none">RECIÉN <span className="text-mat-500">LLEGADOS.</span></h2>
-             </div>
-             <Link to="/records" className="text-mat-500 font-black uppercase text-xs tracking-widest flex items-center gap-3 hover:text-white transition-all">
-                VER TODA LA TIENDA <ArrowRight size={16} />
-             </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-             {recentRecords.map(record => (
-               <Link key={record.id} to={`/records/${record.id}`} className="group bg-mat-800 border border-mat-700 rounded-[2.5rem] overflow-hidden hover:border-mat-500 transition-all shadow-xl">
-                  <div className="aspect-square relative overflow-hidden bg-black">
-                     <CachedImage src={record.coverUrl} alt={record.title} className="grayscale group-hover:grayscale-0 transition-all duration-700" />
-                     <div className="absolute bottom-4 left-4 bg-mat-950/80 backdrop-blur-md px-4 py-2 rounded-xl text-white font-exo font-black text-xl tracking-tighter">€{record.price}</div>
-                  </div>
-                  <div className="p-6">
-                     <h3 className="text-white font-black uppercase text-sm truncate group-hover:text-mat-500 transition-colors">{record.title}</h3>
-                     <p className="text-gray-500 text-[9px] font-black uppercase tracking-widest">{record.artist}</p>
-                  </div>
-               </Link>
-             ))}
-          </div>
+      {/* IMAGEN DESTACADA BAJO EL HERO */}
+      <section className="relative h-[60vh] md:h-[80vh] overflow-hidden">
+        <CachedImage 
+          src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7701241e-71ee-4929-18c0-d1d0d9576e00/public" 
+          alt="Santuario Altec A7 Mat32" 
+          className="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-1000"
+          aspectRatio="aspect-auto"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-transparent to-mat-900/50"></div>
+        <div className="absolute bottom-12 left-12 text-left z-10">
+          <span className="text-mat-500 font-black text-[10px] uppercase tracking-[0.4em] block mb-2">EL SANTUARIO</span>
+          <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter font-exo leading-none">ALTEC A7 <span className="text-mat-500">VOICE.</span></h2>
         </div>
       </section>
 
-      {/* COMMUNITY FEED - Social Proof */}
-      <section className="py-24 bg-mat-900 border-y border-mat-800/30">
-         <div className="container mx-auto px-6">
-            <div className="grid lg:grid-cols-12 gap-16 items-center">
-               <div className="lg:col-span-5">
-                  <div className="inline-flex items-center gap-3 px-4 py-2 bg-mat-950 border border-mat-500/30 text-mat-500 text-[10px] font-black uppercase tracking-widest rounded-full mb-8">
-                     <Radio className="w-4 h-4 animate-pulse" /> COMMUNITY_PULSE
-                  </div>
-                  <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo mb-6 leading-none">VIBRA <span className="text-mat-500">LOCAL.</span></h2>
-                  <p className="text-gray-400 text-lg italic mb-8">Conecta con la red de coleccionistas y melómanos de Valencia. El Hub analógico de Ruzafa nunca duerme.</p>
-                  <Link to="/community" className="text-mat-500 font-black uppercase text-xs tracking-widest flex items-center gap-3 hover:text-white transition-all">
-                     EXPLORAR EL MURO <ArrowRight size={16} />
-                  </Link>
-               </div>
-               <div className="lg:col-span-7 grid md:grid-cols-2 gap-6" style={{ wordBreak: 'break-word' }}>
-                  {recentPosts.map(post => (
-                    <div key={post.id} className="bg-mat-800 border border-mat-700 p-8 rounded-[2.5rem] shadow-xl">
-                        <div className="flex items-center gap-4 mb-6">
-                           <div className="w-10 h-10 bg-mat-500 rounded-full flex items-center justify-center text-white font-black text-xs">{post.author[0]}</div>
-                           <span className="text-[10px] font-black uppercase text-white">@{post.author}</span>
-                        </div>
-                        <p className="text-gray-400 text-sm italic mb-6 line-clamp-3">"{post.content}"</p>
-                        <div className="flex items-center gap-4 text-[9px] font-black text-gray-500 uppercase">
-                           <span className="flex items-center gap-1.5"><Heart size={14} className="text-mat-500" /> {post.likes}</span>
-                           <span className="flex items-center gap-1.5"><MessageCircle size={14} /> {post.comments.length}</span>
-                        </div>
-                    </div>
-                  ))}
-               </div>
-            </div>
-         </div>
-      </section>
-
-      {/* AGENDA COMPACTA */}
+      {/* 2. LA AGENDA */}
       <section className="py-32 bg-mat-900">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
@@ -176,6 +126,72 @@ export const Home: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* 3. RECIÉN LLEGADOS */}
+      <section className="py-24 bg-mat-950/50">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+             <div>
+                <div className="inline-flex items-center gap-3 text-mat-500 font-black uppercase text-[10px] tracking-widest mb-4">
+                   <ShoppingBag size={18} /> THE_CRATE_DIGGING
+                </div>
+                <h2 className="text-5xl md:text-8xl font-black text-white uppercase tracking-tighter font-exo leading-none">RECIÉN <span className="text-mat-500">LLEGADOS.</span></h2>
+             </div>
+             <Link to="/records" className="text-mat-500 font-black uppercase text-xs tracking-widest flex items-center gap-3 hover:text-white transition-all">
+                VER TODA LA TIENDA <ArrowRight size={16} />
+             </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+             {recentRecords.map(record => (
+               <Link key={record.id} to={`/records/${record.id}`} className="group bg-mat-800 border border-mat-700 rounded-[2.5rem] overflow-hidden hover:border-mat-500 transition-all shadow-xl">
+                  <div className="aspect-square relative overflow-hidden bg-black">
+                     <CachedImage src={record.coverUrl} alt={record.title} className="grayscale group-hover:grayscale-0 transition-all duration-700" />
+                     <div className="absolute bottom-4 left-4 bg-mat-950/80 backdrop-blur-md px-4 py-2 rounded-xl text-white font-exo font-black text-xl tracking-tighter">€{record.price}</div>
+                  </div>
+                  <div className="p-6">
+                     <h3 className="text-white font-black uppercase text-sm truncate group-hover:text-mat-500 transition-colors">{record.title}</h3>
+                     <p className="text-gray-500 text-[9px] font-black uppercase tracking-widest">{record.artist}</p>
+                  </div>
+               </Link>
+             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. COMUNIDAD */}
+      <section className="py-24 bg-mat-900 border-y border-mat-800/30">
+         <div className="container mx-auto px-6">
+            <div className="grid lg:grid-cols-12 gap-16 items-center">
+               <div className="lg:col-span-5">
+                  <div className="inline-flex items-center gap-3 px-4 py-2 bg-mat-950 border border-mat-500/30 text-mat-500 text-[10px] font-black uppercase tracking-widest rounded-full mb-8">
+                     <Radio className="w-4 h-4 animate-pulse" /> COMMUNITY_PULSE
+                  </div>
+                  <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo mb-6 leading-none">COMUNI<span className="text-mat-500">DAD.</span></h2>
+                  <p className="text-gray-400 text-lg italic mb-8">Conecta con la red de coleccionistas y melómanos de Valencia. El Hub analógico de Ruzafa nunca duerme.</p>
+                  <Link to="/community" className="text-mat-500 font-black uppercase text-xs tracking-widest flex items-center gap-3 hover:text-white transition-all">
+                     EXPLORAR EL MURO <ArrowRight size={16} />
+                  </Link>
+               </div>
+               <div className="lg:col-span-7 grid md:grid-cols-2 gap-6" style={{ wordBreak: 'break-word' }}>
+                  {recentPosts.map(post => (
+                    <div key={post.id} className="bg-mat-800 border border-mat-700 p-8 rounded-[2.5rem] shadow-xl">
+                        <div className="flex items-center gap-4 mb-6">
+                           <div className="w-10 h-10 bg-mat-500 rounded-full flex items-center justify-center text-white font-black text-xs">{post.author[0]}</div>
+                           <span className="text-[10px] font-black uppercase text-white">@{post.author}</span>
+                        </div>
+                        <p className="text-gray-400 text-sm italic mb-6 line-clamp-3">"{post.content}"</p>
+                        <div className="flex items-center gap-4 text-[9px] font-black text-gray-500 uppercase">
+                           <span className="flex items-center gap-1.5"><Heart size={14} className="text-mat-500" /> {post.likes}</span>
+                           <span className="flex items-center gap-1.5"><MessageCircle size={14} /> {post.comments.length}</span>
+                        </div>
+                    </div>
+                  ))}
+               </div>
+            </div>
+         </div>
+      </section>
+
     </div>
   );
 };
