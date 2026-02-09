@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Disc, MapPin, ShoppingBag, Heart, History, Calendar, Clock, Star, Flame, User } from 'lucide-react';
+import { ArrowRight, Disc, MapPin, ShoppingBag, Heart, History, Calendar, Clock, Star, Flame, User, Zap, Radio } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { useLanguage } from '../context/LanguageContext';
 import { dataService } from '../services/dataService';
@@ -61,7 +61,7 @@ export const Home: React.FC = () => {
     if (clickTimer.current) {
       clearTimeout(clickTimer.current);
       clickTimer.current = null;
-      document.getElementById('agenda-section')?.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('next-signals')?.scrollIntoView({ behavior: 'smooth' });
     } else {
       clickTimer.current = setTimeout(() => {
         setIsRevealed(!isRevealed);
@@ -72,7 +72,7 @@ export const Home: React.FC = () => {
 
   return (
     <div className="bg-mat-900 min-h-screen overflow-x-hidden">
-      <SEO titleKey="nav.home" descriptionKey="seo.home.description" />
+      <SEO titleKey="nav.home" descriptionKey="Mat32 Valencia: Santuario Hi-Fi y Comunidad de Coleccionistas. Agenda de Open Decks y Sesiones de Escucha en Ruzafa." />
 
       {/* HERO SECTION */}
       <section 
@@ -109,36 +109,43 @@ export const Home: React.FC = () => {
             </div>
             <p className="text-gray-300 max-w-2xl mx-auto text-lg md:text-2xl font-light italic mb-16 opacity-90 drop-shadow-lg leading-relaxed px-4">"Donde el tiempo se mide en revoluciones por minuto."</p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center px-4">
-               <Link to="/contact" className="w-full sm:w-auto px-14 py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-widest clip-path-slant shadow-2xl hover:bg-mat-400 transition-all active:scale-95">RESERVAR MESA</Link>
-               <Link to="/community" className="w-full sm:w-auto px-14 py-6 bg-mat-900/80 border-2 border-mat-700 text-white font-black uppercase text-[11px] tracking-widest clip-path-slant hover:border-mat-500 backdrop-blur-md transition-all active:scale-95">HUB COMUNIDAD</Link>
+               <Link to="/alquiler-local-eventos-valencia" className="w-full sm:w-auto px-14 py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-widest clip-path-slant shadow-2xl hover:bg-mat-400 transition-all active:scale-95">ALQUILER LOCAL</Link>
+               <Link to="/open-decks" className="w-full sm:w-auto px-14 py-6 bg-mat-900/80 border-2 border-mat-700 text-white font-black uppercase text-[11px] tracking-widest clip-path-slant hover:border-mat-500 backdrop-blur-md transition-all active:scale-95">ENVIAR MIX</Link>
             </div>
         </div>
       </section>
 
-      {/* AGENDA SECTION - PRIORITARIA */}
-      <section id="agenda-section" className="py-32 bg-mat-950 border-b border-mat-800">
+      {/* FAST ACCESS AGENDA - NEXT SIGNALS (NEW) */}
+      <section id="next-signals" className="py-24 bg-mat-950 border-b border-mat-800">
         <div className="container mx-auto px-6">
-           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-              <div>
-                <div className="flex items-center gap-3 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] mb-4">
-                  <Star size={18} className="animate-pulse" /> NEXT_PROTOCOLS_V19
-                </div>
-                <h2 className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter font-exo leading-none">AGENDA.</h2>
+           <div className="flex items-center gap-6 mb-16">
+              <div className="p-3 bg-mat-500 text-white rounded-2xl shadow-xl shadow-mat-500/20">
+                 <Radio size={24} className="animate-pulse" />
               </div>
-              <Link to="/events" className="text-[11px] font-black text-gray-500 hover:text-white uppercase tracking-widest flex items-center gap-4 transition-colors pb-2 border-b-2 border-mat-800 hover:border-mat-500">
-                AGENDA COMPLETA <ArrowRight size={18} />
-              </Link>
+              <div>
+                 <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter font-exo leading-none">THE NEXT <span className="text-mat-500">SIGNALS.</span></h2>
+                 <p className="text-gray-600 text-[10px] font-black uppercase tracking-[0.3em] mt-2">COMMUNITY_PROTOCOL_ACTIVE</p>
+              </div>
+              <div className="hidden md:block flex-1 border-b-2 border-mat-800 opacity-20"></div>
+              <Link to="/events" className="px-8 py-3 bg-mat-800 border border-mat-700 rounded-xl text-[9px] font-black uppercase text-gray-400 hover:text-white hover:border-mat-500 transition-all">VER TODA LA AGENDA</Link>
            </div>
 
-           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {upcomingEvents.map(event => (
-                <EventCard key={event.id} event={event} />
-              ))}
+           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+              {upcomingEvents.length > 0 ? (
+                upcomingEvents.slice(0, 2).map(event => (
+                  <EventCard key={event.id} event={event} />
+                ))
+              ) : (
+                <div className="col-span-full py-20 text-center border-2 border-dashed border-mat-800 rounded-[3rem]">
+                   <Disc className="w-12 h-12 text-mat-800 mx-auto mb-4 animate-spin-slow" />
+                   <p className="text-gray-600 font-black uppercase text-xs tracking-widest">Sincronizando nuevos protocolos...</p>
+                </div>
+              )}
            </div>
         </div>
       </section>
 
-      {/* JAZZ SELECTION - PURE ICON */}
+      {/* JAZZ SELECTION */}
       <section className="py-40 bg-[#0c0a09] relative overflow-hidden border-b border-mat-800/30">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">

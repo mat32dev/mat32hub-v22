@@ -42,14 +42,14 @@ const DISCO_SEEDS = [
   { a: "Moodymann", t: "Silentintroduction", ed: "(KDJ)", d: "KDJ-001. Hand-stamped label.", s: "https://bandcamp.com/EmbeddedPlayer/album=1833177726/size=large/bgcol=333333/linkcol=ea580c/minimal=true/transparent=true/" }
 ];
 
-const generateUnique200ArchiveV22 = (): VinylRecord[] => {
+const generateUnique200ArchiveV23 = (): VinylRecord[] => {
   const records: VinylRecord[] = [];
   
   for (let i = 0; i < 50; i++) {
     const seed = JAZZ_SEEDS[i % JAZZ_SEEDS.length];
     records.push({
-      id: `rz_jazz_v22_${i + 1}`,
-      sku: `MAT32-JZ-22-${i}`,
+      id: `rz_jazz_v23_${i + 1}`,
+      sku: `MAT32-JZ-23-${i}`,
       artist: seed.a,
       title: seed.t,
       slug: `${seed.a.toLowerCase().replace(/\s+/g, '-')}-${seed.t.toLowerCase().replace(/\s+/g, '-')}-${i}`,
@@ -73,8 +73,8 @@ const generateUnique200ArchiveV22 = (): VinylRecord[] => {
   for (let i = 0; i < 150; i++) {
     const seed = DISCO_SEEDS[i % DISCO_SEEDS.length];
     records.push({
-      id: `rz_disco_v22_${i + 1}`,
-      sku: `MAT32-RZ-22-${i}`,
+      id: `rz_disco_v23_${i + 1}`,
+      sku: `MAT32-RZ-23-${i}`,
       artist: seed.a,
       title: seed.t,
       slug: `${seed.a.toLowerCase().replace(/\s+/g, '-')}-${seed.t.toLowerCase().replace(/\s+/g, '-')}-${i}`,
@@ -97,65 +97,65 @@ const generateUnique200ArchiveV22 = (): VinylRecord[] => {
   return records;
 };
 
-export const MOCK_RECORDS: VinylRecord[] = generateUnique200ArchiveV22();
+export const MOCK_RECORDS: VinylRecord[] = generateUnique200ArchiveV23();
 
 export const MOCK_POSTS: Post[] = [
   {
-    id: 'p_rz_22',
+    id: 'p_rz_23',
     type: 'POST',
-    title: 'Archive v22.0: The Full Menu Protocol',
-    slug: 'full-menu-v22',
+    title: 'Archive v23.0: Community Connection Protocol',
+    slug: 'community-connection-v23',
     author: 'discos_ruzafa',
-    content: 'Carta del bar restaurada y nuevas Listening Sessions programadas. El ritual analógico continúa en Ruzafa. #Mat32 #Valencia #ListeningSession',
+    content: 'Priorizando la agenda de febrero para la comunidad. Open Decks y sesiones de escucha crítica ya disponibles. #Mat32 #Community #Valencia',
     imageUrl: "",
-    likes: 4200,
+    likes: 4500,
     comments: [],
-    timestamp: 'Hace 5 minutos',
-    tags: ['#BarCulture', '#HiFi'],
+    timestamp: 'Hace unos instantes',
+    tags: ['#DiggerHub', '#HiFiLife'],
     status: 'published'
   }
 ];
 
 export const MOCK_EVENTS: Event[] = [
   {
-    id: 'e_listening_12_jun',
-    title: 'Listening Session: Blue Note Deep Dive',
-    slug: 'blue-note-listening-session',
-    date: '2025-06-12',
-    time: '21:00',
+    id: 'e_open_listening_12_feb',
+    title: 'Open Decks: Listening Session I',
+    slug: 'open-decks-listening-feb-12',
+    date: '2025-02-12',
+    time: '19:30',
     location: 'Mat32 Ruzafa',
-    description: 'Exploración técnica del surco en las producciones de Rudy Van Gelder para Blue Note. Jazz puro en Altec A7.',
-    category: 'Listening Session',
+    description: 'Protocolo de escucha abierta. Trae tus discos favoritos de cualquier género y compártelos en nuestro sistema Altec A7. La cabina es tuya.',
+    category: 'Open Decks',
     imageUrl: '',
     attendees: 0,
     capacity: 100,
     price: 0,
     paidPrice: 0,
     ticketLink: '#',
-    lineup: [MOCK_ARTISTS['analog_digger']],
-    vibe: ['Technical', 'Pure Jazz', 'Van Gelder Sound'],
+    lineup: [MOCK_ARTISTS['mat32_crew']],
+    vibe: ['Community Sharing', 'Vinyl Only', 'High Fidelity'],
     status: 'published',
-    tags: ['#jazz', '#bluenote', '#listening']
+    tags: ['#opendecks', '#listening', '#ruzafa']
   },
   {
-    id: 'e_listening_19_jun',
-    title: 'Listening Session: Salsoul Archive',
-    slug: 'salsoul-archive-session',
-    date: '2025-06-19',
-    time: '21:00',
+    id: 'e_open_listening_19_feb',
+    title: 'Open Decks: Listening Session II',
+    slug: 'open-decks-listening-feb-19',
+    date: '2025-02-19',
+    time: '19:30',
     location: 'Mat32 Ruzafa',
-    description: 'Análisis y disfrute de los maxi-singles del sello Salsoul. La orquesta Disco en su máxima fidelidad.',
-    category: 'Listening Session',
+    description: 'Segunda jornada de escucha comunitaria de febrero. Micro-abierto para selectores de vinilo locales. Curaduría libre.',
+    category: 'Open Decks',
     imageUrl: '',
     attendees: 0,
     capacity: 100,
     price: 0,
     paidPrice: 0,
     ticketLink: '#',
-    lineup: [MOCK_ARTISTS['soulman']],
-    vibe: ['Disco', 'Orchestral', 'Analog Drive'],
+    lineup: [MOCK_ARTISTS['mat32_crew']],
+    vibe: ['Discovery', 'Analog Ritual', 'Selector Series'],
     status: 'published',
-    tags: ['#disco', '#salsoul', '#archive']
+    tags: ['#opendecks', '#community', '#valencia']
   }
 ];
 

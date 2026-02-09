@@ -3,7 +3,7 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v22.0'; // Versión 22.0: Full Menu & June Listening
+  private localKey = 'mat32_matrix_production_v23.0'; // Versión 23.0: Community Fast-Access
   private sessionKey = 'mat32_auth_session';
 
   constructor() {
@@ -27,6 +27,7 @@ class DataService {
       this.saveDB(db);
       
       const legacyKeys = [
+        'mat32_matrix_production_v22.0',
         'mat32_matrix_production_v21.0',
         'mat32_matrix_production_v20.0',
         'mat32_matrix_production_v19.0',
