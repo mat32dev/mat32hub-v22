@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Disc, MapPin, ShoppingBag, Heart, History, Calendar, Clock, Star, Flame, User, Zap, Radio } from 'lucide-react';
+import { ArrowRight, Disc, MapPin, ShoppingBag, Heart, History, Calendar, Clock, Star, Flame, User, Zap, Radio, Layers } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { useLanguage } from '../context/LanguageContext';
 import { dataService } from '../services/dataService';
@@ -24,7 +24,7 @@ export const Home: React.FC = () => {
   const { addToCart } = useCart();
   
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
-  const [newArrivals, setNewArrivals] = useState<VinylRecord[]>([]);
+  const [diverseCrate, setDiverseCrate] = useState<VinylRecord[]>([]);
   const [jazzSelection, setJazzSelection] = useState<VinylRecord[]>([]);
   
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -38,9 +38,16 @@ export const Home: React.FC = () => {
       
       const now = new Date();
       now.setHours(0,0,0,0);
-      setUpcomingEvents(allEvents.filter(e => new Date(e.date) >= now).slice(0, 4));
       
-      setNewArrivals(allRecords.filter(r => r.genre === 'Disco' && r.status === 'published').slice(0, 4));
+      // Ordenar eventos de 2026 primero
+      const futureEvents = allEvents.filter(e => new Date(e.date) >= now);
+      setUpcomingEvents(futureEvents.slice(0, 4));
+      
+      // Selección diversa (House, Soul, Afrobeat, Electronica)
+      const diverse = allRecords.filter(r => ['House', 'Soul', 'Afrobeat', 'Electronica', 'Funk'].includes(r.genre));
+      setDiverseCrate(diverse.slice(0, 4));
+      
+      // Selección Jazz
       setJazzSelection(allRecords.filter(r => r.genre === 'Jazz').slice(0, 4));
     };
     loadData();
@@ -115,7 +122,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* FAST ACCESS AGENDA - NEXT SIGNALS (NEW) */}
+      {/* FAST ACCESS AGENDA - NEXT SIGNALS */}
       <section id="next-signals" className="py-24 bg-mat-950 border-b border-mat-800">
         <div className="container mx-auto px-6">
            <div className="flex items-center gap-6 mb-16">
@@ -124,7 +131,7 @@ export const Home: React.FC = () => {
               </div>
               <div>
                  <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter font-exo leading-none">THE NEXT <span className="text-mat-500">SIGNALS.</span></h2>
-                 <p className="text-gray-600 text-[10px] font-black uppercase tracking-[0.3em] mt-2">COMMUNITY_PROTOCOL_ACTIVE</p>
+                 <p className="text-gray-600 text-[10px] font-black uppercase tracking-[0.3em] mt-2">FUTURE_PROTOCOL_2026_ACTIVE</p>
               </div>
               <div className="hidden md:block flex-1 border-b-2 border-mat-800 opacity-20"></div>
               <Link to="/events" className="px-8 py-3 bg-mat-800 border border-mat-700 rounded-xl text-[9px] font-black uppercase text-gray-400 hover:text-white hover:border-mat-500 transition-all">VER TODA LA AGENDA</Link>
@@ -138,31 +145,31 @@ export const Home: React.FC = () => {
               ) : (
                 <div className="col-span-full py-20 text-center border-2 border-dashed border-mat-800 rounded-[3rem]">
                    <Disc className="w-12 h-12 text-mat-800 mx-auto mb-4 animate-spin-slow" />
-                   <p className="text-gray-600 font-black uppercase text-xs tracking-widest">Sincronizando nuevos protocolos...</p>
+                   <p className="text-gray-600 font-black uppercase text-xs tracking-widest">Sincronizando protocolos futuros...</p>
                 </div>
               )}
            </div>
         </div>
       </section>
 
-      {/* JAZZ SELECTION */}
-      <section className="py-40 bg-[#0c0a09] relative overflow-hidden border-b border-mat-800/30">
+      {/* DIVERSE CRATE (HOUSE, SOUL, ELECTRONICA) */}
+      <section className="py-32 bg-mat-900 border-b border-mat-800/30">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-3 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] mb-6">
-                <Flame size={20} className="animate-pulse" /> THE_LABEL_ARCHIVE
+                <Layers size={20} className="animate-pulse" /> THE_DIVERSE_PROTOCOL
               </div>
-              <h2 className="text-6xl md:text-[10rem] font-black text-white uppercase tracking-tighter font-exo leading-[0.8]">JAZZ <span className="text-mat-500">SELECTION.</span></h2>
-              <p className="text-gray-500 text-xl md:text-2xl mt-8 italic font-light max-w-2xl leading-relaxed">"Selección técnica para audiófilos. Los arquitectos del sonido analógico."</p>
+              <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter font-exo leading-none">THE <span className="text-mat-500">CRATE.</span></h2>
+              <p className="text-gray-500 text-xl md:text-2xl mt-8 italic font-light leading-relaxed">"House, Soul, Afrobeat y Electrónica. Curaduría global para mentes analógicas."</p>
             </div>
-            <Link to="/records?category=Jazz" className="text-[11px] font-black text-mat-500 hover:text-white uppercase tracking-widest flex items-center gap-4 transition-colors pb-3 border-b-2 border-mat-500 hover:border-white">
-              EXPLORAR JAZZ <ArrowRight size={18} />
+            <Link to="/records" className="text-[11px] font-black text-mat-500 hover:text-white uppercase tracking-widest flex items-center gap-4 transition-colors pb-3 border-b-2 border-mat-500 hover:border-white">
+              EXPLORAR HUB <ArrowRight size={18} />
             </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
-            {jazzSelection.map((record) => (
+            {diverseCrate.map((record) => (
               <article key={record.id} onClick={() => navigate(`/records/${record.id}`)} className="bg-black/40 border border-mat-800/50 rounded-[2.5rem] overflow-hidden group hover:border-mat-500 transition-all duration-700 flex flex-col shadow-2xl relative cursor-pointer">
                 <div className="aspect-square relative overflow-hidden bg-black">
                    <CachedImage src={record.coverUrl} alt={record.title} />
@@ -179,7 +186,7 @@ export const Home: React.FC = () => {
                    <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-10">{record.title}</p>
                    
                    <div className="mt-auto pt-8 border-t border-mat-800/30 flex justify-between items-center">
-                      <span className="text-[8px] text-gray-800 font-black uppercase tracking-widest">{record.label}</span>
+                      <span className="text-[8px] text-gray-800 font-black uppercase tracking-widest">{record.genre}</span>
                       <button onClick={(e) => { e.stopPropagation(); addToCart(record); }} className="p-4 bg-mat-500 text-white rounded-2xl hover:bg-white hover:text-mat-500 transition-all shadow-xl">
                         <ShoppingBag size={20} />
                       </button>
@@ -191,23 +198,23 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* DISCO NEW ARRIVALS */}
-      <section className="py-32 bg-mat-900">
+      {/* JAZZ SELECTION */}
+      <section className="py-32 bg-[#0c0a09]">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
             <div>
               <div className="flex items-center gap-3 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] mb-6">
-                <User size={20} className="animate-pulse" /> NEW_DISCO_SIGNAL
+                <Flame size={20} className="animate-pulse" /> CLASSIC_JAZZ_SIGNAL
               </div>
-              <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter font-exo leading-none">DISCO <span className="text-mat-500">HITS.</span></h2>
+              <h2 className="text-6xl md:text-9xl font-black text-white uppercase tracking-tighter font-exo leading-none">JAZZ <span className="text-mat-500">HITS.</span></h2>
             </div>
-            <Link to="/records?category=Disco" className="text-[11px] font-black text-gray-500 hover:text-white uppercase tracking-widest flex items-center gap-4 transition-colors pb-3 border-b-2 border-mat-800 hover:border-mat-500">
-              TIENDA DISCO <ArrowRight size={18} />
+            <Link to="/records?category=Jazz" className="text-[11px] font-black text-gray-500 hover:text-white uppercase tracking-widest flex items-center gap-4 transition-colors pb-3 border-b-2 border-mat-800 hover:border-mat-500">
+              COLECCIÓN JAZZ <ArrowRight size={18} />
             </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {newArrivals.map((record) => (
+            {jazzSelection.map((record) => (
               <article key={record.id} onClick={() => navigate(`/records/${record.id}`)} className="bg-mat-800 border border-mat-700 rounded-[2.5rem] overflow-hidden group hover:border-mat-500 transition-all duration-500 flex flex-col shadow-xl cursor-pointer">
                 <div className="aspect-square relative overflow-hidden bg-black">
                    <CachedImage src={record.coverUrl} alt={record.title} />
@@ -222,7 +229,7 @@ export const Home: React.FC = () => {
                    <h3 className="text-xl font-black text-white uppercase tracking-tighter font-exo leading-none mb-1 group-hover:text-mat-500 transition-colors truncate">{record.artist}</h3>
                    <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest truncate mb-6">{record.title}</p>
                    <div className="mt-auto pt-6 border-t border-mat-800/50 flex justify-between items-center">
-                      <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest">{record.genre}</span>
+                      <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest">{record.label}</span>
                       <button onClick={(e) => { e.stopPropagation(); addToCart(record); }} className="p-3 bg-mat-800 text-gray-400 hover:bg-mat-500 hover:text-white rounded-xl transition-all shadow-lg">
                         <ShoppingBag size={16} />
                       </button>
@@ -236,16 +243,11 @@ export const Home: React.FC = () => {
 
       {/* ARCHIVO SECTION */}
       <section className="py-32 bg-mat-950 border-t border-mat-800/30">
-        <div className="container mx-auto px-6">
-          <div className="flex items-center gap-6 mb-20">
-            <History size={32} className="text-mat-500" />
-            <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none">EL <span className="text-mat-500">ARCHIVO.</span></h2>
-            <div className="flex-1 border-b-2 border-mat-800 opacity-20"></div>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8 opacity-60">
-             <div className="p-10 border border-mat-800 rounded-[3rem] italic text-gray-600 text-sm leading-relaxed">
-                "Escaneando memorias analógicas. El sistema Altec A7 garantiza la integridad de cada señal interpretada en Ruzafa."
-             </div>
+        <div className="container mx-auto px-6 text-center">
+          <History size={48} className="text-mat-500 mx-auto mb-10" />
+          <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none mb-10">EL <span className="text-mat-500">ARCHIVO.</span></h2>
+          <div className="max-w-4xl mx-auto italic text-gray-600 text-lg leading-relaxed">
+            "80 señales analógicas verificadas. Cada disco en The Hub ha sido seleccionado para ofrecer la máxima integridad sonora en sistemas de alta fidelidad."
           </div>
         </div>
       </section>
