@@ -3,7 +3,7 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { MOCK_EVENTS, MOCK_RECORDS, MOCK_POSTS, MOCK_SELECTORS, BAR_MENU } from '../constants';
 
 class DataService {
-  private localKey = 'mat32_matrix_production_v26.1'; // Versión 26.1: The Purist Archive
+  private localKey = 'mat32_matrix_production_v26.2'; // Versión 26.2: The Essential Digger's Database
   private sessionKey = 'mat32_auth_session';
 
   constructor() {
@@ -27,6 +27,7 @@ class DataService {
       this.saveDB(db);
       
       const legacyKeys = [
+        'mat32_matrix_production_v26.1',
         'mat32_matrix_production_v26.0',
         'mat32_matrix_production_v25.0',
         'mat32_matrix_production_v24.0',
