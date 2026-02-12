@@ -1,19 +1,23 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Loader2, Disc, Star, History, Clock, Calendar } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
 import { Event } from '../types';
 import { EventCard } from '../components/EventCard';
+import { CachedImage } from '../components/CachedImage';
 
 export const Events: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRevealed, setIsRevealed] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
     const data = await dataService.getEvents();
     setEvents(data);
     setLoading(false);
+    setTimeout(() => setIsRevealed(true), 150);
   };
 
   useEffect(() => {
@@ -54,11 +58,23 @@ export const Events: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-mat-900 text-mat-cream pb-32">
-      <SEO titleKey="Agenda | Mat32 Valencia" descriptionKey="Próximas sesiones y eventos en nuestro bar de Ruzafa." />
+      <SEO titleKey="Eventos & Sesiones Hi-Fi Ruzafa | Agenda Mat32" descriptionKey="Descubre la agenda cultural de Mat32. Sesiones de escucha profunda, DJs de vinilo y eventos exclusivos en el corazón de Valencia." />
 
-      <div className="bg-mat-950 py-32 md:py-48 border-b border-mat-800 text-center relative overflow-hidden">
-        <h1 className="text-7xl md:text-[10rem] font-black uppercase tracking-tighter text-white font-exo leading-none relative z-10">AGENDA.</h1>
-        <p className="text-gray-500 text-lg mt-6 italic opacity-80">Sesiones seleccionadas y cultura musical en Valencia.</p>
+      <div className="relative h-[60vh] md:h-[80vh] flex items-center justify-center border-b border-mat-800 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <CachedImage 
+            src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public" 
+            alt="Agenda Experience" 
+            priority
+            className={`w-full h-full object-cover transition-all duration-800 ease-out ${isRevealed ? 'scale-100 blur-0 grayscale-0 opacity-40' : 'scale-110 blur-2xl grayscale opacity-0'}`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/60 to-transparent"></div>
+        </div>
+        
+        <div className="container mx-auto px-6 text-center relative z-10 pt-20">
+          <h1 className="text-7xl md:text-[12rem] font-black uppercase tracking-tighter text-white font-exo leading-none">AGENDA.</h1>
+          <p className="text-gray-400 text-xl md:text-3xl mt-6 italic font-light max-w-3xl mx-auto">"Señales analógicas programadas para el deleite auditivo."</p>
+        </div>
       </div>
 
       <div className="container mx-auto px-6 py-16 max-w-5xl space-y-24">
@@ -68,7 +84,7 @@ export const Events: React.FC = () => {
           <>
             {/* ESTE FIN DE SEMANA */}
             {categorizedEvents.thisWeekend.length > 0 && (
-              <section>
+              <section className="animate-fade-in">
                  <div className="flex items-center gap-4 mb-10">
                     <Star className="text-mat-400" size={20} />
                     <h2 className="text-2xl font-black text-white uppercase font-exo">ESTE FIN DE SEMANA</h2>
@@ -84,7 +100,7 @@ export const Events: React.FC = () => {
 
             {/* PRÓXIMAMENTE */}
             {categorizedEvents.upcoming.length > 0 && (
-              <section>
+              <section className="animate-fade-in" style={{ animationDelay: '200ms' }}>
                  <div className="flex items-center gap-4 mb-10">
                     <Clock className="text-mat-500" size={20} />
                     <h2 className="text-2xl font-black text-white uppercase font-exo">PRÓXIMAMENTE</h2>

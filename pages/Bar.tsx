@@ -5,17 +5,20 @@ import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
 import { useLanguage } from '../context/LanguageContext';
 import { MenuCategory } from '../types';
+import { CachedImage } from '../components/CachedImage';
 
 export const Bar: React.FC = () => {
   const { t } = useLanguage();
   const [menu, setMenu] = useState<MenuCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRevealed, setIsRevealed] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       const data = await dataService.getBarMenu();
       setMenu(data);
       setLoading(false);
+      setTimeout(() => setIsRevealed(true), 100);
     };
     load();
     window.addEventListener('mat32_data_changed', load);
@@ -24,27 +27,29 @@ export const Bar: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-mat-900 text-mat-cream">
-      <SEO titleKey="nav.bar" descriptionKey="bar.hero.desc" />
+      <SEO titleKey="Bar Hi-Fi & Coctelería Ruzafa | Mat32" descriptionKey="Destilados de alta gama y coctelería de autor en un entorno de alta fidelidad. El punto de encuentro de la cultura musical en Valencia." />
 
-      {/* Hero */}
-      <div className="relative bg-mat-800 py-24 md:py-48 border-b border-mat-700 overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <img 
-            src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2000" 
-            alt="Bar Interior Mat32" 
-            className="w-full h-full object-cover grayscale"
+      {/* New Dynamic Hero */}
+      <div className="relative h-[60vh] md:h-[70vh] flex items-center justify-center border-b border-mat-800 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <CachedImage 
+            src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/38cbbb12-3f05-47c5-697b-f932d8f99700/public" 
+            alt="Bar Experience" 
+            priority
+            className={`w-full h-full object-cover transition-all duration-700 ease-out ${isRevealed ? 'scale-100 blur-0 grayscale-0 opacity-40' : 'scale-110 blur-xl grayscale opacity-0'}`}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-mat-900/90 to-mat-900"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/40 to-transparent"></div>
         </div>
-        <div className="container mx-auto px-6 text-center relative z-10">
+
+        <div className="container mx-auto px-6 text-center relative z-10 pt-20">
           <div className="inline-flex items-center gap-2 mb-8 p-1 px-4 rounded-full bg-mat-900/80 border border-mat-500/50 text-mat-500 text-[10px] font-black uppercase tracking-[0.5em] animate-fade-in">
              <Sparkles className="w-4 h-4" /> HI-FI LIQUIDS
           </div>
-          <h1 className="text-6xl md:text-[10rem] font-black uppercase tracking-tighter text-white mb-6 font-exo leading-none text-glow animate-fade-in">
+          <h1 className="text-7xl md:text-[10rem] font-black uppercase tracking-tighter text-white mb-6 font-exo leading-none text-glow animate-fade-in">
             SONIDOS <span className="text-mat-500">LÍQUIDOS.</span>
           </h1>
-          <p className="text-gray-400 max-w-2xl mx-auto text-xl italic opacity-80 leading-relaxed">
-            Destilados curados y coctelería de autor diseñada para complementar nuestra atmósfera de alta fidelidad en el corazón de Ruzafa.
+          <p className="text-gray-300 max-w-2xl mx-auto text-xl md:text-2xl italic font-light leading-relaxed">
+            "Destilados curados para acompañar el ritmo analógico."
           </p>
         </div>
       </div>
@@ -76,7 +81,6 @@ export const Bar: React.FC = () => {
            </div>
         )}
 
-        {/* Footer Note and Promo */}
         <div className="mt-20 flex flex-col items-center gap-6">
            <div className="flex items-center gap-2 text-gray-600 text-[10px] font-black uppercase tracking-[0.2em]">
               <Info size={12} /> TODOS LOS PRECIOS INCLUYEN IVA

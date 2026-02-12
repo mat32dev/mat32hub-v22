@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Database, Disc, Heart, MessageCircle, Plus, Search, 
@@ -20,6 +21,7 @@ export const Community: React.FC = () => {
   const [records, setRecords] = useState<VinylRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isRevealed, setIsRevealed] = useState(false);
   
   // Hub Actions States
   const [showHubModal, setShowHubModal] = useState<'import' | 'discogs' | null>(null);
@@ -38,6 +40,7 @@ export const Community: React.FC = () => {
     setRecords(r);
     setIsAuth(dataService.isAuthenticated());
     setLoading(false);
+    setTimeout(() => setIsRevealed(true), 120);
   };
 
   useEffect(() => {
@@ -77,22 +80,32 @@ export const Community: React.FC = () => {
   return (
     <div className="min-h-screen bg-mat-900 pb-24">
       <SEO 
-        titleKey="Comunidad & Marketplace P2P | Mat32 Ruzafa" 
-        descriptionKey="Únete a la red de coleccionistas de Valencia. Intercambia vinilos, descubre novedades y negocia directamente con otros amantes del Hi-Fi." 
+        titleKey="Hub Comunidad & Marketplace Vinilos P2P | Mat32" 
+        descriptionKey="Únete a la red de coleccionistas de Valencia. El Hub de Mat32 permite el intercambio, compra y venta de vinilos entre amantes del sonido analógico en Ruzafa." 
       />
 
-      {/* Header con diseño minimalista */}
-      <div className="bg-mat-950 pt-32 pb-20 border-b border-mat-800 relative overflow-hidden">
-        <div className="container mx-auto px-6">
-           <div className="flex flex-col md:flex-row justify-between items-end gap-10">
-              <div className="max-w-3xl">
+      {/* Header con diseño minimalista y fondo dinámico */}
+      <div className="relative h-[65vh] md:h-[75vh] flex items-center justify-center border-b border-mat-800 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <CachedImage 
+            src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/5dea483e-141a-4665-8085-5c163d8eda00/public" 
+            alt="The Hub Experience" 
+            priority
+            className={`w-full h-full object-cover transition-all duration-700 ease-out ${isRevealed ? 'scale-100 blur-0 grayscale-0 opacity-40' : 'scale-110 blur-2xl grayscale opacity-0'}`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/60 to-transparent"></div>
+        </div>
+
+        <div className="container mx-auto px-6 relative z-10 pt-20">
+           <div className="flex flex-col items-center text-center">
+              <div className="max-w-4xl">
                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-mat-500/10 border border-mat-500/20 text-mat-500 font-black text-[9px] uppercase tracking-[0.4em] mb-8 animate-fade-in">
                     <Layers size={14} className="animate-pulse" /> RED DE COLECCIONISTAS ACTIVA
                  </div>
-                 <h1 className="text-7xl md:text-[10rem] font-black uppercase tracking-tighter text-white font-exo leading-[0.8] mb-6">THE <span className="text-mat-500">HUB.</span></h1>
-                 <p className="text-gray-500 text-lg md:text-xl italic font-light">Espacio para el intercambio, el mercado P2P y las novedades de la comunidad.</p>
+                 <h1 className="text-7xl md:text-[11rem] font-black uppercase tracking-tighter text-white font-exo leading-[0.8] mb-8">THE <span className="text-mat-500">HUB.</span></h1>
+                 <p className="text-gray-300 text-xl md:text-3xl italic font-light mb-12">"Cultura compartida a 33 revoluciones."</p>
               </div>
-              <div className="flex bg-mat-800 p-1.5 rounded-2xl border border-mat-700">
+              <div className="flex bg-mat-800 p-1.5 rounded-2xl border border-mat-700 shadow-2xl backdrop-blur-md">
                  <button onClick={() => setActiveTab('muro')} className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'muro' ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>MURO COMUNIDAD</button>
                  <button onClick={() => setActiveTab('market')} className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'market' ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>MARKETPLACE P2P</button>
               </div>

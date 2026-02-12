@@ -1,12 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle, Radio, Loader2, Send, Plus, Disc, Music, Headphones, Zap } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
+import { CachedImage } from '../components/CachedImage';
 
 export const OpenDecks: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
   const [form, setForm] = useState({ 
     artistName: '', 
     email: '', 
@@ -14,6 +16,10 @@ export const OpenDecks: React.FC = () => {
     mixUrl: '', 
     genres: '' 
   });
+
+  useEffect(() => {
+    setTimeout(() => setIsRevealed(true), 100);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,21 +50,31 @@ export const OpenDecks: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-mat-900 text-mat-cream pb-24 pt-32">
-      <SEO titleKey="Open Decks | La Cabina es Tuya" descriptionKey="Envía tu sesión a Mat32 Ruzafa y pincha en nuestro sistema Altec A7." />
+    <div className="min-h-screen bg-mat-900 text-mat-cream pb-24">
+      <SEO titleKey="Envía tu DJ Mix | Open Decks Mat32 Valencia" descriptionKey="Únete a la rotación de selectores de Mat32. Pincha tus vinilos en nuestro sistema Altec A7. Buscamos selectores apasionados en Ruzafa." />
       
-      <section className="container mx-auto px-6 max-w-4xl text-center mb-20">
-         <div className="inline-flex items-center gap-3 px-6 py-2 bg-mat-900 border border-mat-500 text-mat-500 text-[10px] font-black uppercase tracking-[0.5em] rounded-full mb-8">
-            <Radio className="w-4 h-4" /> ANALOG BOOTH PROTOCOL
-         </div>
-         <h1 className="text-7xl md:text-[10rem] font-black uppercase tracking-tighter text-white font-exo leading-none mb-8">OPEN <span className="text-mat-500">DECKS.</span></h1>
-         <p className="text-gray-400 text-xl md:text-2xl font-light italic leading-relaxed max-w-3xl mx-auto">
-           "Slots de 60-90 minutos en nuestro legendario sistema Altec A7. Queremos escuchar tu selección, sin géneros cerrados, solo buen gusto."
-         </p>
-      </section>
+      <div className="relative h-[50vh] md:h-[65vh] flex items-center justify-center border-b border-mat-800 overflow-hidden mb-20">
+        <div className="absolute inset-0 z-0">
+          <CachedImage 
+            src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public" 
+            alt="Analog Booth" 
+            priority
+            className={`w-full h-full object-cover transition-all duration-700 ease-out ${isRevealed ? 'scale-100 blur-0 grayscale-0 opacity-40' : 'scale-110 blur-2xl grayscale opacity-0'}`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/50 to-transparent"></div>
+        </div>
+        <div className="container mx-auto px-6 text-center relative z-10 pt-20">
+           <div className="inline-flex items-center gap-3 px-6 py-2 bg-mat-900 border border-mat-500 text-mat-500 text-[10px] font-black uppercase tracking-[0.5em] rounded-full mb-8">
+              <Radio className="w-4 h-4" /> ANALOG BOOTH PROTOCOL
+           </div>
+           <h1 className="text-7xl md:text-[10rem] font-black uppercase tracking-tighter text-white font-exo leading-none mb-8">OPEN <span className="text-mat-500">DECKS.</span></h1>
+           <p className="text-gray-300 text-xl md:text-2xl font-light italic leading-relaxed max-w-3xl mx-auto">
+             "Tu selección, nuestro sistema. Slots abiertos para selectores locales."
+           </p>
+        </div>
+      </div>
 
       <div className="container mx-auto px-6 max-w-6xl grid lg:grid-cols-12 gap-16 items-start">
-         {/* Detalles Técnicos */}
          <div className="lg:col-span-5 space-y-8">
             <div className="bg-mat-800 border-2 border-mat-700 p-10 rounded-[3rem] shadow-xl relative overflow-hidden group">
                <div className="absolute top-0 left-0 w-full h-1 bg-mat-500"></div>
@@ -93,7 +109,6 @@ export const OpenDecks: React.FC = () => {
             </div>
          </div>
 
-         {/* Formulario */}
          <div className="lg:col-span-7">
             <div className="bg-mat-800 border-2 border-mat-700 p-10 md:p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden">
                <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500"></div>
