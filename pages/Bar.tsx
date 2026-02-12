@@ -5,13 +5,11 @@ import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
 import { useLanguage } from '../context/LanguageContext';
 import { MenuCategory } from '../types';
-import { CachedImage } from '../components/CachedImage';
 
 export const Bar: React.FC = () => {
   const { t } = useLanguage();
   const [menu, setMenu] = useState<MenuCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isRevealed, setIsRevealed] = useState(false);
   const [showText, setShowText] = useState(true);
 
   useEffect(() => {
@@ -19,7 +17,6 @@ export const Bar: React.FC = () => {
       const data = await dataService.getBarMenu();
       setMenu(data);
       setLoading(false);
-      setTimeout(() => setIsRevealed(true), 100);
       
       // Protocolo de desvanecimiento de textos tras 3 segundos
       const timer = setTimeout(() => setShowText(false), 3000);
@@ -34,19 +31,12 @@ export const Bar: React.FC = () => {
     <div className="min-h-screen bg-mat-900 text-mat-cream">
       <SEO titleKey="Bar Hi-Fi & Coctelería Ruzafa | Mat32" descriptionKey="Destilados de alta gama y coctelería de autor en un entorno de alta fidelidad. El punto de encuentro de la cultura musical en Valencia." />
 
-      {/* Dynamic Hero with Cocktail Imagery, Amber Filter and Fade-out text */}
-      <div className="relative h-[60vh] md:h-[75vh] flex items-center justify-center border-b border-mat-800 overflow-hidden bg-black">
+      {/* Hero Minimalista sin foto con Filtro Ámbar y Fade-out */}
+      <div className="relative h-[50vh] md:h-[60vh] flex items-center justify-center border-b border-mat-800 overflow-hidden bg-mat-950">
         <div className="absolute inset-0 z-0">
-          <CachedImage 
-            src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/cd431032-310e-4ccc-c602-68787da5ae00/public" 
-            alt="Signature Cocktail Experience" 
-            priority
-            className={`w-full h-full object-cover transition-all duration-[2000ms] ease-in-out ${isRevealed ? (showText ? 'scale-100 opacity-40 blur-0' : 'scale-105 opacity-65 blur-0') : 'scale-110 opacity-0 blur-xl'}`}
-          />
-          {/* Amber Filter Overlay for aesthetic consistency */}
-          <div className="absolute inset-0 bg-mat-500/20 mix-blend-color pointer-events-none"></div>
-          {/* Dynamic Gradient that softens when text fades */}
-          <div className={`absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/40 to-transparent transition-opacity duration-[2000ms] ${showText ? 'opacity-100' : 'opacity-60'}`}></div>
+          {/* Overlay Ámbar dinámico sobre fondo sólido */}
+          <div className={`absolute inset-0 bg-mat-500/10 transition-opacity duration-[2000ms] ${showText ? 'opacity-40' : 'opacity-20'}`}></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-mat-800/40 via-transparent to-transparent"></div>
         </div>
 
         <div className={`container mx-auto px-6 text-center relative z-10 pt-20 transition-all duration-[1500ms] ease-in-out ${showText ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-4 pointer-events-none'}`}>
