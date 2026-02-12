@@ -9,6 +9,7 @@ export const OpenDecks: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
+  const [showText, setShowText] = useState(true);
   const [form, setForm] = useState({ 
     artistName: '', 
     email: '', 
@@ -19,6 +20,8 @@ export const OpenDecks: React.FC = () => {
 
   useEffect(() => {
     setTimeout(() => setIsRevealed(true), 100);
+    const timer = setTimeout(() => setShowText(false), 3000);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,17 +56,18 @@ export const OpenDecks: React.FC = () => {
     <div className="min-h-screen bg-mat-900 text-mat-cream pb-24">
       <SEO titleKey="Envía tu DJ Mix | Open Decks Mat32 Valencia" descriptionKey="Únete a la rotación de selectores de Mat32. Pincha tus vinilos en nuestro sistema Altec A7. Buscamos selectores apasionados en Ruzafa." />
       
-      <div className="relative h-[50vh] md:h-[65vh] flex items-center justify-center border-b border-mat-800 overflow-hidden mb-20">
+      <div className="relative h-[50vh] md:h-[70vh] flex items-center justify-center border-b border-mat-800 overflow-hidden mb-20 bg-black">
         <div className="absolute inset-0 z-0">
           <CachedImage 
             src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public" 
             alt="Analog Booth" 
             priority
-            className={`w-full h-full object-cover transition-all duration-700 ease-out ${isRevealed ? 'scale-100 blur-0 grayscale-0 opacity-40' : 'scale-110 blur-2xl grayscale opacity-0'}`}
+            className={`w-full h-full object-cover transition-all duration-[2000ms] ease-in-out ${isRevealed ? (showText ? 'scale-100 opacity-40 blur-0' : 'scale-105 opacity-60 blur-0') : 'scale-110 opacity-0 blur-2xl'}`}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/50 to-transparent"></div>
+          <div className="absolute inset-0 bg-mat-500/20 mix-blend-color pointer-events-none"></div>
+          <div className={`absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/50 to-transparent transition-opacity duration-[2000ms] ${showText ? 'opacity-100' : 'opacity-40'}`}></div>
         </div>
-        <div className="container mx-auto px-6 text-center relative z-10 pt-20">
+        <div className={`container mx-auto px-6 text-center relative z-10 pt-20 transition-all duration-[1500ms] ease-in-out ${showText ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8 pointer-events-none'}`}>
            <div className="inline-flex items-center gap-3 px-6 py-2 bg-mat-900 border border-mat-500 text-mat-500 text-[10px] font-black uppercase tracking-[0.5em] rounded-full mb-8">
               <Radio className="w-4 h-4" /> ANALOG BOOTH PROTOCOL
            </div>

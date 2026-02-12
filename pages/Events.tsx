@@ -11,6 +11,7 @@ export const Events: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRevealed, setIsRevealed] = useState(false);
+  const [showText, setShowText] = useState(true);
 
   const loadData = async () => {
     setLoading(true);
@@ -18,6 +19,9 @@ export const Events: React.FC = () => {
     setEvents(data);
     setLoading(false);
     setTimeout(() => setIsRevealed(true), 150);
+    
+    const timer = setTimeout(() => setShowText(false), 3000);
+    return () => clearTimeout(timer);
   };
 
   useEffect(() => {
@@ -60,18 +64,19 @@ export const Events: React.FC = () => {
     <div className="min-h-screen bg-mat-900 text-mat-cream pb-32">
       <SEO titleKey="Eventos & Sesiones Hi-Fi Ruzafa | Agenda Mat32" descriptionKey="Descubre la agenda cultural de Mat32. Sesiones de escucha profunda, DJs de vinilo y eventos exclusivos en el corazón de Valencia." />
 
-      <div className="relative h-[60vh] md:h-[80vh] flex items-center justify-center border-b border-mat-800 overflow-hidden">
+      <div className="relative h-[60vh] md:h-[80vh] flex items-center justify-center border-b border-mat-800 overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <CachedImage 
             src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public" 
             alt="Agenda Experience" 
             priority
-            className={`w-full h-full object-cover transition-all duration-800 ease-out ${isRevealed ? 'scale-100 blur-0 grayscale-0 opacity-40' : 'scale-110 blur-2xl grayscale opacity-0'}`}
+            className={`w-full h-full object-cover transition-all duration-[2000ms] ease-in-out ${isRevealed ? (showText ? 'scale-100 opacity-40 blur-0' : 'scale-105 opacity-60 blur-0') : 'scale-110 opacity-0 blur-2xl'}`}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-mat-500/20 mix-blend-color pointer-events-none"></div>
+          <div className={`absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/60 to-transparent transition-opacity duration-[2000ms] ${showText ? 'opacity-100' : 'opacity-50'}`}></div>
         </div>
         
-        <div className="container mx-auto px-6 text-center relative z-10 pt-20">
+        <div className={`container mx-auto px-6 text-center relative z-10 pt-20 transition-all duration-[1500ms] ease-in-out ${showText ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6 pointer-events-none'}`}>
           <h1 className="text-7xl md:text-[12rem] font-black uppercase tracking-tighter text-white font-exo leading-none">AGENDA.</h1>
           <p className="text-gray-400 text-xl md:text-3xl mt-6 italic font-light max-w-3xl mx-auto">"Señales analógicas programadas para el deleite auditivo."</p>
         </div>
