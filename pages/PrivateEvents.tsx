@@ -85,7 +85,7 @@ export const PrivateEvents: React.FC = () => {
          </div>
          <div className="container mx-auto px-6 text-center relative z-10">
             <h1 className="text-6xl md:text-[8rem] font-black uppercase tracking-tighter text-white font-exo mb-6 leading-none animate-fade-in">ALQUILER <span className="text-mat-500">LOCAL.</span></h1>
-            <p className="text-gray-400 max-w-2xl mx-auto italic text-xl md:text-2xl font-light">Un espacio único en Ruzafa para eventos con alma analógica.</p>
+            <p className="text-gray-400 max-w-2xl mx-auto italic text-xl md:text-2xl font-light">Un espacio único en Ruzafa para eventos con alma.</p>
          </div>
       </section>
 
