@@ -1,0 +1,11 @@
+{
+  "name": "Mat32 | Local para Eventos Valencia",
+  "short_name": "Mat32 VLC",
+  "description": "El mejor local para eventos en Valencia y santuario Hi-Fi en Ruzafa. Alquiler exclusivo, tienda de discos y coctelería.",
+  "keywords": "alquiler local valencia, sala eventos ruzafa, eventos privados valencia, local para fiestas, discos bar valencia, sonido hi-fi",
+  "theme_color": "#ea580c",
+  "background_color": "#1c1917",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

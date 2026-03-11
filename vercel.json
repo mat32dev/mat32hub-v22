@@ -1,0 +1,13 @@
+
+{
+  "redirects": [
+    {
+      "source": "/alquiler-local-eventos-horas-valencia/",
+      "destination": "https://www.ruzafaclub.com/",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
