@@ -1,0 +1,3 @@
+// Este archivo ha sido movido a services/dataService.ts
+// Redirigiendo importaciones...
+export * from './services/dataService';
