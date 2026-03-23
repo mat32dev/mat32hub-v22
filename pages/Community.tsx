@@ -12,6 +12,7 @@ import { Post, VinylRecord } from '../types';
 import { CachedImage } from '../components/CachedImage';
 import { TagLink } from '../components/TagLink';
 import { useWishlist } from '../context/WishlistContext';
+import { BandcampPlayer } from '../components/BandcampPlayer';
 
 export const Community: React.FC = () => {
   const navigate = useNavigate();
@@ -163,11 +164,7 @@ export const Community: React.FC = () => {
                         <div className="p-8 flex-1 flex flex-col">
                            <h3 className="text-xl font-black text-white uppercase tracking-tighter font-exo group-hover:text-mat-500 transition-colors leading-none mb-2">{r.title}</h3>
                            <p className="text-mat-500 text-[10px] font-black uppercase tracking-widest mb-6">{r.artist}</p>
-                           <div className="mt-auto pt-6 border-t border-mat-700/50 flex items-center justify-between text-[8px] font-black text-gray-500 uppercase tracking-[0.2em]">
-                              <div className="flex flex-col">
-                                 <span className="text-gray-600 uppercase">VENDEDOR</span>
-                                 <span className="text-white uppercase">@{r.sellerId || 'MAT32'}</span>
-                              </div>
+                           <div className="mt-auto pt-6 border-t border-mat-700/50 flex items-center justify-end text-[8px] font-black text-gray-500 uppercase tracking-[0.2em]">
                               <span className="flex items-center gap-2 text-mat-500 font-bold bg-mat-900 px-3 py-1.5 rounded-lg border border-mat-700 group-hover:border-mat-500 transition-all">
                                  <Handshake size={14} /> NEGOCIAR
                               </span>
@@ -180,43 +177,86 @@ export const Community: React.FC = () => {
            </div>
          ) : (
            /* El Muro de la Comunidad */
-           <div className="max-w-3xl mx-auto space-y-12 animate-fade-in">
-              <div className="flex justify-between items-center border-b border-mat-800 pb-6 mb-10">
+           <div className="animate-fade-in">
+              <div className="flex justify-between items-center border-b border-mat-800 pb-6 mb-12">
                  <h2 className="text-2xl font-black text-white uppercase font-exo">ÚLTIMAS <span className="text-mat-500">PUBLICACIONES.</span></h2>
-                 <button className="px-6 py-2 bg-mat-800 border border-mat-700 text-[9px] font-black text-white uppercase rounded-full hover:bg-mat-500 transition-colors">PUBLICAR +</button>
               </div>
-              
+
               {loading ? (
                 <div className="flex justify-center py-20"><Loader2 className="animate-spin text-mat-500" /></div>
               ) : posts.length === 0 ? (
                 <div className="text-center py-24 bg-mat-800/30 rounded-[3rem] border-2 border-dashed border-mat-800">
                    <MessageCircle className="w-16 h-16 text-mat-800 mx-auto mb-6 opacity-40" />
-                   <p className="text-gray-600 font-black uppercase text-xs">El muro está vacío. Sé el primero en compartir algo.</p>
+                   <p className="text-gray-600 font-black uppercase text-xs">El muro está vacío.</p>
                 </div>
               ) : (
-                posts.map(post => (
-                  <article key={post.id} onClick={() => navigate(`/community/${post.id}`)} className="bg-mat-800 border border-mat-700 rounded-[3rem] p-10 hover:border-mat-500 transition-all cursor-pointer group shadow-xl">
-                     <div className="flex items-center gap-4 mb-8">
-                        <div className="w-12 h-12 bg-mat-500 rounded-full flex items-center justify-center text-white font-black shadow-lg">{post.author?.[0] || 'A'}</div>
-                        <div>
-                           <h4 className="text-white font-black uppercase text-sm">@{post.author || 'HUB_MEMBER'}</h4>
-                           <span className="text-[9px] text-gray-600 font-bold uppercase tracking-widest">{post.timestamp}</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {posts.map(post => (
+                    <article
+                      key={post.id}
+                      onClick={() => navigate(`/community/${post.id}`)}
+                      className="bg-mat-800 border border-mat-700 rounded-[2.5rem] overflow-hidden hover:border-mat-500 transition-all duration-300 cursor-pointer group shadow-xl flex flex-col"
+                    >
+                      {/* Cover image */}
+                      {post.imageUrl ? (
+                        <div className="aspect-video overflow-hidden relative bg-black">
+                          <CachedImage
+                            src={post.imageUrl}
+                            alt={post.title || post.content}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-100"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-mat-900/80 to-transparent" />
                         </div>
-                     </div>
-                     <div className="text-white text-xl font-light italic leading-relaxed mb-8 group-hover:text-mat-500 transition-colors">
-                       {renderContentWithTags(post.content)}
-                     </div>
-                     {post.imageUrl && (
-                        <div className="rounded-[2.5rem] overflow-hidden border border-mat-700 mb-8 aspect-video shadow-2xl">
-                           <CachedImage src={post.imageUrl} alt="Contenido comunidad" />
+                      ) : (
+                        <div className="aspect-video bg-gradient-to-br from-mat-900 to-mat-950 flex items-center justify-center border-b border-mat-700">
+                          <Disc className="w-16 h-16 text-mat-700 group-hover:text-mat-500 transition-colors animate-spin-slow" />
                         </div>
-                     )}
-                     <div className="flex gap-6 pt-6 border-t border-mat-700/50 text-[10px] font-black text-gray-500">
-                        <span className="flex items-center gap-2 hover:text-mat-500 transition-colors"><Heart size={14} className="text-mat-500" /> {post.likes}</span>
-                        <span className="flex items-center gap-2 hover:text-white transition-colors"><MessageCircle size={14} /> {post.comments?.length || 0} COMENTARIOS</span>
-                     </div>
-                  </article>
-                ))
+                      )}
+
+                      <div className="p-8 flex flex-col flex-1">
+                        {/* Title */}
+                        {post.title && (
+                          <h3 className="text-xl font-black text-white uppercase tracking-tighter font-exo leading-tight mb-3 group-hover:text-mat-500 transition-colors line-clamp-2">
+                            {post.title}
+                          </h3>
+                        )}
+
+                        {/* Content preview */}
+                        <p className="text-gray-400 text-sm font-light italic leading-relaxed line-clamp-3 mb-4 flex-1">
+                          {post.content}
+                        </p>
+
+                        {/* Bandcamp mini player */}
+                        {(post as any).musicEmbed && (
+                          <div onClick={e => e.stopPropagation()} className="mb-4">
+                            <BandcampPlayer src={(post as any).musicEmbed} />
+                          </div>
+                        )}
+
+                        {/* Footer */}
+                        <div className="flex items-center justify-between pt-5 border-t border-mat-700/50 mt-auto">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-mat-500 rounded-full flex items-center justify-center text-white text-[10px] font-black shrink-0">
+                              {post.author?.[0]?.toUpperCase() || 'M'}
+                            </div>
+                            <div>
+                              <span className="block text-[9px] font-black text-white uppercase tracking-widest">@{post.author || 'MAT32'}</span>
+                              <span className="block text-[8px] text-gray-600 uppercase">{post.timestamp}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-4 text-[9px] font-black text-gray-600">
+                            <span className="flex items-center gap-1 hover:text-mat-500 transition-colors">
+                              <Heart size={12} className="text-mat-500" /> {post.likes}
+                            </span>
+                            <span className="flex items-center gap-1 hover:text-white transition-colors">
+                              <MessageCircle size={12} /> {post.comments?.length || 0}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
               )}
            </div>
          )}

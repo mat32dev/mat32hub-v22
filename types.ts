@@ -110,6 +110,8 @@ export interface Post {
   timestamp: string;
   status: 'published' | 'draft';
   imageUrl?: string;
+  musicEmbed?: string;
+  affiliateUrl?: string;
   tags: string[];
   likes: number;
   comments: any[];

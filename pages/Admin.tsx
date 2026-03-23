@@ -9,7 +9,7 @@ import {
   LineChart, Line, AreaChart, Area
 } from 'recharts';
 import { dataService } from '../services/dataService';
-import { Event, VinylRecord, Sale, InboxMessage, MerchItem, SelectorSubmission } from '../types';
+import { Event, VinylRecord, Sale, InboxMessage, MerchItem, SelectorSubmission, Post } from '../types';
 
 type AdminTab = 'analytics' | 'agenda' | 'inventory' | 'sales' | 'messages' | 'community';
 
@@ -27,6 +27,8 @@ export const Admin: React.FC = () => {
   const [analytics, setAnalytics] = useState<any>(null);
   const [status, setStatus] = useState<string | null>(null);
   
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [editingPost, setEditingPost] = useState<Partial<Post> | null>(null);
   const [editingEvent, setEditingEvent] = useState<Partial<Event> | null>(null);
   const [editingRecord, setEditingRecord] = useState<Partial<VinylRecord> | null>(null);
   const [editingMerch, setEditingMerch] = useState<Partial<MerchItem> | null>(null);
@@ -48,14 +50,15 @@ export const Admin: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [ev, rec, mer, sal, msg, ana, sel] = await Promise.all([
+      const [ev, rec, mer, sal, msg, ana, sel, pst] = await Promise.all([
         dataService.getEvents(),
         dataService.getRecords(),
         dataService.getMerch(),
         dataService.getSales(),
         dataService.getInbox(),
         dataService.getAnalytics(),
-        dataService.getSelectors()
+        dataService.getSelectors(),
+        dataService.getPosts()
       ]);
       setEvents(ev);
       setRecords(rec);
@@ -64,6 +67,7 @@ export const Admin: React.FC = () => {
       setInbox(msg);
       setAnalytics(ana);
       setSelectors(sel);
+      setPosts(pst);
     } catch (error) {
       console.error("Error loading admin data:", error);
     } finally {
@@ -165,6 +169,24 @@ export const Admin: React.FC = () => {
     } catch (error: any) {
       console.error("Error saving merch:", error);
       setStatus("ERROR_SAVING_MERCH");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSavePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPost) return;
+    setIsProcessing(true);
+    try {
+      if (editingPost.id) await dataService.updatePost(editingPost);
+      else await dataService.createPost({ ...editingPost, type: 'POST', likes: 0, comments: [], tags: [] });
+      setEditingPost(null);
+      loadData();
+      setStatus('POST_SAVED');
+      setTimeout(() => setStatus(null), 3000);
+    } catch (err: any) {
+      setStatus('ERROR_SAVING_POST');
     } finally {
       setIsProcessing(false);
     }
@@ -494,6 +516,44 @@ export const Admin: React.FC = () => {
 
         {activeTab === 'community' && (
           <div className="space-y-8 animate-fade-in">
+
+            {/* POSTS */}
+            <div className="bg-mat-900 border border-mat-800 p-10 rounded-[2.5rem] shadow-2xl">
+              <div className="flex justify-between items-center mb-10">
+                <h3 className="text-2xl font-black uppercase font-exo tracking-tighter">Posts Comunidad</h3>
+                <button
+                  onClick={() => setEditingPost({ author: 'MAT32', content: '', status: 'published' })}
+                  className="px-6 py-3 bg-mat-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl flex items-center gap-2 hover:bg-mat-400 shadow-xl transition-all"
+                >
+                  <Plus size={16} /> Nuevo Post
+                </button>
+              </div>
+              <div className="space-y-4">
+                {posts.length === 0 ? (
+                  <div className="text-center py-20 text-gray-600 font-black text-xs uppercase">No hay posts</div>
+                ) : posts.map(post => (
+                  <div key={post.id} className="flex items-center justify-between p-6 bg-mat-800/50 border border-mat-700 rounded-3xl hover:border-mat-500 transition-all group">
+                    <div className="flex items-center gap-6">
+                      <div className="w-12 h-12 bg-mat-800 rounded-2xl border border-mat-700 overflow-hidden flex items-center justify-center">
+                        {post.imageUrl
+                          ? <img src={post.imageUrl} className="w-full h-full object-cover" />
+                          : <Music size={20} className="text-mat-500" />}
+                      </div>
+                      <div>
+                        <p className="font-black uppercase text-sm text-white line-clamp-1">{post.content.slice(0, 60)}…</p>
+                        <p className="text-[10px] font-bold text-mat-500 uppercase tracking-widest">@{post.author} · {post.timestamp}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-4">
+                      <button onClick={() => setEditingPost(post)} className="p-3 bg-mat-900 text-gray-500 hover:text-white rounded-xl border border-mat-700"><Edit3 size={18} /></button>
+                      <button onClick={async () => { if (confirm('¿Eliminar post?')) { await dataService.deletePost(post.id); loadData(); } }} className="p-3 bg-mat-900 text-gray-500 hover:text-red-500 rounded-xl border border-mat-700"><Trash2 size={18} /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* OPEN DECKS SUBMISSIONS */}
             <div className="bg-mat-900 border border-mat-800 p-10 rounded-[2.5rem] shadow-2xl">
               <div className="flex justify-between items-center mb-10">
                 <h3 className="text-2xl font-black uppercase font-exo tracking-tighter">Open Decks Submissions</h3>
@@ -707,6 +767,72 @@ export const Admin: React.FC = () => {
                  </button>
               </form>
            </div>
+        </div>
+      )}
+
+      {/* MODAL EDICIÓN POST */}
+      {editingPost && (
+        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-6 animate-fade-in">
+          <div className="w-full max-w-xl bg-mat-900 border-2 border-mat-700 p-10 rounded-[3.5rem] relative max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500"></div>
+            <button onClick={() => setEditingPost(null)} className="absolute top-10 right-10 text-gray-500 hover:text-white"><X size={32} /></button>
+            <h2 className="text-3xl font-black uppercase mb-10 font-exo tracking-tighter">
+              {editingPost.id ? 'EDITAR_POST' : 'NUEVO_POST'}
+            </h2>
+            <form onSubmit={handleSavePost} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-2">Autor</label>
+                <input
+                  value={editingPost.author || ''}
+                  onChange={e => setEditingPost({ ...editingPost, author: e.target.value })}
+                  className="w-full bg-mat-800 border border-mat-700 p-4 rounded-xl text-white outline-none focus:border-mat-500"
+                  placeholder="@mat32"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-2">Contenido</label>
+                <textarea
+                  required
+                  value={editingPost.content || ''}
+                  onChange={e => setEditingPost({ ...editingPost, content: e.target.value })}
+                  className="w-full bg-mat-800 border border-mat-700 p-5 h-40 rounded-2xl text-white outline-none focus:border-mat-500 resize-none"
+                  placeholder="Texto del post, acepta #hashtags..."
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-2">URL Imagen</label>
+                <input
+                  value={editingPost.imageUrl || ''}
+                  onChange={e => setEditingPost({ ...editingPost, imageUrl: e.target.value })}
+                  className="w-full bg-mat-800 border border-mat-700 p-4 rounded-xl text-white font-mono text-xs outline-none focus:border-mat-500"
+                  placeholder="https://..."
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-2 flex items-center gap-2">
+                  <Music size={12} /> Bandcamp Embed URL
+                </label>
+                <input
+                  value={(editingPost as any).musicEmbed || ''}
+                  onChange={e => setEditingPost({ ...editingPost, musicEmbed: e.target.value } as any)}
+                  className="w-full bg-mat-800 border border-mat-700 p-4 rounded-xl text-white font-mono text-xs outline-none focus:border-mat-500"
+                  placeholder="https://bandcamp.com/EmbeddedPlayer/album=..."
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-2">URL Afiliado (Bandcamp compra)</label>
+                <input
+                  value={(editingPost as any).affiliateUrl || ''}
+                  onChange={e => setEditingPost({ ...editingPost, affiliateUrl: e.target.value } as any)}
+                  className="w-full bg-mat-800 border border-mat-700 p-4 rounded-xl text-white font-mono text-xs outline-none focus:border-mat-500"
+                  placeholder="https://artist.bandcamp.com/album/..."
+                />
+              </div>
+              <button type="submit" disabled={isProcessing} className="w-full py-6 bg-mat-500 text-white font-black uppercase rounded-[2rem] shadow-2xl flex items-center justify-center gap-4 transition-all hover:bg-mat-400">
+                {isProcessing ? <Loader2 className="animate-spin" /> : <Save size={20} />} GUARDAR_POST
+              </button>
+            </form>
+          </div>
         </div>
       )}
 

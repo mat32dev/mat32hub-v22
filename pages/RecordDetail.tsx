@@ -184,8 +184,6 @@ export const RecordDetail: React.FC = () => {
                  <div className="flex items-center gap-8 py-8 border-y border-mat-800">
                     <div className="text-7xl font-black text-white font-exo leading-none">€{record.price}</div>
                     <div className="space-y-1">
-                       <p className="text-gray-600 text-[9px] font-black uppercase tracking-widest leading-none">VENDEDOR_ID</p>
-                       <p className="text-mat-500 font-black uppercase text-sm tracking-tighter">@{record.sellerId}</p>
                        <p className="text-gray-800 text-[8px] font-black uppercase tracking-widest">SKU: {record.sku}</p>
                     </div>
                  </div>

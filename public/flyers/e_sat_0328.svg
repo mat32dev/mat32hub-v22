@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900">
+  <rect width="900" height="900" fill="#0a0a0a"/>
+  <!-- Grid lines -->
+  <line x1="0" y1="150" x2="900" y2="150" stroke="#161616" stroke-width="1"/>
+  <line x1="0" y1="300" x2="900" y2="300" stroke="#161616" stroke-width="1"/>
+  <line x1="0" y1="450" x2="900" y2="450" stroke="#161616" stroke-width="1"/>
+  <line x1="0" y1="600" x2="900" y2="600" stroke="#161616" stroke-width="1"/>
+  <line x1="150" y1="0" x2="150" y2="900" stroke="#161616" stroke-width="1"/>
+  <line x1="300" y1="0" x2="300" y2="900" stroke="#161616" stroke-width="1"/>
+  <line x1="450" y1="0" x2="450" y2="900" stroke="#161616" stroke-width="1"/>
+  <line x1="600" y1="0" x2="600" y2="900" stroke="#161616" stroke-width="1"/>
+  <line x1="750" y1="0" x2="750" y2="900" stroke="#161616" stroke-width="1"/>
+  <!-- Accent dot cluster -->
+  <circle cx="80" cy="80" r="6" fill="#ea580c"/>
+  <circle cx="100" cy="80" r="6" fill="#ea580c"/>
+  <circle cx="120" cy="80" r="6" fill="#ea580c"/>
+  <circle cx="80" cy="100" r="6" fill="#ea580c"/>
+  <circle cx="100" cy="100" r="3" fill="#ea580c" opacity="0.5"/>
+  <!-- Top label -->
+  <text x="450" y="55" font-family="'Arial Black', Arial, sans-serif" font-size="11" font-weight="900" fill="#444" text-anchor="middle" letter-spacing="10">MAT32 PRESENTA</text>
+  <!-- Big CRATE text -->
+  <text x="450" y="380" font-family="'Arial Black', Arial, sans-serif" font-size="160" font-weight="900" fill="#141414" text-anchor="middle" letter-spacing="-8">CRATE</text>
+  <text x="450" y="520" font-family="'Arial Black', Arial, sans-serif" font-size="160" font-weight="900" fill="#141414" text-anchor="middle" letter-spacing="-8">DIGGERS</text>
+  <!-- Overlay title -->
+  <text x="450" y="420" font-family="'Arial Black', Arial, sans-serif" font-size="130" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="-6">CRATE</text>
+  <text x="450" y="555" font-family="'Arial Black', Arial, sans-serif" font-size="130" font-weight="900" fill="#ea580c" text-anchor="middle" letter-spacing="-6">DIGGERS</text>
+  <!-- Sub -->
+  <text x="450" y="640" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="#555" text-anchor="middle" letter-spacing="6">SOUL · FUNK · RARE GROOVES · OPEN FORMAT</text>
+  <!-- Date strip -->
+  <rect x="0" y="820" width="900" height="2" fill="#ea580c"/>
+  <text x="80" y="870" font-family="'Arial Black', Arial, sans-serif" font-size="20" font-weight="900" fill="#ffffff" letter-spacing="4">SÁBADO 28 MAR 2026</text>
+  <text x="820" y="870" font-family="'Arial Black', Arial, sans-serif" font-size="20" font-weight="900" fill="#ea580c" text-anchor="end" letter-spacing="2">22:00H</text>
+  <!-- Bottom label -->
+  <text x="450" y="895" font-family="Arial, sans-serif" font-size="10" fill="#333" text-anchor="middle" letter-spacing="8">MAT32 · CALLE MATÍAS PERELLÓ 32 · RUZAFA · ENTRADA LIBRE</text>
+</svg>

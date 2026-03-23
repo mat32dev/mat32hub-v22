@@ -100,6 +100,16 @@ export const Records: React.FC = () => {
                       </div>
                       <div className="absolute bottom-6 left-6 bg-mat-950/90 backdrop-blur-md border border-mat-700 px-5 py-2 rounded-xl text-white font-exo font-black text-2xl tracking-tighter shadow-xl">€{record.price}</div>
                     </div>
+                    {record.streamingLink && (
+                      <div onClick={e => e.stopPropagation()} className="border-t border-mat-700 bg-mat-950">
+                        <iframe
+                          style={{ border: 0, width: '100%', height: '120px', display: 'block' }}
+                          src={record.streamingLink}
+                          seamless
+                          title={`${record.artist} - ${record.title}`}
+                        />
+                      </div>
+                    )}
                     <div className="p-8 flex-1 flex flex-col">
                       <h3 className="text-2xl font-black text-white uppercase tracking-tighter leading-none mb-2 font-exo group-hover:text-mat-500 transition-colors">{record.artist}</h3>
                       <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4">{record.title}</p>

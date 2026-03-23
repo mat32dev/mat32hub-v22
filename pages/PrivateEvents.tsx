@@ -9,38 +9,38 @@ import { CachedImage } from '../components/CachedImage';
 const SPACE_GALLERY = [
   {
     url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/ac1a7472-de26-46de-37f3-7ec5509f5900/public",
-    title: "Hi-Fi Booth Sanctuary",
-    tag: "#MainBooth"
+    title: "Sala Principal",
+    tag: "#EspacioCompleto"
   },
   {
     url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7af028d2-be2a-44ae-a2bd-d2e05db8ac00/w=800",
-    title: "Analog Listening Lounge",
-    tag: "#ListeningZone"
+    title: "Rincón Analógico",
+    tag: "#Ambiente"
   },
   {
     url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/53d83bbb-47b5-45ce-4f69-00fdc063fd00/w=800",
-    title: "Altec A7 Master System",
-    tag: "#HighFidelity"
-  },
-  {
-    url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/f66760c8-cc6c-457a-dc23-5edbe31a2200/w=800",
-    title: "Vinyl Crate Archive",
+    title: "Archivo de Vinilos",
     tag: "#TheCrate"
   },
   {
+    url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/f66760c8-cc6c-457a-dc23-5edbe31a2200/w=800",
+    title: "Bola de Espejos",
+    tag: "#Atmósfera"
+  },
+  {
     url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/cd431032-310e-4ccc-c602-68787da5ae00/w=800",
-    title: "Signature Bar Experience",
-    tag: "#LiquidCulture"
+    title: "Zona Lounge",
+    tag: "#LivingRoom"
   },
   {
     url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/36b8814e-df61-468c-614a-788a5fbfa700/w=800",
-    title: "Booth Perspective",
-    tag: "#ProGear"
+    title: "Sala de Escucha",
+    tag: "#ListeningRoom"
   },
   {
     url: "https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/496db3dc-f7c7-4d22-d05a-ac0198681c00/w=800",
-    title: "Mat32 Atmosphere",
-    tag: "#RuzafaValencia"
+    title: "Cabina DJ",
+    tag: "#Booth"
   }
 ];
 

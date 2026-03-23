@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MessageSquare, Heart, ArrowLeft, Share2, CornerDownRight, Hash, Loader2 } from 'lucide-react';
+import { MessageSquare, Heart, ArrowLeft, CornerDownRight, Hash, Loader2 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { SEO } from '../components/SEO';
 import { Post } from '../types';
 import { CachedImage } from '../components/CachedImage';
 import { TagLink } from '../components/TagLink';
+import { BandcampPlayer } from '../components/BandcampPlayer';
 
 export const PostDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -64,6 +65,10 @@ export const PostDetail: React.FC = () => {
                   <div className="rounded-[2.5rem] overflow-hidden border-2 border-mat-700 mb-12 shadow-2xl">
                      <CachedImage src={post.imageUrl} alt="Community context" className="w-full h-full" />
                   </div>
+               )}
+
+               {post.musicEmbed && (
+                  <BandcampPlayer src={post.musicEmbed} affiliateUrl={post.affiliateUrl} />
                )}
 
                <div className="flex gap-8 items-center border-t border-mat-800 pt-10">

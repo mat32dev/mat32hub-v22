@@ -87,14 +87,16 @@ export const EventDetail: React.FC = () => {
   );
 
   const isFree = event.price === 0;
+  const seoDescription = `${event.title} · ${event.date} · ${event.time} · MAT32 Ruzafa Valencia. ${isFree ? 'Entrada libre.' : `Entrada ${event.price}€.`} Aforo: ${event.capacity} personas. ${event.description}`;
 
   return (
     <div className="min-h-screen bg-mat-900 pb-24 font-sans">
-      <SEO 
-        titleKey={event.title} 
-        descriptionKey={event.description} 
+      <SEO
+        titleKey={`${event.title} | ${event.date} · MAT32 Ruzafa`}
+        descriptionKey={seoDescription}
         image={event.imageUrl}
         schemaType="MusicEvent"
+        event={event}
       />
       
       <div className="relative h-[70vh] overflow-hidden">
@@ -107,7 +109,7 @@ export const EventDetail: React.FC = () => {
               </Link>
               <div className="flex flex-wrap items-center gap-4 mb-6">
                 <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-mat-500 text-white text-[10px] font-black uppercase tracking-[0.4em] rounded shadow-xl">
-                   <Zap className="w-4 h-4 animate-pulse" /> {event.category.toUpperCase()}
+                   <Zap className="w-4 h-4 animate-pulse" /> {(event.category || 'Sesión').toUpperCase()}
                 </div>
                 {isFree && (
                   <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-[0.4em] rounded shadow-xl">
