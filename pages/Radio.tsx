@@ -21,11 +21,6 @@ interface RadioTrack {
   channel_name: string;
 }
 
-interface Channel {
-  id: number;
-  name: string;
-  genre: string;
-}
 
 function shuffleArray<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -39,9 +34,7 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 export const RadioPage: React.FC = () => {
   const [tracks, setTracks]           = useState<RadioTrack[]>([]);
-  const [channels, setChannels]       = useState<Channel[]>([]);
   const [loading, setLoading]         = useState(true);
-  const [activeChannel, setActiveChannel] = useState<string>('all');
   const [currentIdx, setCurrentIdx]   = useState(0);
   const [isPlaying, setIsPlaying]     = useState(false);
   const [shuffled, setShuffled]       = useState(false);
@@ -52,15 +45,10 @@ export const RadioPage: React.FC = () => {
     const load = async () => {
       setLoading(true);
       try {
-        const [tRes, cRes] = await Promise.all([
-          fetch(`${API}/radio/tracks?limit=300`),
-          fetch(`${API}/radio/channels`),
-        ]);
+        const tRes = await fetch(`${API}/radio/tracks?limit=300`);
         const tData = await tRes.json();
-        const cData = await cRes.json();
         const trackList: RadioTrack[] = tData.tracks || [];
         setTracks(trackList);
-        setChannels(cData || []);
         setQueue(trackList);
         setCurrentIdx(0);
       } catch {
@@ -73,16 +61,14 @@ export const RadioPage: React.FC = () => {
     load();
   }, []);
 
-  const filtered = activeChannel === 'all'
-    ? tracks
-    : tracks.filter(t => t.channel_name === activeChannel);
+  const filtered = tracks;
 
   useEffect(() => {
     const list = shuffled ? shuffleArray(filtered) : filtered;
     setQueue(list);
     setCurrentIdx(0);
     setIsPlaying(false);
-  }, [activeChannel, shuffled, tracks]);
+  }, [shuffled, tracks]);
 
   const current = queue[currentIdx] || null;
 
@@ -134,27 +120,6 @@ export const RadioPage: React.FC = () => {
         {/* ── LEFT: Player ─────────────────────────────────────────── */}
         <div className="lg:w-[55%] flex flex-col bg-mat-950 border-r border-mat-800">
 
-          {/* Channel selector */}
-          <div className="flex items-center gap-2 p-4 border-b border-mat-800 bg-mat-900">
-            <div className="flex bg-mat-800 rounded-2xl p-1 gap-1">
-              <button
-                onClick={() => setActiveChannel('all')}
-                className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeChannel === 'all' ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
-              >
-                TODOS
-              </button>
-              {channels.map(ch => (
-                <button
-                  key={ch.id}
-                  onClick={() => setActiveChannel(ch.name)}
-                  className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeChannel === ch.name ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
-                >
-                  {ch.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Video / Player */}
           <div className="flex-1 relative bg-black">
             {loading ? (
@@ -181,7 +146,6 @@ export const RadioPage: React.FC = () => {
                       <Disc className="w-32 h-32 text-mat-500 opacity-20" />
                     )}
                     <div className="text-center">
-                      <p className="text-mat-500 text-[9px] font-black uppercase tracking-widest mb-2">{current.channel_name}</p>
                       <h2 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter font-exo leading-tight">
                         {current.artist || current.video_title}
                       </h2>
