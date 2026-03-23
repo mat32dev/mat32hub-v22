@@ -88,10 +88,8 @@ export const RadioPage: React.FC = () => {
     el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }, [currentIdx]);
 
-  // Track real de YouTube o track dytid (sin video real)
-  const isRealYT = current?.youtube_id && !current.youtube_id.startsWith('dytid_');
-  const ytEmbed  = isRealYT
-    ? `https://www.youtube.com/embed/${current!.youtube_id}?autoplay=${isPlaying ? 1 : 0}&rel=0&modestbranding=1`
+  const ytEmbed = current?.youtube_id
+    ? `https://www.youtube.com/embed/${current.youtube_id}?autoplay=${isPlaying ? 1 : 0}&rel=0&modestbranding=1`
     : null;
 
   return (
@@ -129,8 +127,7 @@ export const RadioPage: React.FC = () => {
               </div>
             ) : current ? (
               <>
-                {/* Track con YouTube real */}
-                {isRealYT && isPlaying && ytEmbed ? (
+                {isPlaying && ytEmbed ? (
                   <iframe
                     key={current.youtube_id + isPlaying}
                     src={ytEmbed}
@@ -139,32 +136,6 @@ export const RadioPage: React.FC = () => {
                     allowFullScreen
                     title={current.video_title}
                   />
-                ) : !isRealYT && current.bandcamp_embed ? (
-                  /* Track DYTID — Bandcamp como player principal */
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 p-10">
-                    <Disc className="w-24 h-24 text-mat-500 opacity-20 animate-spin" style={{ animationDuration: '8s' }} />
-                    <div className="text-center">
-                      <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter font-exo leading-tight">
-                        {current.artist}
-                      </h2>
-                      <p className="text-gray-500 text-sm mt-1 italic">{current.title}</p>
-                    </div>
-                    <div className="w-full max-w-md">
-                      <iframe
-                        key={current.bandcamp_embed}
-                        src={current.bandcamp_embed}
-                        seamless
-                        style={{ border: 0, width: '100%', height: '42px', display: 'block' }}
-                        title="Bandcamp player"
-                      />
-                    </div>
-                    {current.bandcamp_url && (
-                      <a href={current.bandcamp_url} target="_blank" rel="noopener noreferrer"
-                         className="text-[8px] text-gray-600 hover:text-mat-500 font-black uppercase tracking-widest flex items-center gap-1 transition-colors">
-                        COMPRAR EN BANDCAMP <ExternalLink size={10} />
-                      </a>
-                    )}
-                  </div>
                 ) : (
                   /* Thumbnail + play overlay (YouTube no iniciado aún) */
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 p-10">
@@ -197,26 +168,13 @@ export const RadioPage: React.FC = () => {
             )}
           </div>
 
-          {/* Bandcamp embed secundario (tracks YouTube que también tienen BC) */}
-          {isRealYT && current?.bandcamp_embed && (
-            <div className="border-t border-mat-700 bg-mat-900">
-              <div className="px-6 pt-4 pb-1">
-                <p className="text-[8px] text-mat-500 font-black uppercase tracking-widest">ESCUCHAR EN BANDCAMP</p>
-              </div>
-              <iframe
-                src={current.bandcamp_embed}
-                seamless
-                style={{ border: 0, width: '100%', height: '42px', display: 'block' }}
-                title="Bandcamp player"
-              />
-              {current.bandcamp_url && (
-                <div className="px-6 pb-3">
-                  <a href={current.bandcamp_url} target="_blank" rel="noopener noreferrer"
-                     className="text-[8px] text-gray-600 hover:text-mat-500 font-black uppercase tracking-widest flex items-center gap-1 transition-colors">
-                    COMPRAR EN BANDCAMP <ExternalLink size={10} />
-                  </a>
-                </div>
-              )}
+          {/* Bandcamp — botón comprar cuando existe */}
+          {current?.bandcamp_url && (
+            <div className="border-t border-mat-800 px-6 py-3 bg-mat-950">
+              <a href={current.bandcamp_url} target="_blank" rel="noopener noreferrer"
+                 className="text-[8px] text-gray-600 hover:text-mat-500 font-black uppercase tracking-widest flex items-center gap-1 transition-colors">
+                COMPRAR EN BANDCAMP <ExternalLink size={10} />
+              </a>
             </div>
           )}
 
