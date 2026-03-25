@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900">
+  <!-- WEEK 5: warm dark -->
+  <rect width="900" height="900" fill="#0f0500"/>
+  <!-- Warm texture — subtle diagonal -->
+  <line x1="0" y1="300" x2="300" y2="0" stroke="#140800" stroke-width="2"/>
+  <line x1="0" y1="600" x2="600" y2="0" stroke="#140800" stroke-width="2"/>
+  <line x1="0" y1="900" x2="900" y2="0" stroke="#140800" stroke-width="2"/>
+  <line x1="300" y1="900" x2="900" y2="300" stroke="#140800" stroke-width="2"/>
+  <line x1="600" y1="900" x2="900" y2="600" stroke="#140800" stroke-width="2"/>
+  <!-- Orange top bar -->
+  <rect x="0" y="0" width="900" height="4" fill="#ea580c"/>
+  <!-- Series label -->
+  <text x="450" y="55" font-family="'Arial Black', Arial, sans-serif" font-size="11" font-weight="900" fill="#3a1a00" text-anchor="middle" letter-spacing="10">MAT32 · MIÉRCOLES</text>
+  <!-- Main title -->
+  <text x="450" y="380" font-family="'Arial Black', Arial, sans-serif" font-size="200" font-weight="900" fill="#ff6520" text-anchor="middle" letter-spacing="-8">HOU</text>
+  <text x="450" y="570" font-family="'Arial Black', Arial, sans-serif" font-size="200" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="-8">SE.</text>
+  <!-- Sub -->
+  <text x="450" y="640" font-family="Arial, sans-serif" font-size="13" fill="#5a2a00" text-anchor="middle" letter-spacing="7">VINYL ONLY · DEEP & SOULFUL</text>
+  <!-- Bottom -->
+  <rect x="0" y="840" width="900" height="60" fill="#0a0200"/>
+  <rect x="0" y="840" width="900" height="2" fill="#ea580c"/>
+  <text x="80" y="879" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ff6520" letter-spacing="3">MIÉRCOLES 29 ABR 2026 · 19:30H</text>
+  <text x="820" y="879" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ffffff" text-anchor="end" letter-spacing="2">ENTRADA LIBRE</text>
+</svg>

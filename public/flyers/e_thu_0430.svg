@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900">
+  <!-- WEEK 5: warm dark -->
+  <rect width="900" height="900" fill="#0f0500"/>
+  <!-- Warm dot accent -->
+  <circle cx="820" cy="80" r="5" fill="#ea580c"/>
+  <circle cx="840" cy="80" r="5" fill="#ea580c"/>
+  <circle cx="860" cy="80" r="5" fill="#ea580c"/>
+  <circle cx="820" cy="100" r="5" fill="#ea580c" opacity="0.4"/>
+  <!-- Orange top bar -->
+  <rect x="0" y="0" width="900" height="4" fill="#ea580c"/>
+  <!-- Series label -->
+  <text x="80" y="55" font-family="'Arial Black', Arial, sans-serif" font-size="11" font-weight="900" fill="#3a1a00" letter-spacing="10">MAT32 · JUEVES</text>
+  <!-- Main title -->
+  <text x="80" y="350" font-family="'Arial Black', Arial, sans-serif" font-size="155" font-weight="900" fill="#ffffff" letter-spacing="-7">SOUL</text>
+  <text x="80" y="500" font-family="'Arial Black', Arial, sans-serif" font-size="100" font-weight="900" fill="#ff6520" letter-spacing="-4">&amp; JAZZ</text>
+  <!-- Divider -->
+  <rect x="80" y="545" width="500" height="1" fill="#2a1000"/>
+  <!-- Sub -->
+  <text x="80" y="580" font-family="Arial, sans-serif" font-size="13" fill="#5a2a00" letter-spacing="6">BLUE NOTE · PRESTIGE · RIVERSIDE</text>
+  <text x="80" y="610" font-family="Arial, sans-serif" font-size="12" fill="#3a1500" letter-spacing="5">GREEN · HENDERSON · SILVER · ROLLINS</text>
+  <!-- Bottom -->
+  <rect x="0" y="840" width="900" height="60" fill="#0a0200"/>
+  <rect x="0" y="840" width="900" height="2" fill="#ea580c"/>
+  <text x="80" y="879" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ff6520" letter-spacing="3">JUEVES 30 ABR 2026 · 19:30H</text>
+  <text x="820" y="879" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ffffff" text-anchor="end" letter-spacing="2">ENTRADA LIBRE</text>
+</svg>

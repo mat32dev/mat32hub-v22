@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900">
+  <rect width="900" height="900" fill="#0a0a0a"/>
+  <!-- Scan lines -->
+  <rect x="0" y="100" width="900" height="1" fill="#111"/>
+  <rect x="0" y="130" width="900" height="1" fill="#111"/>
+  <rect x="0" y="160" width="900" height="1" fill="#111"/>
+  <rect x="0" y="190" width="900" height="1" fill="#111"/>
+  <rect x="0" y="660" width="900" height="1" fill="#111"/>
+  <rect x="0" y="690" width="900" height="1" fill="#111"/>
+  <rect x="0" y="720" width="900" height="1" fill="#111"/>
+  <rect x="0" y="750" width="900" height="1" fill="#111"/>
+  <rect x="0" y="780" width="900" height="1" fill="#111"/>
+  <!-- Big background CRATE -->
+  <text x="450" y="500" font-family="'Arial Black', Arial, sans-serif" font-size="200" font-weight="900" fill="#0f0f0f" text-anchor="middle" letter-spacing="-10">CRATE</text>
+  <!-- Top label -->
+  <text x="450" y="65" font-family="'Arial Black', Arial, sans-serif" font-size="11" font-weight="900" fill="#555" text-anchor="middle" letter-spacing="10">MAT32 PRESENTA</text>
+  <!-- Overlay text -->
+  <text x="450" y="430" font-family="'Arial Black', Arial, sans-serif" font-size="140" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="-6">CRATE</text>
+  <text x="450" y="565" font-family="'Arial Black', Arial, sans-serif" font-size="140" font-weight="900" fill="#ea580c" text-anchor="middle" letter-spacing="-6">DIGGERS</text>
+  <!-- Genre line -->
+  <text x="450" y="630" font-family="Arial, sans-serif" font-size="14" fill="#444" text-anchor="middle" letter-spacing="6">DISCO · HOUSE · ITALO · FORGOTTEN BANGERS</text>
+  <!-- Bottom -->
+  <rect x="0" y="820" width="900" height="2" fill="#ea580c"/>
+  <text x="80" y="860" font-family="'Arial Black', Arial, sans-serif" font-size="18" font-weight="900" fill="#ffffff" letter-spacing="3">SÁBADO 4 ABR 2026</text>
+  <text x="820" y="860" font-family="'Arial Black', Arial, sans-serif" font-size="18" font-weight="900" fill="#ea580c" text-anchor="end" letter-spacing="2">22:00H</text>
+  <text x="450" y="890" font-family="Arial, sans-serif" font-size="10" fill="#333" text-anchor="middle" letter-spacing="7">MAT32 · MATÍAS PERELLÓ 32 · RUZAFA · ENTRADA LIBRE</text>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900">
+  <!-- WEEK 4: dark bg, orange leads -->
+  <rect width="900" height="900" fill="#0a0a0a"/>
+  <!-- Concentric circles — ambient feel -->
+  <circle cx="450" cy="420" r="340" fill="none" stroke="#111" stroke-width="1"/>
+  <circle cx="450" cy="420" r="300" fill="none" stroke="#111" stroke-width="1"/>
+  <circle cx="450" cy="420" r="260" fill="none" stroke="#131313" stroke-width="1"/>
+  <circle cx="450" cy="420" r="220" fill="none" stroke="#141414" stroke-width="1"/>
+  <circle cx="450" cy="420" r="180" fill="none" stroke="#161616" stroke-width="1"/>
+  <circle cx="450" cy="420" r="140" fill="none" stroke="#181818" stroke-width="1"/>
+  <circle cx="450" cy="420" r="100" fill="none" stroke="#1a1a1a" stroke-width="1"/>
+  <circle cx="450" cy="420" r="60" fill="none" stroke="#1e1e1e" stroke-width="1"/>
+  <circle cx="450" cy="420" r="20" fill="#ea580c" opacity="0.6"/>
+  <!-- Series header -->
+  <text x="450" y="55" font-family="'Arial Black', Arial, sans-serif" font-size="11" font-weight="900" fill="#333" text-anchor="middle" letter-spacing="12">MAT32 · MIÉRCOLES</text>
+  <!-- Main title — orange leads -->
+  <text x="450" y="700" font-family="'Arial Black', Arial, sans-serif" font-size="100" font-weight="900" fill="#ea580c" text-anchor="middle" letter-spacing="-4">AMBIENT</text>
+  <text x="450" y="790" font-family="'Arial Black', Arial, sans-serif" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="2">SESSION</text>
+  <!-- Bottom -->
+  <rect x="0" y="848" width="900" height="52" fill="#111"/>
+  <rect x="0" y="848" width="900" height="2" fill="#ea580c"/>
+  <text x="80" y="882" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ffffff" letter-spacing="3">MIÉ 22 ABR 2026 · 19:30H</text>
+  <text x="820" y="882" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ea580c" text-anchor="end" letter-spacing="2">ENTRADA LIBRE</text>
+</svg>

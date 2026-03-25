@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900">
+  <!-- WEEK 4: dark bg, orange leads -->
+  <rect width="900" height="900" fill="#0a0a0a"/>
+  <!-- Bass wave lines — dub feel -->
+  <rect x="0" y="140" width="900" height="3" fill="#111"/>
+  <rect x="0" y="155" width="900" height="6" fill="#111"/>
+  <rect x="0" y="172" width="900" height="3" fill="#111"/>
+  <rect x="0" y="700" width="900" height="3" fill="#111"/>
+  <rect x="0" y="715" width="900" height="6" fill="#111"/>
+  <rect x="0" y="732" width="900" height="3" fill="#111"/>
+  <!-- Right accent -->
+  <rect x="894" y="0" width="6" height="900" fill="#ea580c"/>
+  <!-- Series label -->
+  <text x="820" y="90" font-family="'Arial Black', Arial, sans-serif" font-size="11" font-weight="900" fill="#333" text-anchor="end" letter-spacing="10">MAT32 · JUEVES</text>
+  <!-- Main title -->
+  <text x="80" y="360" font-family="'Arial Black', Arial, sans-serif" font-size="220" font-weight="900" fill="#ea580c" letter-spacing="-10">DUB</text>
+  <!-- Sub -->
+  <text x="80" y="440" font-family="Arial, sans-serif" font-size="14" fill="#ffffff" letter-spacing="6">ECHO · RIDDIM · ROOTS</text>
+  <text x="80" y="472" font-family="Arial, sans-serif" font-size="12" fill="#333" letter-spacing="5">KING TUBBY · LEE SCRATCH PERRY · SCIENTIST</text>
+  <!-- Bottom -->
+  <rect x="0" y="840" width="900" height="60" fill="#111"/>
+  <rect x="0" y="840" width="894" height="2" fill="#ea580c"/>
+  <text x="80" y="879" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ffffff" letter-spacing="3">JUEVES 23 ABR 2026 · 19:30H</text>
+  <text x="860" y="879" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ea580c" text-anchor="end" letter-spacing="2">ENTRADA LIBRE</text>
+</svg>
