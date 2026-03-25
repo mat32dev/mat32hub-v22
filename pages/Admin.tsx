@@ -13,6 +13,15 @@ import { Event, VinylRecord, Sale, InboxMessage, MerchItem, SelectorSubmission, 
 
 type AdminTab = 'analytics' | 'agenda' | 'inventory' | 'sales' | 'messages' | 'community';
 
+const LOCKOUT_KEY = 'mat32_login_lockout';
+const MAX_ATTEMPTS = 3;
+const LOCKOUT_MS = 5 * 60 * 1000; // 5 min
+
+function getLockoutState(): { attempts: number; lockedUntil: number } {
+  try { return JSON.parse(localStorage.getItem(LOCKOUT_KEY) || '{}'); }
+  catch { return { attempts: 0, lockedUntil: 0 }; }
+}
+
 export const Admin: React.FC = () => {
   const [isAuth, setIsAuth] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTab>('analytics');
@@ -77,16 +86,25 @@ export const Admin: React.FC = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    const { attempts, lockedUntil } = getLockoutState();
+    if (Date.now() < lockedUntil) {
+      const mins = Math.ceil((lockedUntil - Date.now()) / 60000);
+      setStatus(`BLOQUEADO — reintenta en ${mins} min`);
+      return;
+    }
     const email = (e.target as any).email.value;
     const pass = (e.target as any).password.value;
-    
     setIsProcessing(true);
     if (await dataService.login(email, pass)) {
+      localStorage.removeItem(LOCKOUT_KEY);
       setIsAuth(true);
       loadData();
       setStatus(null);
     } else {
-      setStatus("ACCESS_DENIED_INVALID_TOKEN");
+      const newAttempts = attempts + 1;
+      const locked = newAttempts >= MAX_ATTEMPTS;
+      localStorage.setItem(LOCKOUT_KEY, JSON.stringify({ attempts: newAttempts, lockedUntil: locked ? Date.now() + LOCKOUT_MS : 0 }));
+      setStatus(locked ? `BLOQUEADO_${MAX_ATTEMPTS}_INTENTOS — espera 5 min` : `ACCESS_DENIED — ${MAX_ATTEMPTS - newAttempts} intentos restantes`);
     }
     setIsProcessing(false);
   };
@@ -180,7 +198,7 @@ export const Admin: React.FC = () => {
     setIsProcessing(true);
     try {
       if (editingPost.id) await dataService.updatePost(editingPost);
-      else await dataService.createPost({ ...editingPost, type: 'POST', likes: 0, comments: [], tags: [] });
+      else await dataService.createPost({ ...editingPost, likes: 0, comments: [], tags: [] });
       setEditingPost(null);
       loadData();
       setStatus('POST_SAVED');
@@ -315,7 +333,7 @@ export const Admin: React.FC = () => {
                         contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #1a1a1a', borderRadius: '12px', fontSize: '10px' }}
                         itemStyle={{ color: '#FF4D00' }}
                       />
-                      <Area type="monotone" dataKey="visits" stroke="#FF4D00" fillOpacity={1} fill="url(#colorVisits)" strokeWidth={3} />
+                      <Area type="monotone" dataKey="value" stroke="#FF4D00" fillOpacity={1} fill="url(#colorVisits)" strokeWidth={3} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -334,7 +352,7 @@ export const Admin: React.FC = () => {
                       <Tooltip 
                         contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid #1a1a1a', borderRadius: '12px', fontSize: '10px' }}
                       />
-                      <Bar dataKey="sales" radius={[4, 4, 0, 0]}>
+                      <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                         {analytics.chartData.map((entry: any, index: number) => (
                           <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#FF4D00' : '#10b981'} />
                         ))}
@@ -522,7 +540,7 @@ export const Admin: React.FC = () => {
               <div className="flex justify-between items-center mb-10">
                 <h3 className="text-2xl font-black uppercase font-exo tracking-tighter">Posts Comunidad</h3>
                 <button
-                  onClick={() => setEditingPost({ author: 'MAT32', content: '', status: 'published' })}
+                  onClick={() => setEditingPost({ author: 'MAT32', title: '', content: '' })}
                   className="px-6 py-3 bg-mat-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl flex items-center gap-2 hover:bg-mat-400 shadow-xl transition-all"
                 >
                   <Plus size={16} /> Nuevo Post
@@ -540,8 +558,8 @@ export const Admin: React.FC = () => {
                           : <Music size={20} className="text-mat-500" />}
                       </div>
                       <div>
-                        <p className="font-black uppercase text-sm text-white line-clamp-1">{post.content.slice(0, 60)}…</p>
-                        <p className="text-[10px] font-bold text-mat-500 uppercase tracking-widest">@{post.author} · {post.timestamp}</p>
+                        <p className="font-black uppercase text-sm text-white line-clamp-1">{(post.title || post.content || '').slice(0, 60)}</p>
+                        <p className="text-[10px] font-bold text-mat-500 uppercase tracking-widest">@{post.author || 'MAT32'} · {post.timestamp || '—'}</p>
                       </div>
                     </div>
                     <div className="flex gap-4">
@@ -651,6 +669,14 @@ export const Admin: React.FC = () => {
                  <div className="grid grid-cols-2 gap-6">
                     <input required type="date" value={editingEvent.date} onChange={e => setEditingEvent({...editingEvent, date: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-5 rounded-2xl text-white outline-none focus:border-mat-500" />
                     <input required type="time" value={editingEvent.time} onChange={e => setEditingEvent({...editingEvent, time: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-5 rounded-2xl text-white outline-none focus:border-mat-500" />
+                 </div>
+                 <div className="grid grid-cols-2 gap-6">
+                    <input type="number" min="0" step="0.5" value={editingEvent.price ?? 0} onChange={e => setEditingEvent({...editingEvent, price: parseFloat(e.target.value)})} className="w-full bg-mat-800 border border-mat-700 p-5 rounded-2xl text-white outline-none focus:border-mat-500" placeholder="Precio €" />
+                    <select value={(editingEvent as any).status || 'published'} onChange={e => setEditingEvent({...editingEvent, ...{ status: e.target.value }} as any)} className="w-full bg-mat-800 border border-mat-700 p-5 rounded-2xl text-white outline-none focus:border-mat-500">
+                       <option value="published">Publicado</option>
+                       <option value="draft">Borrador</option>
+                       <option value="sold_out">Sold Out</option>
+                    </select>
                  </div>
                  <textarea required value={editingEvent.description} onChange={e => setEditingEvent({...editingEvent, description: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-6 h-32 rounded-3xl text-white outline-none focus:border-mat-500 resize-none italic" placeholder="DESCRIPCIÓN VIBRA" />
                  <button type="submit" disabled={isProcessing} className="w-full py-6 bg-mat-500 text-white font-black uppercase rounded-[2rem] shadow-2xl flex items-center justify-center gap-4 transition-all hover:bg-mat-400">
@@ -780,6 +806,16 @@ export const Admin: React.FC = () => {
               {editingPost.id ? 'EDITAR_POST' : 'NUEVO_POST'}
             </h2>
             <form onSubmit={handleSavePost} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-2">Título</label>
+                <input
+                  required
+                  value={(editingPost as any).title || ''}
+                  onChange={e => setEditingPost({ ...editingPost, title: e.target.value } as any)}
+                  className="w-full bg-mat-800 border border-mat-700 p-4 rounded-xl text-white outline-none focus:border-mat-500 font-bold"
+                  placeholder="Título del post"
+                />
+              </div>
               <div className="space-y-2">
                 <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-2">Autor</label>
                 <input

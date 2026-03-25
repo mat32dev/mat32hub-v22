@@ -2,11 +2,29 @@ import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem
 import { BAR_MENU } from '../constants';
 
 const API = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3003';
-const SESSION_KEY = 'mat32_auth_session_v14';
+const SESSION_KEY = 'mat32_auth_session_v15'; // v15: adds JWT token + expiry
+const SESSION_TTL = 8 * 60 * 60 * 1000; // 8 hours
+
+function getAuthToken(): string | null {
+  try {
+    const s = localStorage.getItem(SESSION_KEY);
+    if (!s) return null;
+    const session = JSON.parse(s);
+    if (session.expiresAt && Date.now() > session.expiresAt) {
+      localStorage.removeItem(SESSION_KEY);
+      return null;
+    }
+    return session.token || null;
+  } catch { return null; }
+}
 
 async function api<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = getAuthToken();
   const res = await fetch(`${API}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    },
     ...options,
   });
   if (!res.ok) throw new Error(`API error ${res.status}: ${path}`);
@@ -17,12 +35,12 @@ class DataService {
   // ── AUTH ──────────────────────────────────────────────────────
   async login(email: string, pass: string): Promise<boolean> {
     try {
-      const data = await api<{ ok: boolean; role: string; name: string; email: string }>(
+      const data = await api<{ ok: boolean; role: string; name: string; email: string; token: string }>(
         '/auth/login',
         { method: 'POST', body: JSON.stringify({ email, pass }) }
       );
       if (data.ok) {
-        const session: UserSession = { id: 'admin_master', role: data.role as any, name: data.name, email: data.email };
+        const session = { id: 'admin_master', role: data.role as any, name: data.name, email: data.email, token: data.token, expiresAt: Date.now() + SESSION_TTL };
         localStorage.setItem(SESSION_KEY, JSON.stringify(session));
         localStorage.setItem('mat32_user_name', session.name);
         window.dispatchEvent(new CustomEvent('mat32_data_changed'));
@@ -37,8 +55,16 @@ class DataService {
   }
 
   getSession(): UserSession | null {
-    const s = localStorage.getItem(SESSION_KEY);
-    return s ? JSON.parse(s) : null;
+    try {
+      const s = localStorage.getItem(SESSION_KEY);
+      if (!s) return null;
+      const session = JSON.parse(s);
+      if (session.expiresAt && Date.now() > session.expiresAt) {
+        localStorage.removeItem(SESSION_KEY);
+        return null;
+      }
+      return session;
+    } catch { return null; }
   }
 
   isAuthenticated() { return !!this.getSession(); }

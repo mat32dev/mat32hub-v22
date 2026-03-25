@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Disc body -->
+  <circle cx="16" cy="16" r="15.5" fill="#1c1917"/>
+  <!-- Groove rings -->
+  <circle cx="16" cy="16" r="14" fill="none" stroke="#44403c" stroke-width="0.6"/>
+  <circle cx="16" cy="16" r="12" fill="none" stroke="#44403c" stroke-width="0.6"/>
+  <circle cx="16" cy="16" r="10" fill="none" stroke="#44403c" stroke-width="0.6"/>
+  <!-- Label (orange) -->
+  <circle cx="16" cy="16" r="7" fill="#ea580c"/>
+  <!-- Inner label ring -->
+  <circle cx="16" cy="16" r="5" fill="#c2410c"/>
+  <!-- Center hole -->
+  <circle cx="16" cy="16" r="2" fill="#0c0a09"/>
+</svg>

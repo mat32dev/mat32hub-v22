@@ -41,8 +41,8 @@ export const Bar: React.FC = () => {
           <h1 className="text-[12vw] sm:text-[10vw] md:text-[10rem] font-black uppercase tracking-tighter text-white mb-6 font-exo leading-[0.8] text-glow">
             SONIDOS <span className="text-mat-500">LÍQUIDOS.</span>
           </h1>
-          <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg md:text-2xl italic font-light leading-relaxed px-4">
-            "Destilados curados para acompañar el ritmo analógico."
+          <p className="text-gray-400 max-w-2xl mx-auto text-base sm:text-lg md:text-2xl font-light leading-relaxed px-4">
+            Carta de cócteles y copas. Sin más historia.
           </p>
         </div>
       </div>

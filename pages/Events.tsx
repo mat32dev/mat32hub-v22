@@ -63,18 +63,18 @@ export const Events: React.FC = () => {
       <div className="relative h-[60vh] md:h-[80vh] flex items-center justify-center border-b border-mat-800 overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <CachedImage 
-            src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/8835f005-f545-4434-c67a-b2154de2da00/public" 
-            alt="Agenda Experience" 
+            src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/496db3dc-f7c7-4d22-d05a-ac0198681c00/public"
+            alt="Agenda Experience"
             priority
-            className={`w-full h-full object-cover transition-all duration-[2000ms] ease-in-out ${isRevealed ? 'scale-105 opacity-60 blur-0' : 'scale-110 opacity-0 blur-2xl'}`}
+            className={`w-full h-full object-cover transition-all duration-[2000ms] ease-in-out ${isRevealed ? 'scale-105 opacity-85 blur-0' : 'scale-110 opacity-0 blur-2xl'}`}
           />
-          <div className="absolute inset-0 bg-mat-500/20 mix-blend-color pointer-events-none"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/60 to-transparent opacity-50"></div>
+          <div className="absolute inset-0 bg-mat-500/10 mix-blend-color pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/40 to-transparent opacity-40"></div>
         </div>
         
         <div className="container mx-auto px-6 text-center relative z-10 pt-20 animate-fade-in">
           <h1 className="text-[15vw] sm:text-[12vw] md:text-[12rem] font-black uppercase tracking-tighter text-white font-exo leading-[0.8] mb-6">AGENDA.</h1>
-          <p className="text-gray-400 text-base sm:text-lg md:text-3xl mt-6 italic font-light max-w-3xl mx-auto px-4">"Señales analógicas programadas para el deleite auditivo."</p>
+          <p className="text-gray-400 text-base sm:text-lg md:text-3xl mt-6 font-light max-w-3xl mx-auto px-4">Si te pasas, no te lo pierdes.</p>
         </div>
       </div>
 

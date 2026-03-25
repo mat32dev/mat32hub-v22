@@ -40,7 +40,7 @@ export const Home: React.FC = () => {
       const futureEvents = allEvents.filter(e => new Date(e.date) >= now);
       setUpcomingEvents(futureEvents.slice(0, 4));
 
-      setDiverseCrate(allRecords.slice(0, 4));
+      setDiverseCrate(allRecords.slice(0, 8));
 
       setJazzSelection(allRecords.filter(r => r.genre === 'Jazz').slice(0, 4));
     };
@@ -158,60 +158,67 @@ export const Home: React.FC = () => {
             </Link>
           </div>
 
-          {diverseCrate.length > 0 && (
-            <div className="flex items-center gap-6">
-              <button
-                onClick={() => setCrateIndex((crateIndex - 1 + diverseCrate.length) % diverseCrate.length)}
-                className="flex-shrink-0 p-4 bg-mat-800 border border-mat-700 rounded-2xl text-gray-400 hover:text-white hover:border-mat-500 transition-all"
-              >
-                <ChevronLeft size={24} />
-              </button>
+          {diverseCrate.length > 0 && (() => {
+            const pageSize = 4;
+            const totalPages = Math.ceil(diverseCrate.length / pageSize);
+            const page = Math.floor(crateIndex / pageSize);
+            const visible = diverseCrate.slice(page * pageSize, page * pageSize + pageSize);
+            return (
+              <>
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => setCrateIndex(Math.max(0, crateIndex - pageSize))}
+                    disabled={crateIndex === 0}
+                    className="flex-shrink-0 p-4 bg-mat-800 border border-mat-700 rounded-2xl text-gray-400 hover:text-white hover:border-mat-500 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
 
-              <div className="flex-1 max-w-sm mx-auto">
-                {(() => {
-                  const record = diverseCrate[crateIndex];
-                  return (
-                    <article onClick={() => navigate(`/records/${record.id}`)} className="bg-black/40 border border-mat-800/50 rounded-[2.5rem] overflow-hidden group hover:border-mat-500 transition-all duration-500 flex flex-col shadow-2xl cursor-pointer">
-                      <div className="aspect-square relative overflow-hidden bg-black">
-                        <CachedImage src={record.coverUrl} alt={record.title} />
-                        <div className="absolute top-6 right-6" onClick={e => e.stopPropagation()}>
-                          <button onClick={() => toggleWishlist(record.id)} className={`p-4 rounded-full backdrop-blur-xl transition-all ${isInWishlist(record.id) ? 'bg-mat-500 text-white' : 'bg-black/70 text-white/50 hover:text-white'}`}>
-                            <Heart size={16} className={isInWishlist(record.id) ? 'fill-current' : ''} />
-                          </button>
+                  <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {visible.map((record) => (
+                      <article key={record.id} onClick={() => navigate(`/records/${record.id}`)} className="bg-black/40 border border-mat-800/50 rounded-[2.5rem] overflow-hidden group hover:border-mat-500 transition-all duration-500 flex flex-col shadow-2xl cursor-pointer">
+                        <div className="aspect-square relative overflow-hidden bg-black">
+                          <CachedImage src={record.coverUrl} alt={record.title} />
+                          <div className="absolute top-6 right-6" onClick={e => e.stopPropagation()}>
+                            <button onClick={() => toggleWishlist(record.id)} className={`p-4 rounded-full backdrop-blur-xl transition-all ${isInWishlist(record.id) ? 'bg-mat-500 text-white' : 'bg-black/70 text-white/50 hover:text-white'}`}>
+                              <Heart size={16} className={isInWishlist(record.id) ? 'fill-current' : ''} />
+                            </button>
+                          </div>
+                          <div className="absolute bottom-6 left-6 bg-mat-950/90 backdrop-blur-md border border-mat-800 px-4 py-1.5 rounded-xl text-white font-exo font-black text-lg">€{record.price}</div>
                         </div>
-                        <div className="absolute bottom-6 left-6 bg-mat-950/90 backdrop-blur-md border border-mat-800 px-4 py-1.5 rounded-xl text-white font-exo font-black text-lg">€{record.price}</div>
-                      </div>
-                      <div className="p-10 flex-1 flex flex-col">
-                        <h3 className="text-2xl font-black text-white uppercase tracking-tighter font-exo leading-tight mb-2 group-hover:text-mat-500 transition-colors">{record.artist}</h3>
-                        <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-10">{record.title}</p>
-                        <div className="mt-auto pt-8 border-t border-mat-800/30 flex justify-between items-center">
-                          <span className="text-[8px] text-gray-800 font-black uppercase tracking-widest">{record.genre}</span>
-                          <button onClick={(e) => { e.stopPropagation(); addToCart(record); }} className="p-4 bg-mat-500 text-white rounded-2xl hover:bg-white hover:text-mat-500 transition-all shadow-xl">
-                            <ShoppingBag size={20} />
-                          </button>
+                        <div className="p-8 flex-1 flex flex-col">
+                          <h3 className="text-xl font-black text-white uppercase tracking-tighter font-exo leading-tight mb-2 group-hover:text-mat-500 transition-colors">{record.artist}</h3>
+                          <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-8">{record.title}</p>
+                          <div className="mt-auto pt-6 border-t border-mat-800/30 flex justify-between items-center">
+                            <span className="text-[8px] text-gray-800 font-black uppercase tracking-widest">{record.genre}</span>
+                            <button onClick={(e) => { e.stopPropagation(); addToCart(record); }} className="p-3 bg-mat-500 text-white rounded-2xl hover:bg-white hover:text-mat-500 transition-all shadow-xl">
+                              <ShoppingBag size={18} />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    </article>
-                  );
-                })()}
-              </div>
+                      </article>
+                    ))}
+                  </div>
 
-              <button
-                onClick={() => setCrateIndex((crateIndex + 1) % diverseCrate.length)}
-                className="flex-shrink-0 p-4 bg-mat-800 border border-mat-700 rounded-2xl text-gray-400 hover:text-white hover:border-mat-500 transition-all"
-              >
-                <ChevronRight size={24} />
-              </button>
-            </div>
-          )}
+                  <button
+                    onClick={() => setCrateIndex(Math.min((totalPages - 1) * pageSize, crateIndex + pageSize))}
+                    disabled={page >= totalPages - 1}
+                    className="flex-shrink-0 p-4 bg-mat-800 border border-mat-700 rounded-2xl text-gray-400 hover:text-white hover:border-mat-500 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                  >
+                    <ChevronRight size={24} />
+                  </button>
+                </div>
 
-          {diverseCrate.length > 1 && (
-            <div className="flex justify-center gap-2 mt-8">
-              {diverseCrate.map((_, i) => (
-                <button key={i} onClick={() => setCrateIndex(i)} className={`w-2 h-2 rounded-full transition-all ${i === crateIndex ? 'bg-mat-500 w-6' : 'bg-mat-700'}`} />
-              ))}
-            </div>
-          )}
+                {totalPages > 1 && (
+                  <div className="flex justify-center gap-2 mt-8">
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                      <button key={i} onClick={() => setCrateIndex(i * pageSize)} className={`h-2 rounded-full transition-all ${i === page ? 'bg-mat-500 w-6' : 'bg-mat-700 w-2'}`} />
+                    ))}
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       </section>
 

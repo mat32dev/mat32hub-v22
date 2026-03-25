@@ -106,11 +106,11 @@ export const Community: React.FC = () => {
                     <Layers size={14} className="animate-pulse" /> RED DE COLECCIONISTAS ACTIVA
                  </div>
                  <h1 className="text-[15vw] sm:text-[12vw] md:text-[11rem] font-black uppercase tracking-tighter text-white font-exo leading-[0.8] mb-8">THE <span className="text-mat-500">HUB.</span></h1>
-                 <p className="text-gray-300 text-base sm:text-lg md:text-3xl italic font-light mb-12 px-4">"Cultura compartida a 33 revoluciones."</p>
+                 <p className="text-gray-400 text-base sm:text-lg md:text-3xl font-light mb-12 px-4">Posts, discos y cosas que encontramos.</p>
               </div>
               <div className="flex bg-mat-800 p-1.5 rounded-2xl border border-mat-700 shadow-2xl backdrop-blur-md">
-                 <button onClick={() => setActiveTab('muro')} className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'muro' ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>MURO COMUNIDAD</button>
-                 <button onClick={() => setActiveTab('market')} className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'market' ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>MARKETPLACE P2P</button>
+                 <button onClick={() => setActiveTab('muro')} className={`px-4 sm:px-8 py-2.5 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'muro' ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>MURO</button>
+                 <button onClick={() => setActiveTab('market')} className={`px-4 sm:px-8 py-2.5 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'market' ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>MARKETPLACE</button>
               </div>
            </div>
         </div>
@@ -141,7 +141,7 @@ export const Community: React.FC = () => {
                  </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
                  {loading ? (
                    <div className="col-span-full py-20 flex justify-center"><Loader2 className="animate-spin text-mat-500" /></div>
                  ) : filteredRecords.length === 0 ? (
@@ -199,7 +199,7 @@ export const Community: React.FC = () => {
                     >
                       {/* Cover image */}
                       {post.imageUrl ? (
-                        <div className="aspect-video overflow-hidden relative bg-black">
+                        <div className="aspect-[4/3] overflow-hidden relative bg-black">
                           <CachedImage
                             src={post.imageUrl}
                             alt={post.title || post.content}

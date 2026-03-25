@@ -36,7 +36,7 @@ export const RecordDetail: React.FC = () => {
         const data = await dataService.getRecordById(id);
         if (data) {
           setRecord(data);
-          setForm(prev => ({ ...prev, offerPrice: data.price.toString() }));
+          setForm(prev => ({ ...prev, offerPrice: Math.round(data.price).toString() }));
         }
       }
       setLoading(false);
@@ -82,10 +82,10 @@ export const RecordDetail: React.FC = () => {
           <ArrowLeft size={16} /> VOLVER AL MARKETPLACE
         </Link>
 
-        <div className="grid lg:grid-cols-12 gap-16 md:gap-24 items-start">
-           <div className="lg:col-span-6 space-y-12">
+        <div className="grid lg:grid-cols-12 gap-8 md:gap-16 items-start">
+           <div className="lg:col-span-6 space-y-8">
               <div className="relative group">
-                <div className="aspect-square bg-black border-2 border-mat-800 rounded-[4rem] overflow-hidden shadow-2xl">
+                <div className="aspect-square bg-black border-2 border-mat-800 rounded-[2rem] md:rounded-[4rem] overflow-hidden shadow-2xl">
                    <CachedImage src={record.coverUrl} alt={record.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
                 </div>
                 <div className="absolute top-8 right-8 flex flex-col gap-4">
@@ -138,7 +138,7 @@ export const RecordDetail: React.FC = () => {
                        <Repeat size={12} /> INTERCAMBIO OK
                     </span>
                  </div>
-                 <h1 className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter leading-[0.9] font-exo mb-4">{record.title}</h1>
+                 <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-white uppercase tracking-tighter leading-[0.9] font-exo mb-4">{record.title}</h1>
                  <h2 className="text-2xl md:text-3xl font-black text-mat-500 uppercase tracking-[0.2em] font-exo opacity-80">{record.artist}</h2>
               </div>
 
@@ -149,7 +149,7 @@ export const RecordDetail: React.FC = () => {
                     </h3>
                     <span className="text-[8px] font-black text-gray-600 uppercase tracking-widest">VERIFICADO_POR_EL_HUB</span>
                  </div>
-                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                     <div className="space-y-1">
                        <span className="block text-[8px] text-gray-600 font-black uppercase tracking-widest">Sello</span>
                        <span className="text-white font-black uppercase text-xs tracking-tight">{record.label}</span>
@@ -182,7 +182,7 @@ export const RecordDetail: React.FC = () => {
               <div className="space-y-6">
                  <p className="text-gray-400 text-xl font-light italic leading-relaxed">"{record.description}"</p>
                  <div className="flex items-center gap-8 py-8 border-y border-mat-800">
-                    <div className="text-7xl font-black text-white font-exo leading-none">€{record.price}</div>
+                    <div className="text-7xl font-black text-white font-exo leading-none">€{Math.round(record.price)}</div>
                     <div className="space-y-1">
                        <p className="text-gray-800 text-[8px] font-black uppercase tracking-widest">SKU: {record.sku}</p>
                     </div>
@@ -219,7 +219,7 @@ export const RecordDetail: React.FC = () => {
                 <div className="text-center py-10 animate-fade-in">
                    <CheckCircle className="w-20 h-20 text-emerald-500 mx-auto mb-6 animate-bounce" />
                    <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo mb-4">SEÑAL ENVIADA</h2>
-                   <p className="text-gray-500 italic">"Tu propuesta ha sido inyectada en el Hub. El dueño de @{record.sellerId} recibirá tu contacto."</p>
+                   <p className="text-gray-500 italic">"Tu propuesta ha sido inyectada en el Hub. El equipo de MAT32 se pondrá en contacto contigo."</p>
                 </div>
               ) : (
                 <>
@@ -236,7 +236,7 @@ export const RecordDetail: React.FC = () => {
                   </div>
 
                   <form onSubmit={handleNegotiationSubmit} className="space-y-6">
-                     <div className="grid grid-cols-2 gap-4">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1">
                            <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-1">Tu Alias</label>
                            <input required value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black rounded-xl outline-none focus:border-mat-500 transition-all" placeholder="DIGGER_NAME" />
