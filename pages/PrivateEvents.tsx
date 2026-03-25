@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
-import { Loader2, Send, CheckCircle2, Music, ShieldCheck, Zap, Info, Camera, Maximize2 } from 'lucide-react';
+import { Loader2, Send, CheckCircle2, Info, Camera } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
 import { CachedImage } from '../components/CachedImage';
+import { useLanguage } from '../context/LanguageContext';
 
 // GALERÍA TÉCNICA V3 DEFINITIVA - LAS 7 FOTOS DEL LOCAL
 const SPACE_GALLERY = [
@@ -45,6 +46,7 @@ const SPACE_GALLERY = [
 ];
 
 export const PrivateEvents: React.FC = () => {
+  const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState({ 
@@ -59,7 +61,7 @@ export const PrivateEvents: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.concept) {
-      alert("Por favor completa todos los campos requeridos.");
+      alert(t('private.alert.required'));
       return;
     }
     setIsProcessing(true);
@@ -76,16 +78,19 @@ export const PrivateEvents: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-mat-900 font-sans text-mat-cream pb-32">
-      <SEO titleKey="Alquiler & Espacio | Mat32 Ruzafa" descriptionKey="Alquila Mat32 para rodajes, eventos culturales, sesiones privadas o talleres. Sonido Hi-Fi y atmósfera analógica en Valencia." />
+      <SEO titleKey="seo.private.title" descriptionKey="seo.private.description" />
       
-      <section className="relative min-h-[50vh] flex items-center justify-center pt-20 overflow-hidden">
+      <section className="relative min-h-[60vh] flex items-center justify-center pt-20 overflow-hidden">
          <div className="absolute inset-0 z-0">
-           <CachedImage src={SPACE_GALLERY[0].url} alt="Hero Alquiler" priority className="w-full h-full object-cover opacity-20 grayscale" />
-           <div className="absolute inset-0 bg-gradient-to-b from-mat-900/90 to-mat-900"></div>
+           <CachedImage src={SPACE_GALLERY[0].url} alt="Hero Alquiler" priority className="w-full h-full object-cover opacity-80" />
+           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-mat-900/80"></div>
          </div>
          <div className="container mx-auto px-6 text-center relative z-10">
             <h1 className="text-[12vw] sm:text-[10vw] md:text-[8rem] font-black uppercase tracking-tighter text-white font-exo mb-6 leading-[0.8] animate-fade-in">ALQUILER <span className="text-mat-500">LOCAL.</span></h1>
-            <p className="text-gray-400 max-w-2xl mx-auto italic text-base sm:text-lg md:text-2xl font-light px-4">Un espacio único en Ruzafa para eventos con alma analógica.</p>
+            <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg md:text-2xl font-light px-4 mb-10">{t('private.hero.subtitle')}</p>
+            <a href="#booking-form" className="inline-flex items-center gap-3 px-12 py-5 bg-mat-500 text-white font-black uppercase text-[11px] tracking-[0.4em] rounded-2xl hover:bg-mat-400 transition-all shadow-2xl active:scale-95">
+              {t('private.hero.cta')}
+            </a>
          </div>
       </section>
 
@@ -94,7 +99,7 @@ export const PrivateEvents: React.FC = () => {
         <div className="container mx-auto px-6">
            <div className="flex items-center gap-6 mb-16">
               <Camera size={32} className="text-mat-500" />
-              <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none">GALERÍA O <span className="text-mat-500">ESPACIO.</span></h2>
+              <h2 className="text-4xl md:text-7xl font-black text-white uppercase tracking-tighter font-exo leading-none">{t('private.gallery.title')} <span className="text-mat-500">.</span></h2>
               <div className="flex-1 border-b-2 border-mat-800 opacity-20"></div>
            </div>
 
@@ -122,7 +127,7 @@ export const PrivateEvents: React.FC = () => {
         </div>
       </section>
 
-      <section className="container mx-auto px-6 max-w-7xl py-20">
+      <section id="booking-form" className="container mx-auto px-6 max-w-7xl py-20">
          <div className="grid lg:grid-cols-12 gap-16 items-start">
             <div className="lg:col-span-5 space-y-12">
                <div className="bg-mat-800 border-2 border-mat-700 p-12 rounded-[4rem] shadow-xl relative overflow-hidden">
@@ -139,7 +144,7 @@ export const PrivateEvents: React.FC = () => {
                <div className="p-8 bg-mat-950 border border-mat-800 rounded-3xl flex items-start gap-4 shadow-xl">
                   <Info className="text-mat-500 mt-1 shrink-0" size={20} />
                   <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest leading-relaxed">
-                     El local está optimizado para rodajes cinematográficos, eventos de marca, lanzamientos culturales y sesiones de escucha crítica. No se alquila para fiestas nocturnas convencionales.
+                     {t('private.info.text')}
                   </p>
                </div>
             </div>
@@ -148,34 +153,55 @@ export const PrivateEvents: React.FC = () => {
                {isSubmitted ? (
                  <div className="bg-mat-800 border-2 border-mat-500 p-20 rounded-[4rem] text-center animate-fade-in shadow-2xl">
                     <CheckCircle2 className="w-20 h-20 text-mat-500 mx-auto mb-8 animate-bounce" />
-                    <h2 className="text-4xl font-black text-white uppercase tracking-tighter font-exo mb-4">RECIBIDO.</h2>
-                    <p className="text-gray-400 italic mb-10">Tu propuesta ha sido inyectada en nuestra red. El equipo de Mat32 te responderá vía hola@mat32.com para coordinar los detalles.</p>
-                    <button onClick={() => setIsSubmitted(false)} className="px-10 py-4 bg-mat-900 text-gray-500 hover:text-white border border-mat-700 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">NUEVA SOLICITUD</button>
+                    <h2 className="text-4xl font-black text-white uppercase tracking-tighter font-exo mb-4">{t('private.success.title')}</h2>
+                    <p className="text-gray-400 italic mb-10">{t('private.success.desc')}</p>
+                    <button onClick={() => setIsSubmitted(false)} className="px-10 py-4 bg-mat-900 text-gray-500 hover:text-white border border-mat-700 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">{t('private.success.reset')}</button>
                  </div>
                ) : (
                  <div className="bg-mat-800 border-2 border-mat-700 p-10 md:p-14 rounded-[4rem] shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500"></div>
                     <form onSubmit={handleSubmit} className="space-y-8">
                        <div className="text-center mb-10">
-                         <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo mb-2">SOLICITAR RESERVA</h2>
-                         <p className="text-gray-500 text-[9px] font-black uppercase tracking-widest italic tracking-[0.2em]">CANAL_DIRECTO_ALQUILER</p>
+                         <h2 className="text-3xl font-black text-white uppercase tracking-tighter font-exo mb-2">{t('private.form.title')}</h2>
                        </div>
                        <div className="grid md:grid-cols-2 gap-6">
                           <div className="space-y-2">
-                             <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-4">NOMBRE_ENTIDAD</label>
+                             <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-4">{t('private.form.name')}</label>
                              <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-6 text-white text-xs font-black rounded-2xl outline-none focus:border-mat-500 transition-all" placeholder="P.EJ: MARCA_VLC" />
                           </div>
                           <div className="space-y-2">
-                             <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-4">EMAIL_CONTACTO</label>
+                             <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-4">{t('private.form.email')}</label>
                              <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-6 text-white text-xs font-black rounded-2xl outline-none focus:border-mat-500 transition-all" placeholder="HOLA@EMPRESA.COM" />
                           </div>
                        </div>
+                       <div className="grid md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                             <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-4">{t('private.form.date')}</label>
+                             <input
+                               required
+                               type="date"
+                               min={new Date().toISOString().split('T')[0]}
+                               value={formData.date}
+                               onChange={e => setFormData({...formData, date: e.target.value})}
+                               className="w-full bg-mat-900 border border-mat-700 p-6 text-white text-xs font-black rounded-2xl outline-none focus:border-mat-500 transition-all [color-scheme:dark]"
+                             />
+                          </div>
+                          <div className="space-y-2">
+                             <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-4">{t('private.form.time')}</label>
+                             <input
+                               type="time"
+                               value={formData.time}
+                               onChange={e => setFormData({...formData, time: e.target.value})}
+                               className="w-full bg-mat-900 border border-mat-700 p-6 text-white text-xs font-black rounded-2xl outline-none focus:border-mat-500 transition-all [color-scheme:dark]"
+                             />
+                          </div>
+                       </div>
                        <div className="space-y-2">
-                          <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-4">CONCEPTO_EVENTO</label>
-                          <textarea required value={formData.concept} onChange={e => setFormData({...formData, concept: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-8 h-48 text-white text-sm italic font-medium rounded-[2.5rem] outline-none focus:border-mat-500 resize-none transition-all" placeholder="Cuéntanos el concepto de tu evento, fecha aproximada, necesidades técnicas y duración..."></textarea>
+                          <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest ml-4">{t('private.form.concept')}</label>
+                          <textarea required value={formData.concept} onChange={e => setFormData({...formData, concept: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-8 h-48 text-white text-sm italic font-medium rounded-[2.5rem] outline-none focus:border-mat-500 resize-none transition-all" placeholder={t('private.form.concept.placeholder')}></textarea>
                        </div>
                        <button type="submit" className="w-full py-8 bg-mat-500 text-white font-black uppercase text-[11px] tracking-[0.5em] rounded-[2.5rem] shadow-[0_20px_50px_rgba(234,88,12,0.3)] flex items-center justify-center gap-4 hover:bg-mat-400 transition-all active:scale-95">
-                          {isProcessing ? <Loader2 className="animate-spin" /> : <Send size={20} />} ENVIAR PROPUESTA_ESPACIO
+                          {isProcessing ? <Loader2 className="animate-spin" /> : <Send size={20} />} {t('private.form.submit')}
                        </button>
                     </form>
                  </div>
@@ -183,6 +209,17 @@ export const PrivateEvents: React.FC = () => {
             </div>
          </div>
       </section>
+      <a
+        href="https://wa.me/34622190802"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-16 right-6 z-50 w-14 h-14 bg-[#25D366] hover:bg-[#1ebe5d] rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-95"
+        aria-label="Contactar por WhatsApp"
+      >
+        <svg viewBox="0 0 24 24" fill="white" className="w-7 h-7">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+      </a>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, Radio, Loader2, Send, Plus, Disc, Music, Headphones, Zap } from 'lucide-react';
+import { CheckCircle, Radio, Loader2, Music, Headphones, Zap } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
 import { CachedImage } from '../components/CachedImage';
@@ -8,13 +8,16 @@ import { CachedImage } from '../components/CachedImage';
 export const OpenDecks: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
-  const [form, setForm] = useState({ 
-    artistName: '', 
-    email: '', 
-    bio: '', 
-    mixUrl: '', 
-    genres: '' 
+  const [form, setForm] = useState({
+    artistName: '',
+    email: '',
+    phone: '',
+    genres: '',
+    date: '',
+    time: '',
+    mixUrl: '',
   });
 
   useEffect(() => {
@@ -23,30 +26,34 @@ export const OpenDecks: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.artistName || !form.email || !form.mixUrl) {
+    if (!form.artistName || !form.email) {
       alert("Por favor completa los campos obligatorios.");
       return;
     }
     setIsProcessing(true);
-    await dataService.createInboxMessage({
-      type: 'artist',
-      sender: form.artistName,
-      email: form.email,
-      content: `Solicitud Open Decks. Estilos: ${form.genres}. Link: ${form.mixUrl}. Bio: ${form.bio}`,
-      metadata: form
-    });
-    
-    await dataService.createSelector({
-      name: form.artistName,
-      email: form.email,
-      genre: form.genres,
-      experience: form.bio,
-      links: [form.mixUrl],
-      status: 'pending'
-    });
-
-    setIsProcessing(false);
-    setIsSubmitted(true);
+    setSubmitError(false);
+    try {
+      await dataService.createInboxMessage({
+        type: 'artist',
+        sender: form.artistName,
+        email: form.email,
+        content: `Solicitud Open Decks. Teléfono: ${form.phone}. Estilos: ${form.genres}. Fecha: ${form.date} ${form.time}. Link: ${form.mixUrl}.`,
+        metadata: form
+      });
+      await dataService.createSelector({
+        name: form.artistName,
+        email: form.email,
+        genre: form.genres,
+        experience: `Fecha: ${form.date} ${form.time}`,
+        links: form.mixUrl ? [form.mixUrl] : [],
+        status: 'pending'
+      });
+      setIsSubmitted(true);
+    } catch {
+      setSubmitError(true);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -59,18 +66,18 @@ export const OpenDecks: React.FC = () => {
             src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public" 
             alt="Analog Booth" 
             priority
-            className={`w-full h-full object-cover transition-all duration-[2000ms] ease-in-out ${isRevealed ? 'scale-105 opacity-60 blur-0' : 'scale-110 opacity-0 blur-2xl'}`}
+            className={`w-full h-full object-cover transition-all duration-[2000ms] ease-in-out ${isRevealed ? 'scale-105 opacity-85 blur-0' : 'scale-110 opacity-0 blur-2xl'}`}
           />
-          <div className="absolute inset-0 bg-mat-500/20 mix-blend-color pointer-events-none"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/50 to-transparent opacity-60"></div>
+          <div className="absolute inset-0 bg-mat-500/10 mix-blend-color pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/30 to-transparent opacity-40"></div>
         </div>
         <div className="container mx-auto px-6 text-center relative z-10 pt-20 animate-fade-in">
            <div className="inline-flex items-center gap-3 px-6 py-2 bg-mat-900 border border-mat-500 text-mat-500 text-[10px] font-black uppercase tracking-[0.5em] rounded-full mb-8">
               <Radio className="w-4 h-4" /> ANALOG BOOTH PROTOCOL
            </div>
            <h1 className="text-[12vw] sm:text-[10vw] md:text-[10rem] font-black uppercase tracking-tighter text-white font-exo leading-[0.8] mb-8">OPEN <span className="text-mat-500">DECKS.</span></h1>
-           <p className="text-gray-300 text-base sm:text-lg md:text-2xl font-light italic leading-relaxed max-w-3xl mx-auto px-4">
-             "Tu selección, nuestro sistema. Slots abiertos para selectores locales."
+           <p className="text-gray-400 text-base sm:text-lg md:text-2xl font-light leading-relaxed max-w-3xl mx-auto px-4">
+             Si te apetece pinchar aquí, mándanos un mix.
            </p>
         </div>
       </div>
@@ -124,30 +131,43 @@ export const OpenDecks: React.FC = () => {
                ) : (
                  <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Alias Artístico</label>
-                       <input required value={form.artistName} onChange={e => setForm({...form, artistName: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-5 text-white text-xs font-black uppercase rounded-2xl outline-none focus:border-mat-500 transition-all" placeholder="P.EJ: SELECTOR_RUZAFA" />
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Email de Contacto</label>
-                       <input required type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-5 text-white text-xs font-black rounded-2xl outline-none focus:border-mat-500 transition-all" placeholder="INFO@HUB.COM" />
+                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Nombre</label>
+                       <input required value={form.artistName} onChange={e => setForm({...form, artistName: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-5 text-white text-xs font-black uppercase rounded-2xl outline-none focus:border-mat-500 transition-all" placeholder="TU NOMBRE" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                        <div className="space-y-2">
-                          <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Estilos / Vibe</label>
-                          <input value={form.genres} onChange={e => setForm({...form, genres: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-5 text-white text-[10px] font-black rounded-2xl outline-none focus:border-mat-500 transition-all" placeholder="JAZZ, HOUSE, AMBIENT..." />
+                          <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Email</label>
+                          <input required type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-5 text-white text-xs font-black rounded-2xl outline-none focus:border-mat-500 transition-all" placeholder="TU@EMAIL.COM" />
                        </div>
                        <div className="space-y-2">
-                          <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Link a Sesión</label>
-                          <input required value={form.mixUrl} onChange={e => setForm({...form, mixUrl: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-5 text-white text-[10px] font-black rounded-2xl outline-none focus:border-mat-500 transition-all" placeholder="SOUNDCLOUD / MIXCLOUD" />
+                          <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Teléfono</label>
+                          <input type="tel" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-5 text-white text-xs font-black rounded-2xl outline-none focus:border-mat-500 transition-all" placeholder="+34 600 000 000" />
                        </div>
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Tu Historia / Concepto</label>
-                       <textarea value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-5 h-32 text-white text-xs italic font-bold rounded-2xl outline-none focus:border-mat-500 resize-none transition-all" placeholder="Cuéntanos sobre tu selección musical y qué discos te gustaría traer a Mat32..."></textarea>
+                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Género</label>
+                       <input value={form.genres} onChange={e => setForm({...form, genres: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-5 text-white text-xs font-black rounded-2xl outline-none focus:border-mat-500 transition-all" placeholder="JAZZ, HOUSE, AMBIENT..." />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                       <div className="space-y-2">
+                          <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Fecha solicitada</label>
+                          <input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-5 text-white text-xs font-black rounded-2xl outline-none focus:border-mat-500 transition-all" />
+                       </div>
+                       <div className="space-y-2">
+                          <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Hora solicitada</label>
+                          <input type="time" value={form.time} onChange={e => setForm({...form, time: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-5 text-white text-xs font-black rounded-2xl outline-none focus:border-mat-500 transition-all" />
+                       </div>
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-mat-500 uppercase tracking-widest ml-1">Link a sesión <span className="text-gray-600">(opcional)</span></label>
+                       <input value={form.mixUrl} onChange={e => setForm({...form, mixUrl: e.target.value})} className="w-full bg-mat-900 border border-mat-700 p-5 text-white text-xs font-black rounded-2xl outline-none focus:border-mat-500 transition-all" placeholder="SOUNDCLOUD / MIXCLOUD" />
                     </div>
                     
+                    {submitError && (
+                      <p className="text-red-400 text-[10px] font-black uppercase tracking-widest text-center">Error al enviar. Inténtalo de nuevo o escríbenos a hola@mat32.com</p>
+                    )}
                     <button type="submit" disabled={isProcessing} className="w-full py-8 bg-mat-500 text-white font-black uppercase text-[10px] tracking-[0.5em] rounded-[2rem] flex items-center justify-center gap-4 transition-all hover:bg-mat-400 shadow-xl shadow-mat-500/10 active:scale-95">
-                       {isProcessing ? <Loader2 className="animate-spin" /> : <Music size={18} />} ENVIAR SEÑAL_HUB
+                       {isProcessing ? <Loader2 className="animate-spin" /> : <Music size={18} />} ENVIAR MIX
                     </button>
                  </form>
                )}
