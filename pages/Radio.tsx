@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Play, Pause, SkipForward, Heart, ExternalLink, Loader2 } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { useRadio } from '../context/RadioContext';
@@ -17,9 +17,15 @@ const GENRE_BG: Record<string, string> = {
 
 export const RadioPage: React.FC = () => {
   const { current, isPlaying, loading, toggle, next, toggleFavorite, isFavorite } = useRadio();
+  const [started, setStarted] = useState(false);
 
   const bg  = current ? (GENRE_BG[current.genre] ?? 'from-mat-900 to-mat-950') : 'from-mat-900 to-mat-950';
   const fav = current ? isFavorite(current.id) : false;
+
+  const handleStart = () => {
+    setStarted(true);
+    if (!isPlaying) toggle();
+  };
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${bg} font-sans text-mat-cream flex flex-col items-center justify-center relative overflow-hidden transition-all duration-700`}>
@@ -36,6 +42,19 @@ export const RadioPage: React.FC = () => {
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+
+      {/* Autoplay overlay — desaparece al primer clic */}
+      {!started && !loading && current && (
+        <button
+          onClick={handleStart}
+          className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-black/70 backdrop-blur-sm cursor-pointer"
+        >
+          <div className="w-24 h-24 rounded-full bg-mat-500 flex items-center justify-center shadow-2xl shadow-mat-500/40">
+            <Play size={40} className="ml-1 text-white" />
+          </div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Click para escuchar</p>
+        </button>
+      )}
 
       {loading ? (
         <Loader2 className="w-10 h-10 text-mat-500 animate-spin" />

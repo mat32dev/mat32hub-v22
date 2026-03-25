@@ -12,8 +12,13 @@ import json
 import sys
 import os
 import argparse
+import ssl
 import urllib.request
 import urllib.error
+
+_ssl_ctx = ssl.create_default_context()
+_ssl_ctx.check_hostname = False
+_ssl_ctx.verify_mode = ssl.CERT_NONE
 
 # ── CONFIG ──────────────────────────────────────────────────────────────────
 API_URL = os.environ.get("MAT32_API", "http://localhost:3003")
@@ -403,7 +408,7 @@ def api_call(path, method="GET", body=None, token=None):
         headers["Authorization"] = f"Bearer {token}"
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
     try:
-        with urllib.request.urlopen(req, timeout=10) as r:
+        with urllib.request.urlopen(req, timeout=10, context=_ssl_ctx) as r:
             return json.loads(r.read())
     except urllib.error.HTTPError as e:
         err = e.read().decode()
@@ -419,12 +424,12 @@ def login(email, password):
 # ── MAIN ─────────────────────────────────────────────────────────────────────
 
 def main():
+    global API_URL
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true", help="No crea eventos, solo muestra los datos")
     parser.add_argument("--api", default=API_URL, help="URL base de la API")
     args = parser.parse_args()
 
-    global API_URL
     API_URL = args.api
 
     if args.dry_run:
@@ -451,7 +456,20 @@ def main():
     fail = 0
     for e in EVENTS:
         print(f"  Creando: {e['date']} — {e['title']} ...", end=" ")
-        res = api_call("/events", "POST", e, token)
+        payload = {
+            "title":       e["title"],
+            "slug":        e["slug"],
+            "description": e["description"],
+            "date":        e["date"],
+            "time":        e["time"],
+            "venue":       e.get("location", "MAT32"),
+            "capacity":    e.get("capacity", 80),
+            "status":      e.get("status", "published"),
+            "cover_url":   e.get("imageUrl", ""),
+            "price":       e.get("price", 0),
+            "tags":        e.get("tags", []),
+        }
+        res = api_call("/events", "POST", payload, token)
         if res:
             print("✓")
             ok += 1
