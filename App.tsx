@@ -19,7 +19,12 @@ import { Contact } from './pages/Contact';
 import { PrivateEvents } from './pages/PrivateEvents';
 import { Checkout } from './pages/Checkout';
 import { Legal } from './pages/Legal';
-import { Admin } from './pages/Admin';
+import { AdminLayout } from './pages/admin/AdminLayout';
+import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminEntityList } from './pages/admin/AdminEntityList';
+import { AdminEntityForm } from './pages/admin/AdminEntityForm';
+import { AdminInbox } from './pages/admin/AdminInbox';
+import { AdminSelectors } from './pages/admin/AdminSelectors';
 import { Wishlist } from './pages/Wishlist';
 import { Gallery } from './pages/Gallery';
 
@@ -128,6 +133,80 @@ const Navigation = () => {
   );
 };
 
+const AppRoutes: React.FC = () => {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+
+  if (isAdmin) {
+    return (
+      <Routes>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="events" element={<AdminEntityList entity="events" />} />
+          <Route path="events/new" element={<AdminEntityForm entity="events" />} />
+          <Route path="events/:id" element={<AdminEntityForm entity="events" />} />
+          <Route path="records" element={<AdminEntityList entity="records" />} />
+          <Route path="records/new" element={<AdminEntityForm entity="records" />} />
+          <Route path="records/:id" element={<AdminEntityForm entity="records" />} />
+          <Route path="merch" element={<AdminEntityList entity="merch" />} />
+          <Route path="merch/new" element={<AdminEntityForm entity="merch" />} />
+          <Route path="merch/:id" element={<AdminEntityForm entity="merch" />} />
+          <Route path="posts" element={<AdminEntityList entity="posts" />} />
+          <Route path="posts/new" element={<AdminEntityForm entity="posts" />} />
+          <Route path="posts/:id" element={<AdminEntityForm entity="posts" />} />
+          <Route path="sales" element={<AdminEntityList entity="sales" />} />
+          <Route path="inbox" element={<AdminInbox />} />
+          <Route path="selectors" element={<AdminSelectors />} />
+        </Route>
+      </Routes>
+    );
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen bg-mat-900 text-gray-100 font-sans pt-20 pb-14">
+      <Navigation />
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/bar" element={<Bar />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/events/:id" element={<EventDetail />} />
+          <Route path="/records" element={<Records />} />
+          <Route path="/records/:id" element={<RecordDetail />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/community/:id" element={<PostDetail />} />
+          <Route path="/open-decks" element={<OpenDecks />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/alquiler-local-eventos-valencia" element={<PrivateEvents />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/radio" element={<RadioPage />} />
+          <Route path="/legal/:type" element={<Legal />} />
+        </Routes>
+      </main>
+      <CartDrawer />
+      <RadioBar />
+      <footer className="bg-mat-950 py-16 border-t border-mat-900">
+        <div className="container mx-auto px-6 flex flex-col items-center text-center">
+          <div className="flex items-center gap-3 mb-8 opacity-60">
+            <Disc className="w-5 h-5 text-mat-500" />
+            <span className="font-exo font-black text-xl text-white tracking-widest uppercase">MAT<span className="text-mat-500">32</span></span>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-6 text-[8px] font-black text-gray-600 uppercase tracking-[0.4em] mb-8">
+            <Link to="/legal/aviso-legal" className="hover:text-mat-500">AVISO LEGAL</Link>
+            <span className="opacity-20">•</span>
+            <Link to="/legal/privacidad" className="hover:text-mat-500">PRIVACIDAD</Link>
+            <span className="opacity-20">•</span>
+            <Link to="/admin" className="hover:text-mat-500">MATRIX_ACCESS</Link>
+          </div>
+          <p className="text-[7px] text-gray-800 font-black uppercase tracking-[0.8em] opacity-30">© 2025 RARERTRAXX BEAT S.L. VALENCIA_SPAIN</p>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
 const App: React.FC = () => {
   return (
     <LanguageProvider>
@@ -135,48 +214,7 @@ const App: React.FC = () => {
         <CartProvider>
           <RadioProvider>
             <Router>
-              <div className="flex flex-col min-h-screen bg-mat-900 text-gray-100 font-sans pt-20 pb-14">
-                <Navigation />
-                <main className="flex-grow">
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/bar" element={<Bar />} />
-                    <Route path="/events" element={<Events />} />
-                    <Route path="/events/:id" element={<EventDetail />} />
-                    <Route path="/records" element={<Records />} />
-                    <Route path="/records/:id" element={<RecordDetail />} />
-                    <Route path="/wishlist" element={<Wishlist />} />
-                    <Route path="/community" element={<Community />} />
-                    <Route path="/community/:id" element={<PostDetail />} />
-                    <Route path="/open-decks" element={<OpenDecks />} />
-                    <Route path="/gallery" element={<Gallery />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/alquiler-local-eventos-valencia" element={<PrivateEvents />} />
-                    <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/radio" element={<RadioPage />} />
-                    <Route path="/admin" element={<Admin />} />
-                    <Route path="/legal/:type" element={<Legal />} />
-                  </Routes>
-                </main>
-                <CartDrawer />
-                <RadioBar />
-                <footer className="bg-mat-950 py-16 border-t border-mat-900">
-                  <div className="container mx-auto px-6 flex flex-col items-center text-center">
-                    <div className="flex items-center gap-3 mb-8 opacity-60">
-                      <Disc className="w-5 h-5 text-mat-500" />
-                      <span className="font-exo font-black text-xl text-white tracking-widest uppercase">MAT<span className="text-mat-500">32</span></span>
-                    </div>
-                    <div className="flex flex-wrap items-center justify-center gap-6 text-[8px] font-black text-gray-600 uppercase tracking-[0.4em] mb-8">
-                      <Link to="/legal/aviso-legal" className="hover:text-mat-500">AVISO LEGAL</Link>
-                      <span className="opacity-20">•</span>
-                      <Link to="/legal/privacidad" className="hover:text-mat-500">PRIVACIDAD</Link>
-                      <span className="opacity-20">•</span>
-                      <Link to="/admin" className="hover:text-mat-500">MATRIX_ACCESS</Link>
-                    </div>
-                    <p className="text-[7px] text-gray-800 font-black uppercase tracking-[0.8em] opacity-30">© 2025 RARERTRAXX BEAT S.L. VALENCIA_SPAIN</p>
-                  </div>
-                </footer>
-              </div>
+              <AppRoutes />
             </Router>
           </RadioProvider>
         </CartProvider>
