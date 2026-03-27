@@ -25,6 +25,7 @@ import { AdminEntityList } from './pages/admin/AdminEntityList';
 import { AdminEntityForm } from './pages/admin/AdminEntityForm';
 import { AdminInbox } from './pages/admin/AdminInbox';
 import { AdminSelectors } from './pages/admin/AdminSelectors';
+import { MemberPanel } from './pages/MemberPanel';
 import { Wishlist } from './pages/Wishlist';
 import { Gallery } from './pages/Gallery';
 
@@ -136,6 +137,15 @@ const Navigation = () => {
 const AppRoutes: React.FC = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
+  const isMember = location.pathname.startsWith('/member');
+
+  if (isMember) {
+    return (
+      <Routes>
+        <Route path="/member/*" element={<MemberPanel />} />
+      </Routes>
+    );
+  }
 
   if (isAdmin) {
     return (
@@ -157,6 +167,9 @@ const AppRoutes: React.FC = () => {
           <Route path="sales" element={<AdminEntityList entity="sales" />} />
           <Route path="inbox" element={<AdminInbox />} />
           <Route path="selectors" element={<AdminSelectors />} />
+          <Route path="members" element={<AdminEntityList entity="members" />} />
+          <Route path="members/new" element={<AdminEntityForm entity="members" />} />
+          <Route path="members/:id" element={<AdminEntityForm entity="members" />} />
         </Route>
       </Routes>
     );

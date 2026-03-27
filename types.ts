@@ -168,7 +168,45 @@ export interface ChatMessage {
   text: string;
 }
 
-export type UserRole = 'ADMIN' | 'DJ' | 'CUSTOMER';
+export type UserRole = 'ADMIN' | 'DJ' | 'CUSTOMER' | 'MEMBER';
+
+export interface Member {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  max_price: number;
+  min_condition: string;
+  platforms: string[];
+  status: 'active' | 'inactive';
+  created_at: string;
+}
+
+export interface WantlistItem {
+  id: string;
+  member_id: string;
+  artist: string;
+  title: string;
+  notes?: string;
+  max_price?: number;
+  created_at: string;
+}
+
+export interface Deal {
+  id: string;
+  member_id: string;
+  wantlist_id?: string;
+  artist: string;
+  title: string;
+  platform: string;
+  seller: string;
+  price: number;
+  shipping: number;
+  condition: string;
+  url: string;
+  found_at: string;
+  status: 'new' | 'seen' | 'bought' | 'dismissed';
+}
 
 export interface MerchItem {
   id: string;

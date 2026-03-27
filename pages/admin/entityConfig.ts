@@ -1,4 +1,4 @@
-import { Calendar, Disc, Package, MessageSquare, ShoppingBag, UserCheck, Mail } from 'lucide-react';
+import { Calendar, Disc, Package, MessageSquare, ShoppingBag, UserCheck, Mail, Radar } from 'lucide-react';
 
 export type FieldType = 'text' | 'textarea' | 'number' | 'date' | 'time' | 'select' | 'boolean' | 'image' | 'tags' | 'url' | 'lineup' | 'datetime';
 
@@ -169,6 +169,33 @@ export const entityConfigs: Record<string, EntityConfig> = {
     ],
   },
 
+  members: {
+    label: 'Miembros Radar',
+    labelSingular: 'Miembro',
+    icon: Radar,
+    titleField: 'name',
+    statusField: 'status',
+    service: { list: 'getMembers', create: 'createMember', update: 'updateMember', delete: 'deleteMember' },
+    listColumns: [
+      { key: 'name', label: 'Nombre' },
+      { key: 'email', label: 'Email' },
+      { key: 'phone', label: 'Telefono', width: '120px' },
+      { key: 'max_price', label: 'Precio max', width: '100px' },
+      { key: 'min_condition', label: 'Estado min', width: '100px' },
+      { key: 'status', label: 'Estado', width: '100px' },
+    ],
+    fields: [
+      { key: 'name', label: 'Nombre', type: 'text', required: true },
+      { key: 'email', label: 'Email', type: 'text', required: true },
+      { key: 'password', label: 'Password (solo al crear)', type: 'text' },
+      { key: 'phone', label: 'Telefono', type: 'text', half: true },
+      { key: 'status', label: 'Estado', type: 'select', options: ['active', 'inactive'], half: true },
+      { key: 'max_price', label: 'Precio maximo (€)', type: 'number', min: 0, half: true, defaultValue: 50 },
+      { key: 'min_condition', label: 'Estado minimo', type: 'select', options: ['M', 'NM', 'VG+', 'VG', 'G+', 'G'], half: true, defaultValue: 'VG' },
+      { key: 'platforms', label: 'Plataformas', type: 'tags', defaultValue: ['discogs', 'ebay', 'wallapop', 'todocoleccion'] },
+    ],
+  },
+
   sales: {
     label: 'Ventas',
     labelSingular: 'Venta',
@@ -214,6 +241,12 @@ export const sidebarSections = [
       { key: 'sales', label: 'Ventas', icon: ShoppingBag, path: '/admin/sales' },
       { key: 'inbox', label: 'Inbox', icon: Mail, path: '/admin/inbox' },
       { key: 'selectors', label: 'Selectors', icon: UserCheck, path: '/admin/selectors' },
+    ],
+  },
+  {
+    title: 'Digger Radar',
+    items: [
+      { key: 'members', label: 'Miembros', icon: Radar, path: '/admin/members' },
     ],
   },
 ];

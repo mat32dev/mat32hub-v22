@@ -1,4 +1,4 @@
-import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem, Sale, MenuCategory, UserSession, MerchItem } from '../types';
+import { Post, VinylRecord, Event, SelectorSubmission, InboxMessage, GalleryItem, Sale, MenuCategory, UserSession, MerchItem, Member, WantlistItem, Deal } from '../types';
 import { BAR_MENU } from '../constants';
 
 const API = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3003';
@@ -244,6 +244,90 @@ class DataService {
       categories: Array.from(new Set(gallery.map(i => i.category))),
       tags: Array.from(new Set(gallery.flatMap(i => i.tags || [])))
     };
+  }
+
+  // ── MEMBERS (Digger Radar) ───────────────────────────────────
+  async getMembers(): Promise<Member[]> { return api('/members'); }
+
+  async createMember(m: Partial<Member> & { password?: string }) {
+    return api<Member>('/members', { method: 'POST', body: JSON.stringify(m) });
+  }
+
+  async updateMember(m: Partial<Member>) {
+    if (!m.id) return;
+    return api(`/members/${m.id}`, { method: 'PATCH', body: JSON.stringify(m) });
+  }
+
+  async deleteMember(id: string) {
+    return api(`/members/${id}`, { method: 'DELETE' });
+  }
+
+  // ── MEMBER WANTLIST ─────────────────────────────────────────
+  async getWantlist(memberId: string): Promise<WantlistItem[]> {
+    return api(`/members/${memberId}/wantlist`);
+  }
+
+  async addWantlistItem(memberId: string, item: Partial<WantlistItem>) {
+    return api<WantlistItem>(`/members/${memberId}/wantlist`, { method: 'POST', body: JSON.stringify(item) });
+  }
+
+  async updateWantlistItem(memberId: string, item: Partial<WantlistItem>) {
+    if (!item.id) return;
+    return api(`/members/${memberId}/wantlist/${item.id}`, { method: 'PATCH', body: JSON.stringify(item) });
+  }
+
+  async deleteWantlistItem(memberId: string, itemId: string) {
+    return api(`/members/${memberId}/wantlist/${itemId}`, { method: 'DELETE' });
+  }
+
+  async importWantlistCSV(memberId: string, csv: string): Promise<number> {
+    const lines = csv.split('\n').filter(l => l.trim().length > 0);
+    let count = 0;
+    for (const line of lines) {
+      const parts = line.split(',').map(p => p.trim());
+      if (parts.length >= 2) {
+        await this.addWantlistItem(memberId, {
+          artist: parts[0],
+          title: parts[1],
+          max_price: parts[2] ? parseFloat(parts[2]) : undefined,
+          notes: parts[3] || undefined,
+        });
+        count++;
+      }
+    }
+    return count;
+  }
+
+  // ── MEMBER DEALS ────────────────────────────────────────────
+  async getDeals(memberId: string): Promise<Deal[]> {
+    return api(`/members/${memberId}/deals`);
+  }
+
+  async updateDealStatus(memberId: string, dealId: string, status: Deal['status']) {
+    return api(`/members/${memberId}/deals/${dealId}`, { method: 'PATCH', body: JSON.stringify({ status }) });
+  }
+
+  // ── MEMBER AUTH (login separado) ────────────────────────────
+  async memberLogin(email: string, pass: string): Promise<boolean> {
+    try {
+      const data = await api<{ ok: boolean; member: Member; token: string }>(
+        '/auth/member-login',
+        { method: 'POST', body: JSON.stringify({ email, pass }) }
+      );
+      if (data.ok) {
+        const session = {
+          id: data.member.id,
+          role: 'MEMBER' as const,
+          name: data.member.name,
+          email: data.member.email,
+          token: data.token,
+          expiresAt: Date.now() + SESSION_TTL,
+        };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+        window.dispatchEvent(new CustomEvent('mat32_data_changed'));
+      }
+      return data.ok;
+    } catch { return false; }
   }
 
   // ── BATCH IMPORT ──────────────────────────────────────────────
