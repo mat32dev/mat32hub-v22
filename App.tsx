@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { Menu, X, Disc, Volume2, VolumeX, Globe } from 'lucide-react';
 
 import { CartProvider } from './context/CartContext';
@@ -59,7 +59,7 @@ const Navigation = () => {
     { name: t('nav.records'), path: '/records' },
     { name: t('nav.community'), path: '/community' },
     { name: t('nav.open_decks'), path: '/open-decks' },
-    { name: t('nav.private_events'), path: '/alquiler-local-eventos-valencia' },
+    { name: t('nav.private_events'), path: '/alquiler-local-eventos-horas-valencia' },
     { name: t('nav.contact'), path: '/contact' },
   ];
 
@@ -192,7 +192,8 @@ const AppRoutes: React.FC = () => {
           <Route path="/open-decks" element={<OpenDecks />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/alquiler-local-eventos-valencia" element={<PrivateEvents />} />
+          <Route path="/alquiler-local-eventos-horas-valencia" element={<PrivateEvents />} />
+          <Route path="/alquiler-local-eventos-valencia" element={<Navigate to="/alquiler-local-eventos-horas-valencia" replace />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/radio" element={<RadioPage />} />
           <Route path="/legal/:type" element={<Legal />} />

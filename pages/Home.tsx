@@ -110,7 +110,7 @@ export const Home: React.FC = () => {
             </div>
             <p className="text-gray-300 max-w-2xl mx-auto text-lg md:text-2xl font-light italic mb-16 opacity-90 drop-shadow-lg leading-relaxed px-4">"Donde el tiempo se mide en revoluciones por minuto."</p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center px-4">
-               <Link to="/alquiler-local-eventos-valencia#booking-form" className="w-full sm:w-auto px-14 py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-widest clip-path-slant shadow-2xl hover:bg-mat-400 transition-all active:scale-95">ALQUILER LOCAL</Link>
+               <Link to="/alquiler-local-eventos-horas-valencia#booking-form" className="w-full sm:w-auto px-14 py-6 bg-mat-500 text-white font-black uppercase text-[11px] tracking-widest clip-path-slant shadow-2xl hover:bg-mat-400 transition-all active:scale-95">ALQUILER LOCAL</Link>
                <Link to="/open-decks" className="w-full sm:w-auto px-14 py-6 bg-mat-900/80 border-2 border-mat-700 text-white font-black uppercase text-[11px] tracking-widest clip-path-slant hover:border-mat-500 backdrop-blur-md transition-all active:scale-95">ENVIAR MIX</Link>
             </div>
         </div>

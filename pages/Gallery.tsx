@@ -75,7 +75,7 @@ export const Gallery: React.FC = () => {
                  <Camera className="text-mat-500 mb-6" size={24} />
                  <h4 className="text-[10px] font-black text-white uppercase tracking-widest mb-2">RESERVA EL ESPACIO</h4>
                  <p className="text-gray-500 text-[10px] leading-relaxed italic mb-8">¿Planeas un rodaje o un evento? Mat32 es el set perfecto.</p>
-                 <a href="/alquiler-local-eventos-valencia" className="inline-flex items-center gap-2 text-mat-500 font-black text-[9px] uppercase tracking-widest hover:gap-4 transition-all">SABER MÁS <ChevronRight size={12} /></a>
+                 <a href="/alquiler-local-eventos-horas-valencia" className="inline-flex items-center gap-2 text-mat-500 font-black text-[9px] uppercase tracking-widest hover:gap-4 transition-all">SABER MÁS <ChevronRight size={12} /></a>
               </div>
             </div>
           </aside>

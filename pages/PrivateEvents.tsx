@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Loader2, Send, CheckCircle2, Info, Camera } from 'lucide-react';
+import { Loader2, Send, CheckCircle2, Info, Camera, Calendar as CalendarIcon } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
 import { CachedImage } from '../components/CachedImage';
@@ -128,6 +128,52 @@ export const PrivateEvents: React.FC = () => {
       </section>
 
       <section id="booking-form" className="container mx-auto px-6 max-w-7xl py-20">
+         {/* DISPONIBILIDAD - GOOGLE CALENDAR EMBED */}
+         <div className="mb-16">
+            <div className="flex items-center gap-6 mb-8">
+               <CalendarIcon size={32} className="text-mat-500" />
+               <h2 className="text-3xl md:text-6xl font-black text-white uppercase tracking-tighter font-exo leading-none">
+                  DISPONIBILIDAD <span className="text-mat-500">.</span>
+               </h2>
+               <div className="flex-1 border-b-2 border-mat-800 opacity-20"></div>
+            </div>
+            <p className="text-gray-400 text-sm md:text-base font-light italic mb-8 max-w-3xl">
+               Consulta en tiempo real los días y horas ya reservadas. Las franjas libres son las que puedes solicitar en el formulario de abajo.
+            </p>
+            {/* MARCO POLAROID — calendario como foto enmarcada sobre cartón crema */}
+            <div className="relative rounded-[3rem] overflow-hidden border-2 border-mat-700 shadow-2xl" style={{ background: '#e8e2d4' }}>
+               {/* Marco superior estilo TECH */}
+               <div className="absolute top-0 left-0 w-full h-1.5 bg-mat-500 z-20"></div>
+               {/* Header industrial */}
+               <div className="bg-mat-950 px-8 py-5 border-b-2 border-mat-700 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                     <div className="w-2 h-2 rounded-full bg-mat-500 animate-pulse"></div>
+                     <span className="text-[9px] font-black text-mat-500 uppercase tracking-[0.3em]">LIVE_AVAILABILITY</span>
+                  </div>
+                  <span className="text-[9px] font-black text-gray-500 uppercase tracking-[0.3em] hidden sm:block">EUROPE/MADRID</span>
+               </div>
+               {/* Padding cartón crema + iframe blanco dentro = efecto polaroid */}
+               <div className="p-6 md:p-10 pb-12 md:pb-16">
+                  <div className="relative shadow-inner border border-mat-700/30" style={{ background: '#ffffff' }}>
+                     <iframe
+                        title="Disponibilidad MAT32"
+                        src="https://calendar.google.com/calendar/embed?src=c_e22193851a0fcd54415f4fe728b65e21a196b098cdf1235dfc66115125712e7c%40group.calendar.google.com&ctz=Europe%2FMadrid&showTitle=0&showPrint=0&showCalendars=0&showTabs=1&showTz=0&mode=MONTH&hl=es"
+                        style={{ border: 0, display: 'block' }}
+                        width="100%"
+                        height="650"
+                        frameBorder={0}
+                        scrolling="no"
+                     />
+                  </div>
+                  {/* Pie de polaroid estilo etiqueta manuscrita */}
+                  <div className="flex items-center justify-between mt-5 px-2">
+                     <span className="text-[9px] font-black text-mat-900 uppercase tracking-[0.3em] opacity-60">MAT32 · BOOKING_LOG</span>
+                     <span className="text-[9px] font-black text-mat-900 uppercase tracking-[0.3em] opacity-40">VLC_RUZAFA</span>
+                  </div>
+               </div>
+            </div>
+         </div>
+
          <div className="grid lg:grid-cols-12 gap-16 items-start">
             <div className="lg:col-span-5 space-y-12">
                <div className="bg-mat-800 border-2 border-mat-700 p-12 rounded-[4rem] shadow-xl relative overflow-hidden">
