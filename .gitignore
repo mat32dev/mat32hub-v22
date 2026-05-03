@@ -3,3 +3,9 @@ dist/
 .env
 .env.local
 .env.*.local
+.DS_Store
+**/.DS_Store
+.claude/
+backups/
+files/
+memory/

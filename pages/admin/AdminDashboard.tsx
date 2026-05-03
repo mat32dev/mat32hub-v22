@@ -34,6 +34,7 @@ export const AdminDashboard: React.FC = () => {
 
   const cards = [
     { key: 'events', label: 'Eventos', icon: Calendar, color: 'orange', path: '/admin/events' },
+    { key: 'agenda', label: 'Agenda ext', icon: Calendar, color: 'orange', path: '/admin/agenda' },
     { key: 'records', label: 'Discos', icon: Disc, color: 'purple', path: '/admin/records' },
     { key: 'merch', label: 'Merch', icon: Package, color: 'blue', path: '/admin/merch' },
     { key: 'posts', label: 'Posts', icon: MessageSquare, color: 'green', path: '/admin/posts' },

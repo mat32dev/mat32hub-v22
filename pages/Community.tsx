@@ -5,7 +5,7 @@ import {
   Handshake, Loader2, Zap, LayoutGrid, Radio, TrendingUp, ShoppingBag,
   FileText, Globe, X, RefreshCw, Layers
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
 import { Post, VinylRecord } from '../types';
@@ -17,7 +17,28 @@ import { BandcampPlayer } from '../components/BandcampPlayer';
 export const Community: React.FC = () => {
   const navigate = useNavigate();
   const { toggleWishlist, isInWishlist } = useWishlist();
-  const [activeTab, setActiveTab] = useState<'muro' | 'market'>('muro');
+  const [activeTab, setActiveTab] = useState<'muro' | 'whats-on' | 'market'>(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const t = params.get('tab');
+      if (t === 'whats-on' || t === 'market' || t === 'muro') return t;
+    } catch {}
+    return 'muro';
+  });
+  const [tagFilter, setTagFilter] = useState<string | null>(() => {
+    try { return new URLSearchParams(window.location.search).get('tag'); }
+    catch { return null; }
+  });
+
+  // Sync URL cuando cambia tag/tab
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    if (activeTab === 'muro') p.delete('tab'); else p.set('tab', activeTab);
+    if (!tagFilter) p.delete('tag'); else p.set('tag', tagFilter.toLowerCase());
+    const q = p.toString();
+    const url = q ? `${window.location.pathname}?${q}` : window.location.pathname;
+    window.history.replaceState(null, '', url);
+  }, [activeTab, tagFilter]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [records, setRecords] = useState<VinylRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,45 +100,52 @@ export const Community: React.FC = () => {
     });
   };
 
+  React.useEffect(() => {
+    document.body.classList.add('theme-paper');
+    return () => { document.body.classList.remove('theme-paper'); };
+  }, []);
+
   return (
-    <div className="min-h-screen bg-mat-900 pb-24">
-      <SEO 
-        titleKey="Hub Comunidad & Marketplace Vinilos P2P | Mat32" 
-        descriptionKey="Únete a la red de coleccionistas de Valencia. El Hub de Mat32 permite el intercambio, compra y venta de vinilos entre amantes del sonido analógico en Ruzafa." 
+    <div className="min-h-screen bg-paper text-ink pb-24 grain">
+      <SEO
+        titleKey="El diario del almacén | MAT32"
+        descriptionKey="Reseñas, entrevistas, listas y lo que se nos cruza. Escrito por el equipo y los residentes de MAT32 Ruzafa."
       />
 
-      {/* Header with Dynamic Reveal and Fade-out text */}
-      <div className="relative h-[65vh] md:h-[75vh] flex items-center justify-center border-b border-mat-800 overflow-hidden bg-black">
-        <div className="absolute inset-0 z-0">
-          <CachedImage 
-            src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/5dea483e-141a-4665-8085-5c163d8eda00/public" 
-            alt="The Hub Experience" 
-            priority
-            className={`w-full h-full object-cover transition-all duration-[2000ms] ease-in-out ${isRevealed ? 'scale-105 opacity-60 blur-0' : 'scale-110 opacity-0 blur-2xl'}`}
-          />
-          <div className="absolute inset-0 bg-mat-500/20 mix-blend-color pointer-events-none"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-mat-900/60 to-transparent opacity-40"></div>
+      {/* HERO · slide 09 */}
+      <section className="container mx-auto px-6 md:px-10 pt-12 md:pt-16 pb-10 hairline-b">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div>
+            <div className="mono-tag" style={{ color: '#c8462a' }}>SECCIÓN · /DIARIO</div>
+            <h1 className="display mt-3" style={{ fontSize: 'clamp(54px, 9vw, 132px)', lineHeight: 0.85 }}>
+              El <span style={{ color: '#c8462a' }}>diario</span><br/>del almacén.
+            </h1>
+            <p className="serif-italic text-2xl text-ink-soft mt-4 max-w-xl leading-snug">
+              Reseñas, entrevistas, listas y lo que se nos cruza. Escrito por el equipo y los residentes.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => setActiveTab('muro')} className={`px-4 py-2 mono-tag transition-colors ${activeTab === 'muro' ? 'bg-bermellon text-paper' : 'hairline hover:bg-ink hover:text-paper'}`}>MURO</button>
+            <button onClick={() => setActiveTab('whats-on')} className={`px-4 py-2 mono-tag transition-colors ${activeTab === 'whats-on' ? 'bg-bermellon text-paper' : 'hairline hover:bg-ink hover:text-paper'}`}>WHAT'S ON</button>
+            <Link to="/marketplace" className="px-4 py-2 mono-tag hairline hover:bg-ink hover:text-paper transition-colors">MARKETPLACE →</Link>
+          </div>
         </div>
+      </section>
 
-        <div className="container mx-auto px-6 relative z-10 pt-20 animate-fade-in">
-           <div className="flex flex-col items-center text-center">
-              <div className="max-w-4xl">
-                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-mat-500/10 border border-mat-500/20 text-mat-500 font-black text-[9px] uppercase tracking-[0.4em] mb-8">
-                    <Layers size={14} className="animate-pulse" /> RED DE COLECCIONISTAS ACTIVA
-                 </div>
-                 <h1 className="text-[15vw] sm:text-[12vw] md:text-[11rem] font-black uppercase tracking-tighter text-white font-exo leading-[0.8] mb-8">THE <span className="text-mat-500">HUB.</span></h1>
-                 <p className="text-gray-400 text-base sm:text-lg md:text-3xl font-light mb-12 px-4">Posts, discos y cosas que encontramos.</p>
-              </div>
-              <div className="flex bg-mat-800 p-1.5 rounded-2xl border border-mat-700 shadow-2xl backdrop-blur-md">
-                 <button onClick={() => setActiveTab('muro')} className={`px-4 sm:px-8 py-2.5 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'muro' ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>MURO</button>
-                 <button onClick={() => setActiveTab('market')} className={`px-4 sm:px-8 py-2.5 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'market' ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}>MARKETPLACE</button>
-              </div>
+      <div className="container mx-auto px-6 md:px-10 py-12">
+         {tagFilter && (
+           <div className="mb-6 flex items-center gap-3 px-3 py-2 hairline bg-paper-2 w-fit">
+             <span className="mono-tag text-ink-soft">FILTRANDO POR</span>
+             <span className="display text-sm">#{tagFilter}</span>
+             <button onClick={() => setTagFilter(null)}
+               className="ml-2 w-5 h-5 flex items-center justify-center hairline hover:bg-ink hover:text-paper transition-colors">
+               <X size={10} />
+             </button>
            </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-6 py-16">
-         {activeTab === 'market' ? (
+         )}
+         {activeTab === 'whats-on' ? (
+           <WhatsOnPanel tagFilter={tagFilter} onTagClick={(t) => setTagFilter(t)} />
+         ) : activeTab === 'market' ? (
            <div className="animate-fade-in">
               {/* Acciones de Marketplace */}
               <div className="mb-12 flex flex-col md:flex-row gap-6 items-center">
@@ -177,9 +205,10 @@ export const Community: React.FC = () => {
            </div>
          ) : (
            /* El Muro de la Comunidad */
-           <div className="animate-fade-in">
-              <div className="flex justify-between items-center border-b border-mat-800 pb-6 mb-12">
-                 <h2 className="text-2xl font-black text-white uppercase font-exo">ÚLTIMAS <span className="text-mat-500">PUBLICACIONES.</span></h2>
+           <div>
+              <div className="flex justify-between items-baseline hairline-b pb-3 mb-8">
+                 <h2 className="display text-2xl md:text-3xl">Últimas <span style={{ color: '#c8462a' }}>publicaciones.</span></h2>
+                 <span className="mono-tag text-ink-soft">{posts.length} POSTS</span>
               </div>
 
               {loading ? (
@@ -191,7 +220,7 @@ export const Community: React.FC = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {posts.map(post => (
+                  {posts.filter(p => !tagFilter || (p.tags || []).map(x => x.toLowerCase()).includes(tagFilter.toLowerCase())).map(post => (
                     <article
                       key={post.id}
                       onClick={() => navigate(`/community/${post.id}`)}
@@ -230,6 +259,18 @@ export const Community: React.FC = () => {
                         {(post as any).musicEmbed && (
                           <div onClick={e => e.stopPropagation()} className="mb-4">
                             <BandcampPlayer src={(post as any).musicEmbed} />
+                          </div>
+                        )}
+
+                        {/* Tags clickables */}
+                        {post.tags && post.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-4" onClick={e => e.stopPropagation()}>
+                            {post.tags.slice(0, 3).map((t: string) => (
+                              <button key={t} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setTagFilter(t); }}
+                                className="text-[9px] font-black uppercase tracking-widest text-gray-500 hover:text-mat-500 bg-mat-900 hover:bg-mat-500/10 px-2 py-0.5 rounded-full border border-mat-800 hover:border-mat-500/50 transition-colors">
+                                #{t}
+                              </button>
+                            ))}
                           </div>
                         )}
 
@@ -302,6 +343,177 @@ export const Community: React.FC = () => {
            </div>
         </div>
       )}
+
+      {/* Reference points: oculto hasta poblar bios reales */}
     </div>
   );
+};
+
+// ── WHAT'S ON · agenda externa curada ────────────────────────
+type WOScope = 'valencia' | 'es' | 'eu' | 'world';
+interface WOItem {
+  id: string; title: string; scope: WOScope;
+  starts_at: string; ends_at: string | null;
+  city: string; country: string; venue: string;
+  url: string; category: string; cover_url: string;
+  description: string; tags: string[]; featured: boolean;
+}
+const WO_SCOPES: { key: WOScope; label: string; sub: string }[] = [
+  { key: 'valencia', label: 'Valencia', sub: 'Local' },
+  { key: 'es',       label: 'España',   sub: 'Nacional' },
+  { key: 'eu',       label: 'Europa',   sub: 'Continental' },
+  { key: 'world',    label: 'Mundo',    sub: 'Global' },
+];
+const WO_CAT_COLOR: Record<string, string> = {
+  club: '#ea580c', festival: '#f59e0b', listening: '#8b5cf6',
+  talk: '#22c55e', market: '#ef4444', otros: '#6b7280',
+};
+const woFormatDate = (iso: string) => {
+  const d = new Date(iso);
+  const months = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  const dows = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+  return {
+    d: String(d.getDate()).padStart(2,'0'),
+    m: months[d.getMonth()],
+    hhmm: `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`,
+    dow: dows[d.getDay()],
+  };
+};
+
+const WhatsOnPanel: React.FC<{ tagFilter?: string | null; onTagClick?: (t: string) => void }> = ({ tagFilter, onTagClick }) => {
+  const [items, setItems] = useState<WOItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancel = false;
+    setLoading(true);
+    // Traemos todos los scopes (sin filtro público) — jerarquía interna
+    Promise.all(WO_SCOPES.map(s => dataService.getExternalEventsPublic(s.key)))
+      .then(lists => {
+        if (cancel) return;
+        const merged = ([] as WOItem[]).concat(...lists as any[]);
+        // De-dup por id
+        const seen = new Set<string>();
+        const unique = merged.filter(it => seen.has(it.id) ? false : (seen.add(it.id), true));
+        setItems(unique);
+        setLoading(false);
+      })
+      .catch(() => { if (!cancel) setLoading(false); });
+    return () => { cancel = true; };
+  }, []);
+
+  const filtered = useMemo(() => {
+    if (!tagFilter) return items;
+    const t = tagFilter.toLowerCase();
+    return items.filter(it => (it.tags || []).map(x => x.toLowerCase()).includes(t));
+  }, [items, tagFilter]);
+
+  const grouped = useMemo(() => {
+    const map = new Map<string, WOItem[]>();
+    filtered.forEach(it => {
+      const key = it.starts_at.slice(0, 10);
+      const arr = map.get(key) || [];
+      arr.push(it); map.set(key, arr);
+    });
+    return Array.from(map.entries()).sort(([a],[b]) => a.localeCompare(b));
+  }, [filtered]);
+
+  return (
+    <div className="animate-fade-in">
+      <div className="mb-8">
+        <div className="inline-flex items-center gap-2 mb-3 text-mat-500 font-black uppercase text-[10px] tracking-[0.5em]">
+          <Globe size={12} /> AGENDA · CURADA
+        </div>
+        <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter font-exo leading-[0.95]">
+          What's <span className="text-mat-500">on.</span>
+        </h2>
+        <p className="text-gray-400 mt-3 text-sm md:text-base max-w-2xl">
+          Conciertos, festivales, listening sessions y cosas que nos parecen interesantes. Aquí, o donde sea.
+        </p>
+      </div>
+
+      {loading ? (
+        <div className="py-20 text-center"><Loader2 className="animate-spin text-mat-500 w-8 h-8 mx-auto" /></div>
+      ) : filtered.length === 0 ? (
+        <div className="py-16 text-center text-gray-500">
+          <p className="text-base font-bold mb-1">{tagFilter ? `Sin eventos para #${tagFilter}.` : 'Aún no hay nada aquí.'}</p>
+          <p className="text-sm">{tagFilter ? 'Prueba otro tag o quita el filtro.' : 'Seguimos curando. Vuelve pronto.'}</p>
+        </div>
+      ) : (
+        <div className="space-y-10 max-w-4xl">
+          {grouped.map(([day, dayItems]) => {
+            const meta = woFormatDate(dayItems[0].starts_at);
+            return (
+              <div key={day}>
+                <div className="flex items-baseline gap-4 mb-4 border-b border-mat-800 pb-3">
+                  <div className="text-[10px] font-black uppercase tracking-[0.4em] text-mat-500">{meta.dow}</div>
+                  <div className="text-4xl md:text-5xl font-black font-exo text-white uppercase tracking-tighter leading-none">{meta.d}</div>
+                  <div className="text-sm font-black uppercase tracking-widest text-gray-500">{meta.m}</div>
+                </div>
+                <div className="space-y-3">
+                  {dayItems.map(it => <WhatsOnCard key={it.id} item={it} onTagClick={onTagClick} />)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="mt-14 border-t border-mat-800 pt-8 text-center">
+        <p className="text-gray-400 text-sm mb-3">¿Organizas algo interesante?</p>
+        <a href="mailto:hola@mat32.com?subject=Agenda%20MAT32"
+          className="inline-flex items-center gap-2 px-5 py-2.5 border border-mat-700 hover:border-mat-500 rounded-full text-[11px] font-black uppercase tracking-[0.3em] text-gray-300 hover:text-white transition-colors">
+          Proponer · hola@mat32.com
+        </a>
+      </div>
+    </div>
+  );
+};
+
+const WhatsOnCard: React.FC<{ item: WOItem; onTagClick?: (t: string) => void }> = ({ item, onTagClick }) => {
+  const meta = woFormatDate(item.starts_at);
+  const color = WO_CAT_COLOR[item.category] || WO_CAT_COLOR.otros;
+  const clickable = !!item.url;
+  const body = (
+    <article
+      className={`group flex gap-4 md:gap-5 p-4 md:p-5 rounded-2xl border transition-all ${clickable ? 'bg-mat-900 border-mat-800 hover:border-mat-500/60 cursor-pointer active:scale-[0.99]' : 'bg-mat-900/60 border-mat-800'} ${item.featured ? 'ring-1 ring-mat-500/40' : ''}`}
+    >
+      <div className="flex flex-col items-center shrink-0 pt-0.5" style={{ width: 56 }}>
+        <div className="text-[10px] font-mono text-white font-bold">{meta.hhmm}</div>
+        <div className="my-2 w-0.5 flex-1 min-h-[30px]" style={{ background: color }} />
+        <div className="text-[9px] font-black uppercase tracking-widest" style={{ color }}>{item.category}</div>
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="text-base md:text-lg font-black uppercase tracking-tight font-exo text-white leading-tight group-hover:text-mat-500 transition-colors">
+          {item.title}
+        </h3>
+        {(item.venue || item.city) && (
+          <div className="flex items-center gap-1.5 mt-1 text-[11px] text-gray-500">
+            <span className="truncate">{[item.venue, item.city, item.country].filter(Boolean).join(' · ')}</span>
+          </div>
+        )}
+        {item.description && (
+          <p className="mt-2 text-[13px] text-gray-400 leading-relaxed line-clamp-2">{item.description}</p>
+        )}
+        {item.tags && item.tags.length > 0 && onTagClick && (
+          <div className="mt-2 flex flex-wrap gap-1.5" onClick={e => e.stopPropagation()}>
+            {item.tags.slice(0, 4).map(t => (
+              <button key={t} onClick={(e) => { e.preventDefault(); e.stopPropagation(); onTagClick(t); }}
+                className="text-[9px] font-black uppercase tracking-widest text-gray-500 bg-mat-950 hover:bg-mat-500 hover:text-white px-2 py-0.5 rounded-full border border-mat-800 hover:border-mat-500 transition-colors">
+                #{t}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      {item.cover_url && (
+        <div className="hidden md:block shrink-0 w-20 h-20 rounded-xl overflow-hidden bg-black">
+          <img src={item.cover_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+        </div>
+      )}
+    </article>
+  );
+  return clickable
+    ? <a href={item.url} target="_blank" rel="noopener">{body}</a>
+    : body;
 };

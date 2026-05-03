@@ -1,4 +1,56 @@
+# MAT32 Valencia — robots.txt
+# Cualquier crawler, incluidos motores de búsqueda AI (ChatGPT/OpenAI, Claude/Anthropic,
+# Perplexity, Google Gemini, Apple AI) tiene permitido indexar contenido público.
+
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /member
+Disallow: /verify/
+Disallow: /sobremesa-ok
+Disallow: /sobremesa-cancel
+
+# AI search crawlers — explicitamente permitidos
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
 Sitemap: https://www.mat32.com/sitemap.xml

@@ -52,7 +52,7 @@ export const Contact: React.FC = () => {
         email: formData.email,
         content: formData.content,
         date: new Date().toISOString(),
-        metadata: { eventDate: formData.date }
+        metadata: { source: 'contact-general', eventDate: formData.date }
       });
       setStatus('success');
       setFormData({
@@ -67,7 +67,7 @@ export const Contact: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-mat-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-paper text-ink flex flex-col font-sans">
       <SEO titleKey="Contacto | Mat32 Valencia" descriptionKey="Contacta con nosotros para eventos, propuestas o consultas generales." />
       
       <section className="relative min-h-[40vh] flex items-center justify-center overflow-hidden border-b border-mat-800">

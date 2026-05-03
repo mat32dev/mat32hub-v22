@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Trash2, Edit3, Search, Loader2, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, Archive, Edit3, Search, Loader2, AlertTriangle } from 'lucide-react';
 import { dataService } from '../../services/dataService';
 import { entityConfigs } from './entityConfig';
 
@@ -28,14 +28,22 @@ export const AdminEntityList: React.FC<Props> = ({ entity }) => {
 
   useEffect(() => { load(); }, [entity]);
 
+  const isEmployee = dataService.isEmployee();
+
   const handleDelete = async (id: string) => {
-    if (!confirm('Eliminar este registro?')) return;
+    const msg = isEmployee
+      ? 'Archivar este registro? (queda oculto, admin puede restaurar)'
+      : 'Eliminar este registro?';
+    if (!confirm(msg)) return;
     setDeleting(id);
     try {
       await (dataService as any)[config.service.delete](id);
       setItems(prev => prev.filter(i => i.id !== id));
-    } catch (err) {
-      alert('Error al eliminar');
+    } catch (err: any) {
+      alert(isEmployee
+        ? 'No se puede archivar este recurso (solo admin puede borrar). ' + (err?.message || '')
+        : 'Error al eliminar'
+      );
     }
     setDeleting(null);
   };
@@ -138,8 +146,9 @@ export const AdminEntityList: React.FC<Props> = ({ entity }) => {
                         </button>
                         <button onClick={e => { e.stopPropagation(); handleDelete(item.id); }}
                           disabled={deleting === item.id}
-                          className="p-1.5 text-gray-500 hover:text-red-400 transition-colors rounded disabled:opacity-30">
-                          {deleting === item.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                          title={isEmployee ? 'Archivar' : 'Eliminar'}
+                          className={`p-1.5 transition-colors rounded disabled:opacity-30 ${isEmployee ? 'text-gray-500 hover:text-amber-400' : 'text-gray-500 hover:text-red-400'}`}>
+                          {deleting === item.id ? <Loader2 size={14} className="animate-spin" /> : isEmployee ? <Archive size={14} /> : <Trash2 size={14} />}
                         </button>
                       </div>
                     </td>

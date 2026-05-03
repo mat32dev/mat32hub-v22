@@ -25,11 +25,11 @@ export const PostDetail: React.FC = () => {
     load();
   }, [id]);
 
-  if (loading) return <div className="min-h-screen bg-mat-900 flex items-center justify-center"><Loader2 className="animate-spin text-mat-500 w-12 h-12" /></div>;
-  if (!post) return <div className="min-h-screen bg-mat-900 text-center py-40 text-white">Post no encontrado. <Link to="/community" className="text-mat-500">Volver</Link></div>;
+  if (loading) return <div className="min-h-screen bg-paper text-ink flex items-center justify-center"><Loader2 className="animate-spin text-mat-500 w-12 h-12" /></div>;
+  if (!post) return <div className="min-h-screen bg-paper text-ink text-center py-40 text-white">Post no encontrado. <Link to="/community" className="text-mat-500">Volver</Link></div>;
 
   return (
-    <div className="min-h-screen bg-mat-900 pb-24 font-sans">
+    <div className="min-h-screen bg-paper text-ink pb-24 font-sans">
       <SEO 
         titleKey={`Post de @${post.author}`} 
         descriptionKey={post.content} 

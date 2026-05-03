@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS members (
   phone VARCHAR(20),
   max_price NUMERIC(8,2) DEFAULT 50,
   min_condition VARCHAR(5) DEFAULT 'VG',
-  platforms JSONB DEFAULT '["discogs","ebay","wallapop","todocoleccion"]',
+  platforms JSONB DEFAULT '["discogs","ebay","todocoleccion","leboncoin","milanuncios"]',
   status VARCHAR(20) DEFAULT 'active',
   created_at TIMESTAMP DEFAULT NOW()
 );

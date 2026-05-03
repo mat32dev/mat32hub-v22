@@ -192,6 +192,9 @@ export const AdminEntityForm: React.FC<Props> = ({ entity }) => {
         </div>
       )}
 
+      {/* Member card actions */}
+      {entity === 'members' && !isNew && <MemberCardActions memberId={data.id} memberNumber={data.member_number} data={data} />}
+
       {/* Form */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
@@ -213,6 +216,78 @@ export const AdminEntityForm: React.FC<Props> = ({ entity }) => {
           {JSON.stringify(data, null, 2)}
         </pre>
       </details>
+    </div>
+  );
+};
+
+// ── Member Card Actions ──
+
+const MemberCardActions: React.FC<{ memberId: number; memberNumber?: string; data: any }> = ({ memberId, data }) => {
+  const [cardInfo, setCardInfo] = useState<any>(null);
+  const [busy, setBusy] = useState(false);
+  const [loadingInfo, setLoadingInfo] = useState(true);
+
+  useEffect(() => {
+    if (!memberId) return;
+    (async () => {
+      try { setCardInfo(await (dataService as any).getMyCard(memberId)); } catch {}
+      setLoadingInfo(false);
+    })();
+  }, [memberId]);
+
+  const issue = async () => {
+    setBusy(true);
+    try {
+      const c = await (dataService as any).issueCard(memberId);
+      setCardInfo({ ...c, has_card: true, card_issued_at: c.issued_at, card_expires_at: c.expires_at });
+    } catch (e) { alert('Error al emitir tarjeta'); }
+    setBusy(false);
+  };
+
+  const revoke = async () => {
+    if (!confirm('¿Revocar tarjeta? El miembro ya no podrá entrar con este QR.')) return;
+    setBusy(true);
+    try {
+      await (dataService as any).revokeCard(memberId);
+      setCardInfo({ ...cardInfo, card_revoked: true });
+    } catch (e) { alert('Error al revocar'); }
+    setBusy(false);
+  };
+
+  if (!memberId) return null;
+
+  return (
+    <div className="mb-4 p-5 bg-gray-900 border border-gray-800 rounded-xl">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="space-y-1">
+          <div className="text-[11px] font-black uppercase tracking-[0.3em] text-orange-500">Tarjeta de miembro</div>
+          <div className="text-sm text-white font-mono">{data.member_number || '—'}</div>
+          {loadingInfo ? (
+            <div className="text-xs text-gray-500">Cargando...</div>
+          ) : !cardInfo?.has_card ? (
+            <div className="text-xs text-gray-500">Sin emitir</div>
+          ) : cardInfo.card_revoked ? (
+            <div className="text-xs text-red-400 font-bold">REVOCADA</div>
+          ) : (
+            <div className="text-xs text-gray-400">
+              Emitida {new Date(cardInfo.card_issued_at).toLocaleDateString('es-ES')} · Expira {new Date(cardInfo.card_expires_at).toLocaleDateString('es-ES')}
+            </div>
+          )}
+          {cardInfo?.verify_url && !cardInfo.card_revoked && (
+            <a href={cardInfo.verify_url} target="_blank" rel="noopener" className="inline-block text-[11px] text-orange-400 hover:underline mt-1">Ver enlace público ↗</a>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <button onClick={issue} disabled={busy} className="px-3 py-2 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold rounded-lg disabled:opacity-50">
+            {cardInfo?.has_card ? 'Reemitir' : 'Emitir tarjeta'}
+          </button>
+          {cardInfo?.has_card && !cardInfo.card_revoked && (
+            <button onClick={revoke} disabled={busy} className="px-3 py-2 border border-red-800 text-red-400 hover:bg-red-500/10 text-xs font-bold rounded-lg disabled:opacity-50">
+              Revocar
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

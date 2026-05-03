@@ -27,7 +27,7 @@ export const Wishlist: React.FC = () => {
   }, [wishlist]);
 
   return (
-    <div className="min-h-screen bg-mat-900 pb-32">
+    <div className="min-h-screen bg-paper text-ink pb-32">
       <SEO titleKey="Mi Wishlist | Mat32 Digger Hub" descriptionKey="Tu selección personal de vinilos y rarezas guardadas en Mat32 Valencia." />
 
       <div className="bg-mat-950 py-24 md:py-40 border-b border-mat-800 relative overflow-hidden text-center">

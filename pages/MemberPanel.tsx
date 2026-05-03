@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Disc, LogOut, Plus, Trash2, Search, ExternalLink, Eye, ShoppingCart, X, Upload } from 'lucide-react';
+import { Disc, LogOut, Plus, Trash2, Search, ExternalLink, Eye, ShoppingCart, X, Upload, CreditCard, ShieldCheck, AlertTriangle, Copy, Loader2 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { WantlistItem, Deal } from '../types';
 
 const PLATFORMS = [
   { key: 'discogs', label: 'Discogs' },
   { key: 'ebay', label: 'eBay' },
-  { key: 'wallapop', label: 'Wallapop' },
   { key: 'todocoleccion', label: 'Todocoleccion' },
+  { key: 'leboncoin', label: 'Le Bon Coin' },
   { key: 'milanuncios', label: 'Milanuncios' },
 ];
 
@@ -26,7 +26,9 @@ export const MemberPanel: React.FC = () => {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [error, setError] = useState('');
-  const [tab, setTab] = useState<'wantlist' | 'deals' | 'settings'>('deals');
+  const [tab, setTab] = useState<'wantlist' | 'deals' | 'settings' | 'card'>('deals');
+  const [card, setCard] = useState<any>(null);
+  const [loadingCard, setLoadingCard] = useState(false);
 
   // Wantlist state
   const [wantlist, setWantlist] = useState<WantlistItem[]>([]);
@@ -40,7 +42,7 @@ export const MemberPanel: React.FC = () => {
   // Settings state
   const [maxPrice, setMaxPrice] = useState(50);
   const [minCondition, setMinCondition] = useState('VG');
-  const [platforms, setPlatforms] = useState<string[]>(['discogs', 'ebay', 'wallapop', 'todocoleccion']);
+  const [platforms, setPlatforms] = useState<string[]>(['discogs', 'ebay', 'todocoleccion', 'leboncoin', 'milanuncios']);
   const [saving, setSaving] = useState(false);
 
   const memberId = session?.id || '';
@@ -50,6 +52,17 @@ export const MemberPanel: React.FC = () => {
       loadData();
     }
   }, [loggedIn]);
+
+  useEffect(() => {
+    if (tab === 'card' && loggedIn && memberId && !card) loadCard();
+  }, [tab, loggedIn]);
+
+  async function loadCard() {
+    setLoadingCard(true);
+    try { setCard(await dataService.getMyCard(memberId as any)); }
+    catch (e) { console.error(e); }
+    setLoadingCard(false);
+  }
 
   async function loadData() {
     try {
@@ -186,6 +199,7 @@ export const MemberPanel: React.FC = () => {
           {[
             { key: 'deals' as const, label: 'Deals', badge: newDeals },
             { key: 'wantlist' as const, label: 'Mi Wantlist', badge: wantlist.length },
+            { key: 'card' as const, label: 'Mi Carnet', badge: 0 },
             { key: 'settings' as const, label: 'Preferencias', badge: 0 },
           ].map(t => (
             <button
@@ -330,6 +344,81 @@ export const MemberPanel: React.FC = () => {
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── CARD TAB ──────────────────────────── */}
+        {tab === 'card' && (
+          <div className="max-w-md mx-auto">
+            {loadingCard ? (
+              <div className="py-20 text-center"><Loader2 className="animate-spin text-mat-500 w-8 h-8 mx-auto" /></div>
+            ) : !card?.has_card ? (
+              <div className="p-8 bg-mat-900 border border-mat-800 rounded-2xl text-center space-y-4">
+                <CreditCard className="w-12 h-12 text-gray-600 mx-auto" />
+                <p className="text-gray-400 text-sm">Aún no tienes tarjeta emitida.</p>
+                <p className="text-gray-600 text-xs">Contacta con el equipo de MAT32 para activarla.</p>
+              </div>
+            ) : card?.card_revoked ? (
+              <div className="p-8 bg-red-900/20 border border-red-500/40 rounded-2xl text-center space-y-3">
+                <AlertTriangle className="w-10 h-10 text-red-400 mx-auto" />
+                <p className="text-red-400 font-black uppercase tracking-widest text-sm">TARJETA REVOCADA</p>
+                <p className="text-gray-400 text-xs">Contacta con MAT32 para más información.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* THE CARD */}
+                <div className="relative aspect-[1.586/1] bg-gradient-to-br from-mat-800 via-mat-900 to-black rounded-2xl border-2 border-mat-500/30 overflow-hidden shadow-2xl shadow-mat-500/10">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,_rgba(234,88,12,0.25),_transparent_50%)] pointer-events-none" />
+                  <div className="absolute top-0 left-0 w-full h-1 bg-mat-500" />
+                  <div className="absolute inset-0 p-5 flex flex-col justify-between">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="text-[10px] font-black uppercase tracking-[0.4em] text-mat-500 mb-1">MAT32 · MEMBER</div>
+                        <div className="text-[8px] font-bold uppercase tracking-[0.3em] text-gray-500">DIGGER RADAR · RUZAFA</div>
+                      </div>
+                      <ShieldCheck className="w-6 h-6 text-mat-500/70" />
+                    </div>
+                    <div>
+                      <div className="text-lg font-black uppercase text-white tracking-tight leading-none mb-2 font-exo">{card.name}</div>
+                      <div className="flex items-end justify-between">
+                        <div>
+                          <div className="text-[8px] font-black uppercase tracking-[0.3em] text-gray-500 mb-0.5">Nº</div>
+                          <div className="text-mat-500 font-mono font-black tracking-wider text-sm">{card.member_number}</div>
+                        </div>
+                        {card.card_expires_at && (
+                          <div className="text-right">
+                            <div className="text-[8px] font-black uppercase tracking-[0.3em] text-gray-500 mb-0.5">EXPIRA</div>
+                            <div className="text-gray-300 font-mono text-[11px]">{new Date(card.card_expires_at).toLocaleDateString('es-ES')}</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* QR */}
+                <div className="p-6 bg-white rounded-2xl flex flex-col items-center gap-3">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=10&data=${encodeURIComponent(card.verify_url)}`}
+                    alt="QR carnet"
+                    className="w-64 h-64"
+                  />
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">Escanear en la puerta</p>
+                </div>
+
+                <div className="p-4 bg-mat-900 border border-mat-800 rounded-xl flex items-center gap-3">
+                  <AlertTriangle size={16} className="text-mat-500 shrink-0" />
+                  <p className="text-[11px] text-gray-400 leading-relaxed">
+                    <b className="text-white">Personal e intransferible.</b> Deberás mostrar el DNI con tu nombre al entrar. El uso por terceros implica revocación.
+                  </p>
+                </div>
+
+                <button onClick={() => { navigator.clipboard.writeText(card.verify_url); alert('Link copiado'); }}
+                  className="w-full py-3 bg-mat-800 hover:bg-mat-700 text-gray-300 text-xs font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2">
+                  <Copy size={14} /> Copiar link de verificación
+                </button>
               </div>
             )}
           </div>

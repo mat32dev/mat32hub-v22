@@ -30,7 +30,7 @@ app.post('/members', requireAuth, async (req, res) => {
   const r = await pool.query(
     `INSERT INTO members (name, email, password_hash, phone, max_price, min_condition, platforms, status)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-    [name, email, hash, phone || null, max_price || 50, min_condition || 'VG', JSON.stringify(platforms || ['discogs','ebay','wallapop','todocoleccion']), status || 'active']
+    [name, email, hash, phone || null, max_price || 50, min_condition || 'VG', JSON.stringify(platforms || ['discogs','ebay','todocoleccion','leboncoin','milanuncios']), status || 'active']
   );
   res.json(r.rows[0]);
 });
@@ -100,4 +100,44 @@ app.patch('/members/:mid/deals/:id', requireAuth, async (req, res) => {
     [status, req.params.id, req.params.mid]
   );
   res.json(r.rows[0]);
+});
+
+// ── SCANNER: insertar deals desde el scraper (admin only) ───
+app.post('/deals/batch', requireAuth, async (req, res) => {
+  try {
+    const { deals } = req.body; // Array de deals
+    if (!Array.isArray(deals) || deals.length === 0) return res.json({ inserted: 0 });
+    let inserted = 0;
+    for (const d of deals) {
+      // Dedup por member_id + platform + url
+      const exists = await pool.query(
+        'SELECT 1 FROM member_deals WHERE member_id=$1 AND platform=$2 AND url=$3 LIMIT 1',
+        [d.member_id, d.platform, d.url]
+      );
+      if (exists.rows.length > 0) continue;
+      await pool.query(
+        `INSERT INTO member_deals (member_id, wantlist_id, artist, title, platform, seller, price, shipping, condition, url, status)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'new')`,
+        [d.member_id, d.wantlist_id, d.artist, d.title, d.platform, d.seller || '', d.price, d.shipping || 0, d.condition || '', d.url]
+      );
+      inserted++;
+    }
+    res.json({ ok: true, inserted, total: deals.length });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── SCANNER STATS (admin) ───────────────────────────────────
+app.get('/scanner/stats', requireAuth, async (req, res) => {
+  try {
+    const [total, newDeals, byPlatform] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM member_deals'),
+      pool.query("SELECT COUNT(*) FROM member_deals WHERE status='new'"),
+      pool.query("SELECT platform, COUNT(*) as count FROM member_deals GROUP BY platform ORDER BY count DESC"),
+    ]);
+    res.json({
+      total_deals: parseInt(total.rows[0].count),
+      new_deals: parseInt(newDeals.rows[0].count),
+      by_platform: byPlatform.rows,
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });

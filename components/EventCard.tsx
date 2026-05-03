@@ -69,94 +69,76 @@ export const EventCard: React.FC<EventCardProps> = ({ event, isPast = false }) =
 
   const eventImageSrc = isHeroImage(event.imageUrl ?? '') ? '' : (event.imageUrl ?? '');
 
+  const d = new Date(event.date);
+  const dia = String(d.getDate()).padStart(2,'0');
+  const mes = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'][d.getMonth()];
+
   return (
     <article
       onClick={() => navigate(`/events/${event.id}`)}
-      className={`bg-mat-900 border transition-all duration-500 flex flex-col md:flex-row group rounded-[2rem] relative cursor-pointer ${
+      className={`group flex flex-col md:flex-row hairline relative cursor-pointer transition-colors ${
         isPast
-          ? 'opacity-50 grayscale border-mat-800 overflow-hidden'
+          ? 'opacity-55 grayscale bg-paper-2'
           : isAttending
-            ? 'border-emerald-500 shadow-xl shadow-emerald-900/20'
-            : 'border-mat-800 hover:border-mat-500 shadow-xl'
+            ? 'bg-paper-2 ring-2 ring-bermellon'
+            : 'bg-paper hover:bg-ink hover:text-paper'
       }`}
     >
-      {/* DAY BANNER — fuera del overflow-hidden para que no se clipee */}
       {!isPast && (
-        <div className="absolute top-4 right-0 z-30 transform rotate-2">
-          <div className="bg-mat-400 text-mat-900 font-black text-[10px] tracking-widest px-4 py-1.5 shadow-lg flex items-center gap-2 border-b-2 border-black/10">
-            <Pin size={10} /> {getDayName(event.date)}
+        <div className="absolute top-3 right-3 z-30">
+          <div className="mono-tag bg-bermellon text-paper px-2.5 py-1">
+            <Pin size={8} className="inline mr-1" /> {getDayName(event.date)}
           </div>
         </div>
       )}
 
       {/* IMAGE */}
-      <div className="md:w-1/3 relative bg-black flex-shrink-0 overflow-hidden rounded-t-[2rem] md:rounded-l-[2rem] md:rounded-tr-none">
-        <CachedImage
-          src={eventImageSrc}
-          alt={event.title}
-          className="w-full h-full opacity-80 group-hover:opacity-100 transition-opacity"
-        />
+      <div className="md:w-1/3 relative bg-ink flex-shrink-0 overflow-hidden hairline-r">
+        <CachedImage src={eventImageSrc} alt={event.title} className="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" />
         {isAttending && !isPast && (
-          <div className="absolute inset-0 bg-emerald-500/20 backdrop-blur-[2px] flex items-center justify-center">
-            <CheckCircle2 size={40} className="text-white drop-shadow-lg" />
+          <div className="absolute inset-0 bg-bermellon/30 flex items-center justify-center">
+            <CheckCircle2 size={36} className="text-paper" />
           </div>
         )}
       </div>
 
       {/* CONTENT */}
-      <div className="flex-1 p-4 md:p-8 flex flex-col overflow-hidden">
-        <header className="mb-4">
-          <div className="flex items-center gap-3 text-mat-500 font-bold text-[10px] uppercase mb-2 flex-wrap">
-            <Calendar size={12} /> {event.date} <span>•</span> <Clock size={12} /> {event.time}
+      <div className="flex-1 p-5 md:p-7 flex flex-col">
+        <header className="mb-3">
+          <div className="mono-tag flex items-center gap-2 flex-wrap" style={{ color: '#c8462a' }}>
+            <Calendar size={11} /> {dia} {mes} <span className="opacity-50">·</span> <Clock size={11} /> {event.time}
           </div>
-          <h3 className="text-2xl md:text-3xl font-black uppercase font-exo text-white group-hover:text-mat-500 transition-colors leading-tight">
+          <h3 className="display mt-3" style={{ fontSize: 'clamp(22px, 2.4vw, 32px)', lineHeight: 0.95 }}>
             {event.title}
           </h3>
-          <p className="text-gray-500 text-sm italic mt-2 line-clamp-2">{event.description}</p>
+          {event.description && <p className="serif-italic text-ink-soft group-hover:text-paper/70 mt-2 text-sm leading-snug line-clamp-2 transition-colors">{event.description}</p>}
         </header>
 
-        <div className="mt-auto pt-4 md:pt-6 border-t border-mat-800 flex flex-wrap items-center gap-3 justify-between">
+        <div className="mt-auto pt-4 hairline-t group-hover:border-paper/40 flex flex-wrap items-center gap-3 justify-between transition-colors">
           {!isPast ? (
             event.price === 0 ? (
               isAttending ? (
-                <button
-                  onClick={handleLeave}
-                  className="px-6 py-3 md:px-8 md:py-4 font-black uppercase text-[10px] tracking-widest rounded-xl bg-emerald-600 text-white hover:bg-red-700 transition-all"
-                >
+                <button onClick={handleLeave} className="px-5 py-2.5 mono-tag bg-bermellon text-paper hover:bg-ink-2 transition-colors">
                   ESTÁS EN LA LISTA
                 </button>
               ) : (
-                <button
-                  onClick={openModal}
-                  className="px-6 py-3 md:px-8 md:py-4 font-black uppercase text-[10px] tracking-widest rounded-xl bg-mat-500 text-white hover:bg-mat-400 shadow-lg transition-all"
-                >
+                <button onClick={openModal} className="px-5 py-2.5 mono-tag bg-bermellon text-paper hover:bg-ink-2 transition-colors">
                   APUNTARSE GRATIS
                 </button>
               )
             ) : (
-              <button
-                onClick={handlePaidAction}
-                className={`px-6 py-3 md:px-8 md:py-4 font-black uppercase text-[10px] tracking-widest rounded-xl transition-all ${
-                  isAttending ? 'bg-emerald-600 text-white' : 'bg-mat-500 text-white hover:bg-mat-400 shadow-lg'
-                }`}
-              >
+              <button onClick={handlePaidAction} className={`px-5 py-2.5 mono-tag transition-colors ${isAttending ? 'bg-paper-2 text-ink' : 'bg-bermellon text-paper hover:bg-ink-2'}`}>
                 {isAttending ? 'ESTÁS EN LA LISTA' : `RESERVAR €${event.price}`}
               </button>
             )
           ) : (
-            <span className="text-gray-600 font-bold uppercase text-[10px] tracking-widest">SESIÓN FINALIZADA</span>
+            <span className="mono-tag text-ink-soft">SESIÓN FINALIZADA</span>
           )}
 
           {!isPast && (
             <div className="flex gap-2">
-              <button
-                onClick={openModal}
-                className={`p-3 rounded-xl transition-all ${
-                  isAttending ? 'bg-emerald-600/20 text-emerald-400' : 'bg-mat-800 text-gray-500 hover:text-white'
-                }`}
-                title="Lista de asistentes"
-              >
-                <Users size={16} />
+              <button onClick={openModal} className={`p-2.5 hairline transition-colors ${isAttending ? 'bg-bermellon text-paper' : 'hover:bg-ink hover:text-paper group-hover:hairline-ink'}`} title="Lista de asistentes">
+                <Users size={14} />
               </button>
               <GoogleCalendarButton event={event} />
             </div>
@@ -164,54 +146,34 @@ export const EventCard: React.FC<EventCardProps> = ({ event, isPast = false }) =
         </div>
       </div>
 
-      {/* UNIFIED GUEST LIST MODAL */}
+      {/* GUEST LIST MODAL */}
       {showModal && (
-        <div
-          className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/95 backdrop-blur-md animate-fade-in"
-          onClick={() => setShowModal(false)}
-        >
-          <div
-            className="w-full max-w-sm bg-mat-900 border border-mat-700 rounded-3xl p-6 relative"
-            onClick={e => e.stopPropagation()}
-          >
-            <button onClick={() => setShowModal(false)} className="absolute top-5 right-5 text-gray-500 hover:text-white transition-colors">
-              <X size={22} />
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-ink/90 animate-fade-in" onClick={() => setShowModal(false)}>
+          <div className="w-full max-w-sm bg-paper text-ink hairline p-6 relative" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowModal(false)} className="absolute top-4 right-4 text-ink-soft hover:text-bermellon transition-colors">
+              <X size={20} />
             </button>
-
-            <h2 className="text-2xl font-black text-white uppercase font-exo mb-1">{event.title}</h2>
-            <p className="text-mat-500 text-[10px] font-black uppercase tracking-widest mb-6">GUEST LIST</p>
-
-            {/* Attendee count — names are private */}
-            <div className="flex items-center gap-3 p-4 bg-mat-800 border border-mat-700 rounded-2xl mb-6">
-              <Users size={16} className="text-mat-500 shrink-0" />
-              <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">
-                {guestList.length === 0
-                  ? 'Sé el primero en apuntarte'
-                  : `${guestList.length} persona${guestList.length > 1 ? 's' : ''} apuntada${guestList.length > 1 ? 's' : ''}`}
+            <h2 className="display text-2xl mb-1">{event.title}</h2>
+            <p className="mono-tag mb-6" style={{ color: '#c8462a' }}>GUEST LIST</p>
+            <div className="flex items-center gap-3 p-3 hairline bg-paper-2 mb-5">
+              <Users size={14} className="text-bermellon shrink-0" />
+              <p className="mono-tag !text-[10px] text-ink">
+                {guestList.length === 0 ? 'SÉ EL PRIMERO EN APUNTARTE' : `${guestList.length} PERSONA${guestList.length > 1 ? 'S' : ''} APUNTADA${guestList.length > 1 ? 'S' : ''}`}
               </p>
             </div>
-
-            {/* Join form or status */}
             {isAttending ? (
-              <div className="flex items-center gap-3 p-4 bg-emerald-900/30 border border-emerald-500/40 rounded-2xl">
-                <CheckCircle2 size={20} className="text-emerald-400 shrink-0" />
-                <p className="text-emerald-400 text-xs font-black uppercase tracking-widest">Estás en la lista</p>
+              <div className="flex items-center gap-3 p-3 hairline bg-bermellon text-paper">
+                <CheckCircle2 size={18} className="shrink-0" />
+                <p className="mono-tag !text-[10px]">ESTÁS EN LA LISTA</p>
               </div>
             ) : (
               <form onSubmit={handleJoin} className="space-y-3">
-                <input
-                  autoFocus
-                  value={tempName}
-                  onChange={e => setTempName(e.target.value)}
-                  className="w-full bg-mat-800 border-2 border-mat-700 p-4 text-white text-center font-bold rounded-xl outline-none focus:border-mat-500 transition-all text-sm"
-                  placeholder="TU NOMBRE O ALIAS"
-                />
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-4 bg-mat-500 hover:bg-mat-400 text-white font-black uppercase text-[11px] tracking-widest rounded-xl transition-all disabled:opacity-50"
-                >
-                  {isSubmitting ? 'GUARDANDO...' : 'UNIRSE A LA LISTA'}
+                <input autoFocus value={tempName} onChange={e => setTempName(e.target.value)}
+                  className="w-full hairline p-3 text-ink mono-tag !text-[11px] !tracking-[0.15em] !normal-case outline-none focus:border-bermellon transition-colors"
+                  placeholder="TU NOMBRE O ALIAS" />
+                <button type="submit" disabled={isSubmitting}
+                  className="w-full py-3 bg-bermellon text-paper mono-tag hover:bg-ink transition-colors disabled:opacity-50">
+                  {isSubmitting ? 'GUARDANDO…' : 'UNIRSE A LA LISTA →'}
                 </button>
               </form>
             )}

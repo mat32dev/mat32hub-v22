@@ -73,13 +73,13 @@ export const EventDetail: React.FC = () => {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-mat-900 flex items-center justify-center">
+    <div className="min-h-screen bg-paper text-ink flex items-center justify-center">
       <Loader2 className="animate-spin text-mat-500 w-12 h-12" />
     </div>
   );
 
   if (!event) return (
-    <div className="min-h-screen bg-mat-900 text-center py-40 text-white">
+    <div className="min-h-screen bg-paper text-ink text-center py-40 text-white">
       <h2 className="text-3xl font-black uppercase font-exo mb-4">Señal perdida...</h2>
       <p className="text-gray-500 italic mb-8">El evento solicitado no existe en la matriz.</p>
       <Link to="/events" className="text-mat-500 font-black uppercase tracking-widest border-b-2 border-mat-500 pb-1">Volver a la Agenda</Link>
@@ -90,7 +90,7 @@ export const EventDetail: React.FC = () => {
   const seoDescription = `${event.title} · ${event.date} · ${event.time} · MAT32 Ruzafa Valencia. ${isFree ? 'Entrada libre.' : `Entrada ${event.price}€.`} Aforo: ${event.capacity} personas. ${event.description}`;
 
   return (
-    <div className="min-h-screen bg-mat-900 pb-24 font-sans">
+    <div className="min-h-screen bg-paper text-ink pb-24 font-sans">
       <SEO
         titleKey={`${event.title} | ${event.date} · MAT32 Ruzafa`}
         descriptionKey={seoDescription}

@@ -32,7 +32,7 @@ export const Gallery: React.FC = () => {
   }, [selectedCategory, images]);
 
   return (
-    <div className="min-h-screen bg-mat-900 pb-24">
+    <div className="min-h-screen bg-paper text-ink pb-24">
       <SEO titleKey="Galería | El Santuario Hi-Fi" descriptionKey="Explora visualmente Mat32, el mejor local para eventos en Valencia y bar Hi-Fi." />
 
       <div className="bg-mat-950 py-32 md:py-52 border-b border-mat-800 relative overflow-hidden text-center">

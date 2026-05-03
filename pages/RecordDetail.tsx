@@ -1,13 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Disc, ShoppingBag, ArrowLeft, Heart, MessageSquare, Handshake, ShieldCheck, X, Send, Loader2, CheckCircle, Globe, Repeat, ExternalLink, Calendar, Tag, Info, PlayCircle, Volume2 } from 'lucide-react';
+import { Disc, ShoppingBag, ArrowLeft, Heart, MessageSquare, Handshake, ShieldCheck, X, Send, Loader2, CheckCircle, Globe, Repeat, ExternalLink, Calendar, Tag, Info, Volume2 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { SEO } from '../components/SEO';
 import { VinylRecord } from '../types';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { CachedImage } from '../components/CachedImage';
+import { RecordPlayer } from '../components/RecordPlayer';
 import { TagLink } from '../components/TagLink';
 
 export const RecordDetail: React.FC = () => {
@@ -65,11 +66,11 @@ export const RecordDetail: React.FC = () => {
     }, 3000);
   };
 
-  if (loading) return <div className="min-h-screen bg-mat-900 flex items-center justify-center"><Loader2 className="animate-spin text-mat-500 w-12 h-12" /></div>;
-  if (!record) return <div className="min-h-screen bg-mat-900 text-center py-40 text-white">Disco no encontrado. <Link to="/records" className="text-mat-500">Volver</Link></div>;
+  if (loading) return <div className="min-h-screen bg-ink text-paper flex items-center justify-center"><Loader2 className="animate-spin text-mat-500 w-12 h-12" /></div>;
+  if (!record) return <div className="min-h-screen bg-ink text-paper text-center py-40 text-white">Disco no encontrado. <Link to="/records" className="text-mat-500">Volver</Link></div>;
 
   return (
-    <div className="min-h-screen bg-mat-900 pb-24 font-sans text-mat-cream">
+    <div className="min-h-screen bg-ink text-paper pb-24 font-sans text-mat-cream">
       <SEO 
         titleKey={`${record.artist} - ${record.title} | The Hub Mat32`} 
         descriptionKey={`Escucha la preview y negocia el vinilo ${record.title} de ${record.artist}. Marketplace de coleccionistas en Valencia.`} 
@@ -189,15 +190,68 @@ export const RecordDetail: React.FC = () => {
                  </div>
               </div>
 
+              {/* Géneros / estilos clickables — llevan al listado filtrado */}
+              {(record.genres?.length || record.styles?.length) ? (
+                <div className="flex flex-wrap gap-2">
+                  {(record.genres || []).map(g => (
+                    <Link key={`g-${g}`} to={`/records?genre=${encodeURIComponent(g.toLowerCase())}`}
+                      className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full bg-mat-500/10 text-mat-500 border border-mat-500/40 hover:bg-mat-500 hover:text-white transition-colors">
+                      {g}
+                    </Link>
+                  ))}
+                  {(record.styles || []).map(s => (
+                    <Link key={`s-${s}`} to={`/records?style=${encodeURIComponent(s.toLowerCase())}`}
+                      className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full bg-mat-900 text-gray-400 border border-mat-800 hover:border-mat-500 hover:text-white transition-colors">
+                      {s}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+
+              {/* Notas del vendedor */}
+              {record.comments && (
+                <div className="p-5 bg-mat-950/60 border border-mat-800 rounded-2xl">
+                  <div className="text-[10px] font-black uppercase tracking-[0.4em] text-mat-500 mb-2">Notas del vendedor</div>
+                  <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{record.comments}</p>
+                </div>
+              )}
+
+              {/* Tracklist */}
+              {record.tracklist && record.tracklist.length > 0 && (
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-[0.4em] text-mat-500 mb-3">Tracklist</div>
+                  <ol className="space-y-1.5 bg-mat-950/40 border border-mat-800 rounded-2xl p-4">
+                    {record.tracklist.map((t, i) => (
+                      <li key={i} className="flex items-center gap-3 text-sm">
+                        <span className="text-[10px] font-mono text-gray-600 shrink-0 w-8">{t.position || '·'}</span>
+                        <span className="text-white flex-1">{t.title}</span>
+                        {t.duration && <span className="text-[11px] font-mono text-gray-500 shrink-0">{t.duration}</span>}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {/* Reproductor oculto estilo radio */}
+              {record.videos && record.videos.length > 0 && <RecordPlayer videos={record.videos} />}
+
+              {/* Notas largas del release */}
+              {record.notes && (
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500 mb-2">Sobre el disco</div>
+                  <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-wrap">{record.notes}</p>
+                </div>
+              )}
+
               <div className="flex flex-col gap-4">
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <button 
+                    <button
                       onClick={() => addToCart(record)}
                       className="py-8 bg-mat-500 hover:bg-mat-400 text-white font-black uppercase text-[11px] tracking-[0.4em] rounded-[2rem] shadow-xl flex items-center justify-center gap-4 transition-all clip-path-slant shadow-mat-500/20"
                     >
                        <ShoppingBag size={20} /> AÑADIR A LA CAJA
                     </button>
-                    <button 
+                    <button
                       onClick={() => { setNegotiationType('offer'); setShowNegotiationModal(true); }}
                       className="py-8 bg-mat-800 hover:bg-mat-700 border-2 border-mat-700 text-white font-black uppercase text-[11px] tracking-[0.4em] rounded-[2rem] shadow-xl flex items-center justify-center gap-4 transition-all clip-path-slant"
                     >
@@ -267,3 +321,4 @@ export const RecordDetail: React.FC = () => {
     </div>
   );
 };
+

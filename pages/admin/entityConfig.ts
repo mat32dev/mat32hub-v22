@@ -1,4 +1,4 @@
-import { Calendar, Disc, Package, MessageSquare, ShoppingBag, UserCheck, Mail, Radar } from 'lucide-react';
+import { Calendar, Disc, Package, MessageSquare, ShoppingBag, UserCheck, Mail, Radar, UtensilsCrossed, MapPin, ChefHat, Store, Armchair, Sparkles, Music } from 'lucide-react';
 
 export type FieldType = 'text' | 'textarea' | 'number' | 'date' | 'time' | 'select' | 'boolean' | 'image' | 'tags' | 'url' | 'lineup' | 'datetime';
 
@@ -177,11 +177,10 @@ export const entityConfigs: Record<string, EntityConfig> = {
     statusField: 'status',
     service: { list: 'getMembers', create: 'createMember', update: 'updateMember', delete: 'deleteMember' },
     listColumns: [
+      { key: 'member_number', label: 'Nº', width: '140px' },
       { key: 'name', label: 'Nombre' },
       { key: 'email', label: 'Email' },
       { key: 'phone', label: 'Telefono', width: '120px' },
-      { key: 'max_price', label: 'Precio max', width: '100px' },
-      { key: 'min_condition', label: 'Estado min', width: '100px' },
       { key: 'status', label: 'Estado', width: '100px' },
     ],
     fields: [
@@ -221,9 +220,42 @@ export const entityConfigs: Record<string, EntityConfig> = {
       { key: 'timestamp', label: 'Fecha', type: 'datetime' },
     ],
   },
+
+  external_events: {
+    label: 'Agenda',
+    labelSingular: 'Evento externo',
+    icon: Calendar,
+    titleField: 'title',
+    imageField: 'cover_url',
+    service: { list: 'getExternalEventsList', create: 'createExternalEvent', update: 'updateExternalEvent', delete: 'deleteExternalEvent' },
+    listColumns: [
+      { key: 'title', label: 'Titulo' },
+      { key: 'scope', label: 'Ambito', width: '110px' },
+      { key: 'city', label: 'Ciudad', width: '140px' },
+      { key: 'starts_at', label: 'Fecha/hora', width: '180px' },
+      { key: 'category', label: 'Cat', width: '110px' },
+    ],
+    fields: [
+      { key: 'title', label: 'Titulo', type: 'text', required: true },
+      { key: 'scope', label: 'Ambito', type: 'select', options: ['valencia','es','eu','world'], required: true, half: true, defaultValue: 'valencia' },
+      { key: 'category', label: 'Categoria', type: 'select', options: ['club','festival','listening','talk','market','otros'], half: true, defaultValue: 'club' },
+      { key: 'starts_at', label: 'Inicio', type: 'datetime', required: true, half: true },
+      { key: 'ends_at', label: 'Fin (opcional)', type: 'datetime', half: true },
+      { key: 'city', label: 'Ciudad', type: 'text', half: true },
+      { key: 'country', label: 'Pais', type: 'text', half: true, defaultValue: 'ES' },
+      { key: 'venue', label: 'Venue', type: 'text' },
+      { key: 'url', label: 'URL del evento', type: 'url' },
+      { key: 'cover_url', label: 'Imagen', type: 'image' },
+      { key: 'description', label: 'Descripcion breve', type: 'textarea' },
+      { key: 'tags', label: 'Tags', type: 'tags' },
+      { key: 'featured', label: 'Destacado', type: 'boolean', half: true },
+      { key: 'hidden', label: 'Oculto', type: 'boolean', half: true },
+      { key: 'sort_order', label: 'Orden', type: 'number', min: 0, defaultValue: 0, half: true },
+    ],
+  },
 };
 
-// Sidebar navigation structure
+// Sidebar navigation structure (full = ADMIN)
 export const sidebarSections = [
   { title: 'General', items: [{ key: 'dashboard', label: 'Dashboard', icon: Package, path: '/admin' }] },
   {
@@ -233,6 +265,18 @@ export const sidebarSections = [
       { key: 'records', label: 'Discos', icon: Disc, path: '/admin/records' },
       { key: 'merch', label: 'Merch', icon: Package, path: '/admin/merch' },
       { key: 'posts', label: 'Posts', icon: MessageSquare, path: '/admin/posts' },
+    ],
+  },
+  {
+    title: 'Local',
+    items: [
+      { key: 'menu', label: 'Carta (Bebidas)', icon: UtensilsCrossed, path: '/admin/menu' },
+      { key: 'sobremesa', label: 'Sobremesa', icon: MapPin, path: '/admin/sobremesa' },
+      { key: 'food', label: 'Menú Comida', icon: ChefHat, path: '/admin/food' },
+      { key: 'pos-catalog', label: 'POS · Catálogo', icon: Store, path: '/admin/pos-catalog' },
+      { key: 'fondos', label: 'Fondos Reservados', icon: Armchair, path: '/admin/fondos' },
+      { key: 'selectors-ref', label: 'Reference Selectors', icon: Sparkles, path: '/admin/selectors-ref' },
+      { key: 'allegretto', label: 'Allegretto! Sesiones', icon: Music, path: '/admin/allegretto' },
     ],
   },
   {
@@ -250,3 +294,16 @@ export const sidebarSections = [
     ],
   },
 ];
+
+// Subset visible para empleados: dashboard, cartas (bebidas + comida), POS, eventos
+export const EMPLOYEE_ALLOWED_KEYS = new Set(['dashboard', 'events', 'menu', 'food', 'pos-catalog']);
+
+export function sidebarForRole(role: string | null) {
+  if (role !== 'EMPLOYEE') return sidebarSections;
+  return sidebarSections
+    .map(section => ({
+      ...section,
+      items: section.items.filter(it => EMPLOYEE_ALLOWED_KEYS.has(it.key)),
+    }))
+    .filter(section => section.items.length > 0);
+}

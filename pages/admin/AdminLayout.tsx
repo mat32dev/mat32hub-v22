@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Menu, X, Disc, Lock, Loader2, ChevronRight } from 'lucide-react';
+import { LogOut, Menu, X, Disc, Lock, Loader2, ChevronRight, Shield } from 'lucide-react';
 import { dataService } from '../../services/dataService';
-import { sidebarSections } from './entityConfig';
+import { sidebarForRole } from './entityConfig';
 
 const LOCKOUT_KEY = 'mat32_login_lockout';
 const MAX_ATTEMPTS = 3;
@@ -61,6 +61,9 @@ const LoginForm: React.FC<{ onAuth: () => void }> = ({ onAuth }) => {
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Entrar'}
         </button>
         {status && <p className="mt-3 text-red-400 text-xs text-center">{status}</p>}
+        <p className="mt-5 text-[10px] text-gray-600 text-center leading-relaxed">
+          Empleados: usa tu email del equipo + password del local.
+        </p>
       </form>
     </div>
   );
@@ -75,6 +78,10 @@ export const AdminLayout: React.FC = () => {
   if (!isAuth) return <LoginForm onAuth={() => setIsAuth(true)} />;
 
   const handleLogout = () => { dataService.logout(); setIsAuth(false); };
+
+  const role = dataService.getRole();
+  const sections = sidebarForRole(role);
+  const sessionName = dataService.getSession()?.name || '';
 
   // Breadcrumb from path
   const pathParts = location.pathname.replace('/admin', '').split('/').filter(Boolean);
@@ -98,9 +105,14 @@ export const AdminLayout: React.FC = () => {
           </Link>
         </div>
 
+        {/* Role badge */}
+        <div className={`mx-3 mt-3 mb-1 px-2.5 py-1.5 rounded-lg flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${role === 'EMPLOYEE' ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/20' : 'bg-orange-500/10 text-orange-400 border border-orange-500/20'}`}>
+          <Shield size={11} /> {role === 'EMPLOYEE' ? 'Empleado' : 'Admin'} · {sessionName}
+        </div>
+
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-3 px-3">
-          {sidebarSections.map(section => (
+          {sections.map(section => (
             <div key={section.title} className="mb-4">
               <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.2em] px-2 mb-1">{section.title}</p>
               {section.items.map(item => {

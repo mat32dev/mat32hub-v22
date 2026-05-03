@@ -13,6 +13,20 @@ export interface SellerProfile {
   specialty: string[];
 }
 
+export interface RecordTrack {
+  position: string;
+  title: string;
+  duration: string;
+  artists?: string[];
+}
+
+export interface RecordVideo {
+  title: string;
+  uri: string;
+  duration?: number;
+  description?: string;
+}
+
 export interface VinylRecord {
   id: string;
   sku: string;
@@ -35,6 +49,13 @@ export interface VinylRecord {
   sellerId: string;
   status: 'published' | 'draft' | 'sold';
   tags: string[];
+  // Campos desde Discogs sync (opcionales)
+  genres?: string[];
+  styles?: string[];
+  tracklist?: RecordTrack[];
+  videos?: RecordVideo[];
+  comments?: string;
+  notes?: string;
 }
 
 export interface Artist {
@@ -120,7 +141,7 @@ export interface Post {
 
 export interface InboxMessage {
   id: string;
-  type: 'lead' | 'artist' | 'booking' | 'sale' | 'general' | 'offer' | 'negotiation';
+  type: 'lead' | 'artist' | 'booking' | 'sale' | 'general' | 'offer' | 'negotiation' | 'academy';
   sender: string;
   email: string;
   phone?: string;

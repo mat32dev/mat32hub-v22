@@ -1,13 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import { Menu, X, Disc, Volume2, VolumeX, Globe } from 'lucide-react';
+import { Menu, X, Disc, Globe } from 'lucide-react';
 
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
-import { RadioProvider, useRadio } from './context/RadioContext';
+import { RadioProvider } from './context/RadioContext';
 import { CartDrawer } from './components/CartDrawer';
 import { RadioBar } from './components/RadioBar';
+import { LiveBar } from './components/LiveBar';
 
 import { Home } from './pages/Home';
 import { Bar } from './pages/Bar';
@@ -15,6 +16,14 @@ import { Events } from './pages/Events';
 import { Records } from './pages/Records';
 import { Community } from './pages/Community';
 import { OpenDecks } from './pages/OpenDecks';
+import { Academy } from './pages/Academy';
+import { About } from './pages/About';
+import { Marketplace } from './pages/Marketplace';
+import { Fondos } from './pages/Fondos';
+import { SelectorsPage } from './pages/Selectors';
+import { VerifyMember } from './pages/VerifyMember';
+import { SobremesaProvider, useSobremesa } from './components/SobremesaModal';
+import { SobremesaOk, SobremesaCancel } from './pages/SobremesaPayment';
 import { Contact } from './pages/Contact';
 import { PrivateEvents } from './pages/PrivateEvents';
 import { Checkout } from './pages/Checkout';
@@ -25,6 +34,15 @@ import { AdminEntityList } from './pages/admin/AdminEntityList';
 import { AdminEntityForm } from './pages/admin/AdminEntityForm';
 import { AdminInbox } from './pages/admin/AdminInbox';
 import { AdminSelectors } from './pages/admin/AdminSelectors';
+import { AdminMenu } from './pages/admin/AdminMenu';
+import { AdminSobremesa } from './pages/admin/AdminSobremesa';
+import { AdminFood } from './pages/admin/AdminFood';
+import { AdminPosCatalog } from './pages/admin/AdminPosCatalog';
+import { AdminFondos } from './pages/admin/AdminFondos';
+import { AdminReferenceSelectors } from './pages/admin/AdminReferenceSelectors';
+import { AdminAllegretto } from './pages/admin/AdminAllegretto';
+import { Proveedor } from './pages/Proveedor';
+import { POS } from './pages/POS';
 import { MemberPanel } from './pages/MemberPanel';
 import { Wishlist } from './pages/Wishlist';
 import { Gallery } from './pages/Gallery';
@@ -37,7 +55,7 @@ import { RadioPage } from './pages/Radio';
 const Navigation = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const { t, language, toggleLanguage } = useLanguage();
-  const { isPlaying, toggle } = useRadio();
+  const { open: openSobremesa } = useSobremesa();
   const location = useLocation();
 
   React.useEffect(() => {
@@ -52,15 +70,37 @@ const Navigation = () => {
     }
   }, [location.pathname, location.hash]);
 
-  const navLinks = [
+  const navLinks: { name: string; path: string; children?: { name: string; path: string }[] }[] = [
     { name: t('nav.home'), path: '/' },
-    { name: t('nav.bar'), path: '/bar' },
+    { name: t('nav.bar'), path: '/mat32-bar/' },
     { name: t('nav.events'), path: '/events' },
-    { name: t('nav.records'), path: '/records' },
-    { name: t('nav.community'), path: '/community' },
-    { name: t('nav.open_decks'), path: '/open-decks' },
-    { name: t('nav.private_events'), path: '/alquiler-local-eventos-horas-valencia' },
-    { name: t('nav.contact'), path: '/contact' },
+    {
+      name: t('nav.records'),
+      path: '/records',
+      children: [
+        { name: 'Marketplace · 3PL', path: '/marketplace' },
+        { name: 'Fondos Reservados', path: '/fondos-reservados' },
+      ],
+    },
+    {
+      name: t('nav.community'),
+      path: '/community',
+    },
+    {
+      name: 'Academy',
+      path: '/academy',
+      children: [
+        { name: t('nav.open_decks'), path: '/open-decks' },
+      ],
+    },
+    { name: 'Nosotros', path: '/nosotros' },
+    {
+      name: t('nav.contact'),
+      path: '/contact',
+      children: [
+        { name: 'Alquiler de espacio', path: '/alquiler-local-eventos-horas-valencia' },
+      ],
+    },
   ];
 
   const isActive = (path: string) => {
@@ -71,61 +111,76 @@ const Navigation = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-[100] h-20 bg-mat-900/95 backdrop-blur-xl border-b border-mat-800 flex items-center">
-        <div className="container mx-auto px-6 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-4 group shrink-0">
-            <Disc className="w-8 h-8 text-mat-500 group-hover:rotate-180 transition-transform duration-1000" />
-            <div className="flex flex-col -space-y-1.5">
-              <span className="font-exo font-black text-2xl text-white tracking-tighter uppercase leading-none">MAT<span className="text-mat-500">32</span></span>
-              <span className="text-[8px] font-black text-gray-500 tracking-[0.4em] uppercase">DISCOS BAR VLC</span>
-            </div>
+      {/* RESTYLE v2 — paper header, hairline, mono nav */}
+      <header className="fixed top-0 left-0 right-0 z-[100] h-14 sm:h-16 bg-paper hairline-b flex items-center">
+        <div className="container mx-auto px-5 md:px-8 flex items-center justify-between">
+          <Link to="/" className="flex items-baseline gap-3 group shrink-0">
+            <span className="wordmark text-ink text-2xl sm:text-[28px]">MAT<sup>32</sup></span>
+            <span className="hidden md:inline serif-italic text-ink-soft text-sm">— discos · bebida · mesa</span>
           </Link>
 
-          <nav className="hidden xl:flex items-center gap-x-8">
-            {navLinks.map(l => (
-              <Link
-                key={l.path}
-                to={l.path}
-                className={`text-[9px] font-black uppercase tracking-[0.3em] transition-all relative py-2 ${isActive(l.path) ? 'text-mat-500' : 'text-gray-400 hover:text-white'}`}
-              >
-                {l.name}
-                {isActive(l.path) && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-mat-500"></span>}
-              </Link>
-            ))}
+          <nav className="hidden xl:flex items-center gap-7">
+            {navLinks.map(l => {
+              const active = isActive(l.path) || l.children?.some(c => isActive(c.path));
+              return (
+                <div key={l.path} className="relative group">
+                  <Link to={l.path}
+                    className={`mono-tag !tracking-[0.18em] !text-[12px] !normal-case py-1.5 transition-colors ${active ? 'text-bermellon' : 'text-ink hover:text-bermellon'}`}
+                    style={{ fontFamily: '"DM Mono", monospace' }}>
+                    {l.name}
+                    {active && <span className="absolute bottom-0 left-0 w-full" style={{ borderBottom: '1.5px solid #c8462a' }}></span>}
+                  </Link>
+                  {l.children && (
+                    <div className="absolute top-full left-0 pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
+                      <div className="bg-paper hairline py-2 min-w-[200px]">
+                        {l.children.map(c => (
+                          <Link key={c.path} to={c.path}
+                            className={`block px-4 py-2.5 mono-tag !text-[11px] whitespace-nowrap transition-colors ${isActive(c.path) ? 'text-bermellon' : 'text-ink hover:text-bermellon hover:bg-paper-2'}`}>
+                            {c.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </nav>
 
-          <div className="flex items-center gap-3">
-            <button onClick={toggleLanguage} className="hidden sm:flex items-center gap-2 text-[9px] font-black text-gray-400 hover:text-white uppercase px-3 py-2 bg-mat-800 rounded-xl border border-mat-700">
-              <Globe size={13} /> {language === 'es' ? 'EN' : 'ES'}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link to="/alquiler-local-eventos-horas-valencia" className="hidden sm:inline-flex items-center mono-tag bg-ink text-paper px-3 py-2 hover:bg-bermellon transition-colors">
+              TU EVENTO AQUÍ →
+            </Link>
+            <button onClick={toggleLanguage} className="hidden sm:flex items-center gap-1.5 mono-tag !text-[10px] hairline px-3 py-2 text-ink hover:bg-ink hover:text-paper transition-colors">
+              <Globe size={12} /> {language === 'es' ? 'EN' : 'ES'}
             </button>
-            <button
-              onClick={toggle}
-              className="relative p-2.5 text-gray-400 hover:text-mat-500 transition-all bg-mat-800 rounded-xl border border-mat-700"
-              title={isPlaying ? 'Pausar radio' : 'Reproducir radio'}
-            >
-              {isPlaying ? <Volume2 size={18} className="text-mat-500" /> : <VolumeX size={18} />}
-              {isPlaying && <span className="absolute -top-1 -right-1 w-2 h-2 bg-mat-500 rounded-full" style={{ boxShadow: '0 0 5px #f97316' }} />}
-            </button>
-            <button onClick={() => setIsOpen(!isOpen)} className="xl:hidden p-2.5 text-white bg-mat-800 rounded-xl border border-mat-700">
+            <button onClick={() => setIsOpen(!isOpen)} className="xl:hidden p-2 text-ink hairline">
               {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
       </header>
 
+      <LiveBar />
+
       {isOpen && (
-        <div className="fixed top-20 left-0 right-0 z-[110] bg-mat-950/98 backdrop-blur-xl border-b border-mat-800 animate-fade-in shadow-2xl xl:hidden">
-          <nav className="container mx-auto px-6 py-4 grid grid-cols-2 gap-x-6 gap-y-1">
+        <div className="fixed top-14 sm:top-16 left-0 right-0 z-[110] bg-paper hairline-b animate-fade-in xl:hidden">
+          <nav className="container mx-auto px-5 py-4 grid grid-cols-2 gap-x-4 gap-y-1">
             {navLinks.map((l, idx) => (
-              <Link
-                key={idx}
-                to={l.path}
-                className={`py-2.5 px-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                  isActive(l.path) ? 'text-mat-500 bg-mat-800' : 'text-gray-400 hover:text-white hover:bg-mat-800'
-                }`}
-              >
-                {l.name}
-              </Link>
+              <React.Fragment key={idx}>
+                <Link to={l.path}
+                  className={`py-2.5 px-3 mono-tag !text-[11px] transition-colors ${isActive(l.path) ? 'text-bermellon bg-paper-2' : 'text-ink hover:text-bermellon hover:bg-paper-2'}`}
+                  onClick={() => setIsOpen(false)}>
+                  {l.name}
+                </Link>
+                {l.children?.map((c, ci) => (
+                  <Link key={`${idx}-${ci}`} to={c.path}
+                    onClick={() => setIsOpen(false)}
+                    className={`py-2 px-6 mono-tag !text-[10px] transition-colors ${isActive(c.path) ? 'text-bermellon' : 'text-ink-soft hover:text-bermellon'}`}>
+                    · {c.name}
+                  </Link>
+                ))}
+              </React.Fragment>
             ))}
           </nav>
         </div>
@@ -138,6 +193,33 @@ const AppRoutes: React.FC = () => {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
   const isMember = location.pathname.startsWith('/member');
+  const isVerify = location.pathname.startsWith('/verify/');
+  const isProveedor = location.pathname.startsWith('/proveedor');
+  const isPOS = location.pathname.startsWith('/pos');
+
+  if (isVerify) {
+    return (
+      <Routes>
+        <Route path="/verify/:token" element={<VerifyMember />} />
+      </Routes>
+    );
+  }
+
+  if (isProveedor) {
+    return (
+      <Routes>
+        <Route path="/proveedor" element={<Proveedor />} />
+      </Routes>
+    );
+  }
+
+  if (isPOS) {
+    return (
+      <Routes>
+        <Route path="/pos" element={<POS />} />
+      </Routes>
+    );
+  }
 
   if (isMember) {
     return (
@@ -155,6 +237,9 @@ const AppRoutes: React.FC = () => {
           <Route path="events" element={<AdminEntityList entity="events" />} />
           <Route path="events/new" element={<AdminEntityForm entity="events" />} />
           <Route path="events/:id" element={<AdminEntityForm entity="events" />} />
+          <Route path="agenda" element={<AdminEntityList entity="external_events" />} />
+          <Route path="agenda/new" element={<AdminEntityForm entity="external_events" />} />
+          <Route path="agenda/:id" element={<AdminEntityForm entity="external_events" />} />
           <Route path="records" element={<AdminEntityList entity="records" />} />
           <Route path="records/new" element={<AdminEntityForm entity="records" />} />
           <Route path="records/:id" element={<AdminEntityForm entity="records" />} />
@@ -165,6 +250,13 @@ const AppRoutes: React.FC = () => {
           <Route path="posts/new" element={<AdminEntityForm entity="posts" />} />
           <Route path="posts/:id" element={<AdminEntityForm entity="posts" />} />
           <Route path="sales" element={<AdminEntityList entity="sales" />} />
+          <Route path="menu" element={<AdminMenu />} />
+          <Route path="sobremesa" element={<AdminSobremesa />} />
+          <Route path="food" element={<AdminFood />} />
+          <Route path="pos-catalog" element={<AdminPosCatalog />} />
+          <Route path="fondos" element={<AdminFondos />} />
+          <Route path="selectors-ref" element={<AdminReferenceSelectors />} />
+          <Route path="allegretto" element={<AdminAllegretto />} />
           <Route path="inbox" element={<AdminInbox />} />
           <Route path="selectors" element={<AdminSelectors />} />
           <Route path="members" element={<AdminEntityList entity="members" />} />
@@ -176,23 +268,38 @@ const AppRoutes: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-mat-900 text-gray-100 font-sans pt-20 pb-14">
+    <div className="flex flex-col min-h-screen bg-paper text-ink font-sans pt-[calc(3.5rem+28px)] sm:pt-[calc(4rem+28px)] pb-14">
       <Navigation />
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/bar" element={<Bar />} />
+          <Route path="/mat32-bar" element={<Bar />} />
+          <Route path="/mat32-bar/" element={<Bar />} />
+          <Route path="/bar" element={<Navigate to="/mat32-bar/" replace />} />
           <Route path="/events" element={<Events />} />
           <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/records" element={<Records />} />
           <Route path="/records/:id" element={<RecordDetail />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/community" element={<Community />} />
+          <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/agenda" element={<Navigate to="/community?tab=whats-on" replace />} />
+          <Route path="/fondos-reservados" element={<Fondos />} />
+          <Route path="/selectors" element={<SelectorsPage />} />
+          <Route path="/reference-points" element={<Navigate to="/selectors" replace />} />
+          <Route path="/fondos" element={<Navigate to="/fondos-reservados" replace />} />
+          <Route path="/fulfillment-discos" element={<Navigate to="/marketplace" replace />} />
+          <Route path="/envio-discos" element={<Navigate to="/marketplace" replace />} />
           <Route path="/community/:id" element={<PostDetail />} />
           <Route path="/open-decks" element={<OpenDecks />} />
+          <Route path="/academy" element={<Academy />} />
+          <Route path="/nosotros" element={<About />} />
+          <Route path="/about" element={<Navigate to="/nosotros" replace />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/alquiler-local-eventos-horas-valencia" element={<PrivateEvents />} />
+          <Route path="/sobremesa-ok" element={<SobremesaOk />} />
+          <Route path="/sobremesa-cancel" element={<SobremesaCancel />} />
           <Route path="/alquiler-local-eventos-valencia" element={<Navigate to="/alquiler-local-eventos-horas-valencia" replace />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/radio" element={<RadioPage />} />
@@ -201,20 +308,33 @@ const AppRoutes: React.FC = () => {
       </main>
       <CartDrawer />
       <RadioBar />
-      <footer className="bg-mat-950 py-16 border-t border-mat-900">
-        <div className="container mx-auto px-6 flex flex-col items-center text-center">
-          <div className="flex items-center gap-3 mb-8 opacity-60">
-            <Disc className="w-5 h-5 text-mat-500" />
-            <span className="font-exo font-black text-xl text-white tracking-widest uppercase">MAT<span className="text-mat-500">32</span></span>
+      <footer className="bg-ink text-paper">
+        <div className="container mx-auto px-6 md:px-10 py-10 grid md:grid-cols-3 gap-8 items-start">
+          <div>
+            <span className="wordmark text-paper text-3xl">MAT<sup>32</sup></span>
+            <p className="serif-italic text-paper/70 mt-3 max-w-xs leading-snug">Sitio pequeño con dos zonas: relax para sentarse y dancefloor para bailar. Tienda de día, sala de noche.</p>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-6 text-[8px] font-black text-gray-600 uppercase tracking-[0.4em] mb-8">
-            <Link to="/legal/aviso-legal" className="hover:text-mat-500">AVISO LEGAL</Link>
-            <span className="opacity-20">•</span>
-            <Link to="/legal/privacidad" className="hover:text-mat-500">PRIVACIDAD</Link>
-            <span className="opacity-20">•</span>
-            <Link to="/admin" className="hover:text-mat-500">MATRIX_ACCESS</Link>
+          <div className="space-y-2 mono-tag !text-[10px] !tracking-[0.25em]">
+            <div className="text-paper/60">CONTACTO</div>
+            <div>MATÍAS PERELLÓ 32 · 46005 VALENCIA</div>
+            <div>+34 622 19 08 02</div>
+            <div>HOLA@MAT32.COM</div>
+            <div style={{ color: '#c8462a' }}>@MAT32VALENCIA</div>
           </div>
-          <p className="text-[7px] text-gray-800 font-black uppercase tracking-[0.8em] opacity-30">© 2025 RARERTRAXX BEAT S.L. VALENCIA_SPAIN</p>
+          <div className="space-y-2 mono-tag !text-[10px] !tracking-[0.25em]">
+            <div className="text-paper/60">LEGAL</div>
+            <Link to="/alquiler-local-eventos-horas-valencia" className="block hover:text-bermellon transition-colors">ALQUILER LOCAL</Link>
+            <Link to="/legal/aviso-legal" className="block hover:text-bermellon transition-colors">AVISO LEGAL</Link>
+            <Link to="/legal/privacidad" className="block hover:text-bermellon transition-colors">PRIVACIDAD</Link>
+            <Link to="/legal/cookies" className="block hover:text-bermellon transition-colors">COOKIES</Link>
+            <Link to="/legal/condiciones" className="block hover:text-bermellon transition-colors">CONDICIONES</Link>
+          </div>
+        </div>
+        <div className="hairline-ink-t">
+          <div className="container mx-auto px-6 md:px-10 py-4 flex flex-wrap justify-between items-center gap-3 mono-tag !text-[10px] text-paper/50">
+            <span>© 2026 RARETRAXXX BEAT S.L. · CIF B22628846</span>
+            <Link to="/admin" className="hover:text-bermellon transition-colors">MATRIX_ACCESS</Link>
+          </div>
         </div>
       </footer>
     </div>
@@ -228,7 +348,9 @@ const App: React.FC = () => {
         <CartProvider>
           <RadioProvider>
             <Router>
-              <AppRoutes />
+              <SobremesaProvider>
+                <AppRoutes />
+              </SobremesaProvider>
             </Router>
           </RadioProvider>
         </CartProvider>

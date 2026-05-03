@@ -66,7 +66,7 @@ export const Checkout: React.FC = () => {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-mat-900 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-paper text-ink flex items-center justify-center p-6">
         <SEO titleKey="checkout.success" descriptionKey="seo.home.description" />
         <div className="max-w-lg w-full bg-mat-800 p-10 border-2 border-mat-500 shadow-2xl text-center animate-fade-in rounded-[3rem]">
            <div className="w-24 h-24 bg-mat-900 rounded-full flex items-center justify-center mx-auto mb-6 border border-mat-700 shadow-inner">
@@ -87,7 +87,7 @@ export const Checkout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-mat-900 text-gray-100">
+    <div className="min-h-screen bg-paper text-ink text-gray-100">
       <SEO titleKey="nav.records" descriptionKey="seo.home.description" />
       <div className="bg-mat-800 py-16 md:py-24 border-b border-mat-700 relative overflow-hidden">
         <div className="container mx-auto px-6">
