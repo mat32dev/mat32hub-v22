@@ -146,13 +146,12 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── DISPONIBILIDAD EN VIVO ─── */}
+      {/* ─── DISPONIBILIDAD EN VIVO · POLAROID (slide 10) ─── */}
       <section className="bg-paper-2 hairline-b">
         <div className="container mx-auto px-6 md:px-10 py-16 md:py-20">
-          <div className="grid md:grid-cols-2 gap-10 items-center">
+          <div className="grid md:grid-cols-2 gap-10 md:gap-14 items-center">
             <div>
-              <div className="mono-tag" style={{ color: '#c8462a' }}>CAPTAR EVENTOS · CTA PRIMARIO</div>
-              <h2 className="display mt-3" style={{ fontSize: 'clamp(38px, 6vw, 80px)', lineHeight: 0.9 }}>
+              <h2 className="display" style={{ fontSize: 'clamp(38px, 6vw, 80px)', lineHeight: 0.9 }}>
                 Calendario <span style={{ color: '#c8462a' }}>libre.</span>
               </h2>
               <p className="serif-italic mt-5 text-lg md:text-xl text-ink-soft leading-snug max-w-xl">
@@ -167,13 +166,34 @@ export const Home: React.FC = () => {
                 </Link>
               </div>
             </div>
-            <div className="hairline bg-paper p-2 aspect-square md:aspect-[4/3]">
-              <iframe
-                src="https://calendar.google.com/calendar/embed?src=c_e22193851a0fcd54415f4fe728b65e21a196b098cdf1235dfc66115125712e7c%40group.calendar.google.com&ctz=Europe%2FMadrid&showTitle=0&showPrint=0&showCalendars=0&showTabs=0&showTz=0&mode=MONTH&hl=es&bgcolor=%23f1e8d8"
-                className="w-full h-full"
-                style={{ border: 0 }}
-                title="Calendario disponibilidad MAT32"
-              />
+
+            {/* POLAROID FRAME — cartón crema + header industrial + calendario blanco */}
+            <div className="relative shadow-[0_18px_40px_rgba(0,0,0,0.18),0_6px_14px_rgba(0,0,0,0.10)] hairline overflow-hidden bg-paper" style={{ background: '#e8e2d4' }}>
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-bermellon z-10" />
+              {/* Header industrial */}
+              <div className="bg-ink px-5 py-2.5 flex items-center justify-between hairline-ink-b">
+                <span className="mono-tag flex items-center gap-2" style={{ color: '#d8ff5a' }}>
+                  <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#d8ff5a' }} />
+                  LIVE_AVAILABILITY
+                </span>
+                <span className="mono-tag !text-[9px] text-paper/55">EUROPE/MADRID</span>
+              </div>
+              {/* Padding cartón crema con iframe blanco dentro = polaroid */}
+              <div className="p-4 md:p-6 pb-3 md:pb-5">
+                <div className="hairline bg-white">
+                  <iframe
+                    src="https://calendar.google.com/calendar/embed?src=c_e22193851a0fcd54415f4fe728b65e21a196b098cdf1235dfc66115125712e7c%40group.calendar.google.com&ctz=Europe%2FMadrid&showTitle=0&showPrint=0&showCalendars=0&showTabs=1&showTz=0&mode=MONTH&hl=es&bgcolor=%23ffffff"
+                    style={{ border: 0, display: 'block', colorScheme: 'light' }}
+                    width="100%" height="540" frameBorder={0} scrolling="no"
+                    title="Calendario disponibilidad MAT32"
+                  />
+                </div>
+                {/* Pie polaroid */}
+                <div className="flex justify-between items-center pt-3 px-1">
+                  <span className="mono-tag !text-[9px] text-ink/55">MAT32 · BOOKING_LOG</span>
+                  <span className="mono-tag !text-[9px] text-ink/40">VLC_RUZAFA</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
