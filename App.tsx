@@ -116,7 +116,6 @@ const Navigation = () => {
         <div className="container mx-auto px-5 md:px-8 flex items-center justify-between">
           <Link to="/" className="flex items-baseline gap-3 group shrink-0">
             <span className="wordmark text-ink text-2xl sm:text-[28px]">MAT<sup>32</sup></span>
-            <span className="hidden md:inline serif-italic text-ink-soft text-sm">— discos · bebida · mesa</span>
           </Link>
 
           <nav className="hidden xl:flex items-center gap-7">
@@ -312,7 +311,7 @@ const AppRoutes: React.FC = () => {
         <div className="container mx-auto px-6 md:px-10 py-10 grid md:grid-cols-3 gap-8 items-start">
           <div>
             <span className="wordmark text-paper text-3xl">MAT<sup>32</sup></span>
-            <p className="serif-italic text-paper/70 mt-3 max-w-xs leading-snug">Sitio pequeño con dos zonas: relax para sentarse y dancefloor para bailar. Tienda de día, sala de noche.</p>
+            <p className="serif-italic text-paper/70 mt-3 max-w-xs leading-snug">Local acogedor con dos zonas: relax para sentarse y dancefloor para bailar. Tienda de día, sala de noche.</p>
           </div>
           <div className="space-y-2 mono-tag !text-[10px] !tracking-[0.25em]">
             <div className="text-paper/60">CONTACTO</div>
