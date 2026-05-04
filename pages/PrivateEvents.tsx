@@ -5,6 +5,7 @@ import { useSobremesa } from '../components/SobremesaModal';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
 import { CachedImage } from '../components/CachedImage';
+import { CalendarPolaroid } from '../components/CalendarPolaroid';
 
 // GALERÍA TÉCNICA — 7 fotos del local
 const SPACE_GALLERY = [
@@ -28,6 +29,7 @@ const TIPOS = [
 export const PrivateEvents: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [bookedDays, setBookedDays] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     name: '', email: '',
     date: new Date().toISOString().split('T')[0],
@@ -38,6 +40,9 @@ export const PrivateEvents: React.FC = () => {
 
   useEffect(() => {
     document.body.classList.add('theme-ink');
+    dataService.getCalendarBookings()
+      .then(b => setBookedDays(new Set(b.days || [])))
+      .catch(() => {});
     return () => { document.body.classList.remove('theme-ink'); };
   }, []);
 
@@ -154,22 +159,7 @@ export const PrivateEvents: React.FC = () => {
               <h2 className="display text-2xl md:text-3xl">Disponibilidad.</h2>
             </div>
             <p className="serif-italic text-paper/60 text-sm">Las franjas libres son las que puedes solicitar.</p>
-            <div className="hairline-ink overflow-hidden bg-paper">
-              <div className="bg-ink px-4 py-2 flex items-center justify-between">
-                <span className="mono-tag flex items-center gap-2" style={{ color: '#d8ff5a' }}>
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#d8ff5a' }} /> LIVE_AVAILABILITY
-                </span>
-                <span className="mono-tag text-paper/60">EUROPE/MADRID</span>
-              </div>
-              <iframe
-                title="Disponibilidad MAT32"
-                src="https://calendar.google.com/calendar/embed?src=c_e22193851a0fcd54415f4fe728b65e21a196b098cdf1235dfc66115125712e7c%40group.calendar.google.com&ctz=Europe%2FMadrid&showTitle=0&showPrint=0&showCalendars=0&showTabs=1&showTz=0&mode=MONTH&hl=es&bgcolor=%23ffffff"
-                style={{ border: 0, display: 'block' }} width="100%" height="640" frameBorder={0} scrolling="no"
-              />
-              <div className="px-3 py-2 flex justify-between text-ink mono-tag opacity-60">
-                <span>MAT32 · BOOKING_LOG</span><span>VLC_RUZAFA</span>
-              </div>
-            </div>
+            <CalendarPolaroid bookedDays={bookedDays} contextDark />
 
             {/* TECH SPECS */}
             <div className="hairline-ink p-5 bg-ink-2">

@@ -281,6 +281,7 @@ class DataService {
   // ── SOBREMESA ────────────────────────────────────────────────
   async getSobremesaTables() { return api<any[]>('/sobremesa/tables'); }
   async getSobremesaAvailability(date: string) { return api<any>(`/sobremesa/availability?date=${date}`); }
+  async getCalendarBookings() { return api<{ days: string[]; events: { date: string; title: string }[]; updated: string }>(`/calendar/bookings`); }
   async createSobremesaBooking(b: any) { return api('/sobremesa/bookings', { method: 'POST', body: JSON.stringify(b) }); }
   async createSobremesaTable(t: any) { return api('/sobremesa/tables', { method: 'POST', body: JSON.stringify(t) }); }
   async updateSobremesaTable(id: string, t: any) { return api(`/sobremesa/tables/${id}`, { method: 'PATCH', body: JSON.stringify(t) }); }
