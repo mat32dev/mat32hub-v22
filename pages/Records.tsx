@@ -156,7 +156,7 @@ export const Records: React.FC = () => {
 
         {/* RESULTS */}
         {loading ? (
-          <div className="flex justify-center py-40"><Loader2 className="animate-spin text-mat-500 w-12 h-12" /></div>
+          <div className="flex justify-center py-40"><Loader2 className="animate-spin w-10 h-10" style={{ color: '#c8462a' }} /></div>
         ) : (() => {
           const isFiltered = !!(activeGenre || activeStyle || searchTerm);
           const displayRecords = isFiltered ? filteredRecords : topPicks;
@@ -380,26 +380,26 @@ const RecordDetail: React.FC<{
       onClick={onClose}>
       <div
         onClick={e => e.stopPropagation()}
-        className="relative w-full max-w-5xl my-0 md:my-6 bg-mat-900 border border-mat-800 md:rounded-3xl shadow-2xl overflow-hidden custom-scrollbar"
+        className="relative w-full max-w-5xl my-0 md:my-6 bg-paper text-ink hairline shadow-2xl overflow-hidden custom-scrollbar"
       >
         <button onClick={onClose}
-          className="absolute top-3 right-3 z-20 p-2.5 bg-black/80 hover:bg-mat-800 rounded-full text-gray-400 hover:text-white shadow-xl">
+          className="absolute top-3 right-3 z-20 p-2 bg-paper hairline hover:bg-ink hover:text-paper transition-colors">
           <X size={16} />
         </button>
 
         <div className="grid md:grid-cols-[1fr_1.1fr] gap-0">
           {/* Cover */}
-          <div className="relative aspect-square bg-black overflow-hidden">
+          <div className="relative aspect-square bg-ink overflow-hidden hairline-r">
             {record.coverUrl
               ? <img src={record.coverUrl} alt={record.title} className="w-full h-full object-cover" />
-              : <div className="w-full h-full flex items-center justify-center text-gray-700 text-xs font-black uppercase">Sin cover</div>
+              : <div className="w-full h-full flex items-center justify-center mono-tag text-paper/40">SIN COVER</div>
             }
-            <div className="absolute bottom-4 left-4 flex items-center gap-3">
-              <div className="bg-mat-950/95 backdrop-blur-md border border-mat-700 px-4 py-2 rounded-xl text-white font-exo font-black text-2xl tracking-tight shadow-xl">
+            <div className="absolute bottom-4 left-4 flex items-center gap-2">
+              <div className="bg-bermellon text-paper px-3 py-1.5 display text-2xl">
                 €{Math.round(record.price)}
               </div>
               {record.condition && (
-                <div className="text-[10px] font-black uppercase tracking-widest bg-black/80 text-white/90 px-2 py-1 rounded-md">
+                <div className="mono-tag bg-ink text-paper px-2 py-1.5">
                   {record.condition}
                 </div>
               )}
@@ -410,10 +410,10 @@ const RecordDetail: React.FC<{
           <div className="p-5 md:p-7 flex flex-col">
             {/* Header */}
             <div className="mb-4">
-              {record.year && <div className="text-[10px] font-black text-mat-500 uppercase tracking-[0.4em] mb-2">{record.year} · {record.format || 'LP'}</div>}
-              <h2 className="text-2xl md:text-3xl font-black font-exo uppercase text-white leading-tight tracking-tight mb-1">{record.artist}</h2>
-              <p className="text-gray-400 text-sm md:text-base">{record.title}</p>
-              {record.description && <p className="text-gray-500 text-xs mt-2 leading-relaxed">{record.description}</p>}
+              {record.year && <div className="mono-tag" style={{ color: '#c8462a' }}>{record.year} · {record.format || 'LP'}</div>}
+              <h2 className="display mt-2" style={{ fontSize: 'clamp(24px, 3vw, 32px)', lineHeight: 1 }}>{record.artist}</h2>
+              <p className="serif-italic text-ink-soft text-base md:text-lg mt-2">{record.title}</p>
+              {record.description && <p className="serif-italic text-ink-soft text-sm mt-3 leading-snug">{record.description}</p>}
             </div>
 
             {/* Tags */}
@@ -421,41 +421,41 @@ const RecordDetail: React.FC<{
               <div className="flex flex-wrap gap-1.5 mb-4">
                 {(record.genres || []).map(g => (
                   <button key={`g-${g}`} onClick={() => onTag('genre', g)}
-                    className="px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-full bg-mat-500/10 text-mat-500 border border-mat-500/30 hover:bg-mat-500 hover:text-white">
+                    className="px-2.5 py-1 mono-tag !text-[9px] bg-bermellon text-paper hover:bg-ink transition-colors">
                     {g}
                   </button>
                 ))}
                 {(record.styles || []).map(s => (
                   <button key={`s-${s}`} onClick={() => onTag('style', s)}
-                    className="px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-full bg-mat-900 text-gray-400 border border-mat-800 hover:border-mat-500 hover:text-white">
+                    className="px-2.5 py-1 mono-tag !text-[9px] hairline text-ink hover:bg-ink hover:text-paper transition-colors">
                     {s}
                   </button>
                 ))}
               </div>
             ) : null}
 
-            {/* Comments (seller notes) */}
+            {/* Seller notes */}
             {record.comments && (
-              <div className="mb-4 p-3 bg-mat-950 border border-mat-800 rounded-xl">
-                <div className="text-[9px] font-black uppercase tracking-widest text-mat-500 mb-1">Notas del vendedor</div>
-                <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">{record.comments}</p>
+              <div className="mb-4 p-3 hairline bg-paper-2">
+                <div className="mono-tag" style={{ color: '#c8462a' }}>NOTAS DEL VENDEDOR</div>
+                <p className="serif-italic text-ink-soft text-sm mt-1.5 leading-snug whitespace-pre-wrap">{record.comments}</p>
               </div>
             )}
 
             {/* CTAs */}
             <div className="flex gap-2 flex-wrap mb-4">
               <button onClick={onAddCart}
-                className="flex-1 min-w-[160px] px-5 py-3 bg-mat-500 hover:bg-mat-400 text-white text-xs font-black uppercase tracking-[0.3em] rounded-full flex items-center justify-center gap-2 active:scale-95">
-                <ShoppingBag size={14} /> Añadir al carrito
+                className="flex-1 min-w-[160px] bg-bermellon text-paper px-5 py-3 mono-tag hover:bg-ink transition-colors flex items-center justify-center gap-2">
+                <ShoppingBag size={14} /> AÑADIR AL CARRITO
               </button>
               <button onClick={onFav}
-                className={`p-3 rounded-full transition-colors ${isFav ? 'bg-mat-500/15 text-mat-500' : 'bg-mat-800 text-gray-500 hover:text-white'}`}
+                className={`p-3 hairline transition-colors ${isFav ? 'bg-bermellon text-paper' : 'hover:bg-ink hover:text-paper'}`}
                 title={isFav ? 'Quitar wishlist' : 'Añadir wishlist'}>
                 <Heart size={14} className={isFav ? 'fill-current' : ''} />
               </button>
               {record.discogsLink && (
                 <a href={record.discogsLink} target="_blank" rel="noopener"
-                  className="p-3 bg-mat-800 text-gray-500 hover:text-white rounded-full" title="Ver en Discogs">
+                  className="p-3 hairline hover:bg-ink hover:text-paper transition-colors" title="Ver en Discogs">
                   <ExternalLink size={14} />
                 </a>
               )}
@@ -464,25 +464,25 @@ const RecordDetail: React.FC<{
             {/* Notes del release */}
             {record.notes && (
               <div className="mb-4">
-                <div className="text-[9px] font-black uppercase tracking-widest text-gray-500 mb-1">Sobre el disco</div>
-                <p className="text-xs text-gray-400 leading-relaxed whitespace-pre-wrap line-clamp-6">{record.notes}</p>
+                <div className="mono-tag text-ink-soft">SOBRE EL DISCO</div>
+                <p className="serif-italic text-ink-soft text-sm mt-1.5 leading-snug whitespace-pre-wrap line-clamp-6">{record.notes}</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Tracklist + Reproductor oculto estilo radio */}
+        {/* Tracklist + Reproductor */}
         {(hasTracklist || hasVideos) && (
-          <div className={`grid ${hasTracklist && hasVideos ? 'md:grid-cols-2' : 'md:grid-cols-1'} gap-0 border-t border-mat-800`}>
+          <div className={`grid ${hasTracklist && hasVideos ? 'md:grid-cols-2' : 'md:grid-cols-1'} gap-0 hairline-t`}>
             {hasTracklist && (
-              <div className={`p-5 md:p-6 ${hasVideos ? 'border-b md:border-b-0 md:border-r border-mat-800' : ''}`}>
-                <div className="text-[10px] font-black uppercase tracking-[0.4em] text-mat-500 mb-3">Tracklist</div>
-                <ol className="space-y-1.5">
+              <div className={`p-5 md:p-6 ${hasVideos ? 'hairline-b md:hairline-r md:border-b-0' : ''} bg-paper-2`}>
+                <div className="mono-tag" style={{ color: '#c8462a' }}>TRACKLIST</div>
+                <ol className="mt-3 space-y-1.5">
                   {record.tracklist!.map((t, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm">
-                      <span className="text-[10px] font-mono text-gray-600 shrink-0 w-8">{t.position || '·'}</span>
-                      <span className="text-white flex-1 truncate">{t.title}</span>
-                      {t.duration && <span className="text-[11px] font-mono text-gray-500 shrink-0">{t.duration}</span>}
+                    <li key={i} className="flex items-center gap-3 text-sm hairline-b pb-1.5 last:border-b-0">
+                      <span className="mono-tag !text-[10px] !tracking-normal text-ink-soft shrink-0 w-8">{t.position || '·'}</span>
+                      <span className="display text-base text-ink flex-1 truncate">{t.title}</span>
+                      {t.duration && <span className="mono-tag !text-[10px] !tracking-normal text-ink-soft shrink-0">{t.duration}</span>}
                     </li>
                   ))}
                 </ol>
