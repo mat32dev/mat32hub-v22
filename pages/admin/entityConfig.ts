@@ -1,4 +1,4 @@
-import { Calendar, Disc, Package, MessageSquare, ShoppingBag, UserCheck, Mail, Radar, UtensilsCrossed, MapPin, ChefHat, Store, Armchair, Sparkles, Music } from 'lucide-react';
+import { Calendar, Disc, Package, MessageSquare, ShoppingBag, UserCheck, Mail, Radar, UtensilsCrossed, MapPin, ChefHat, Store, Armchair, Sparkles, Music, Instagram } from 'lucide-react';
 
 export type FieldType = 'text' | 'textarea' | 'number' | 'date' | 'time' | 'select' | 'boolean' | 'image' | 'tags' | 'url' | 'lineup' | 'datetime';
 
@@ -265,6 +265,7 @@ export const sidebarSections = [
       { key: 'records', label: 'Discos', icon: Disc, path: '/admin/records' },
       { key: 'merch', label: 'Merch', icon: Package, path: '/admin/merch' },
       { key: 'posts', label: 'Posts', icon: MessageSquare, path: '/admin/posts' },
+      { key: 'instagram-posts', label: 'Instagram Posts', icon: Instagram, path: '/admin/instagram-posts' },
     ],
   },
   {

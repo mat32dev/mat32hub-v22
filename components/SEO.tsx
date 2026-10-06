@@ -17,7 +17,7 @@ export const SEO: React.FC<SEOProps> = ({
   descriptionKey,
   keywordsKey,
   schemaType = 'LocalBusiness',
-  image = "https://imagedelivery.net/f4c2d13d7f6a74d21dacac9c2eb7ba5d/7701241e-71ee-4929-18c0-d1d0d9576e00/public",
+  image = "https://www.mat32.com/altec-a7-mat32-cover.jpg",
   event,
 }) => {
   const { t } = useLanguage();
@@ -63,31 +63,9 @@ export const SEO: React.FC<SEOProps> = ({
     const existingScript = document.getElementById('json-ld-schema');
     if (existingScript) existingScript.remove();
 
-    const localBusiness = {
-      "@type": ["BarOrPub", "MusicStore", "LocalBusiness"],
-      "@id": "https://www.mat32.com/#organization",
-      "name": "Mat32 Valencia Discos Bar",
-      "description": "Bar de discos de vinilo y cultura DJ en el barrio de Ruzafa, Valencia.",
-      "url": "https://www.mat32.com",
-      "image": image,
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Calle Matías Perelló, 32",
-        "addressLocality": "Valencia",
-        "postalCode": "46005",
-        "addressCountry": "ES"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": 39.461159,
-        "longitude": -0.370535
-      },
-      "openingHours": "Th,Fr,Sa 18:00-02:00",
-      "priceRange": "$$",
-      "sameAs": ["https://www.instagram.com/mat32__"]
-    };
-
-    const graph: any[] = [localBusiness];
+    // LocalBusiness/Organization se declara una sola vez en index.html (fuente única de verdad).
+    // Aquí solo añadimos schema específico de la página actual cuando aplica.
+    const graph: any[] = [];
 
     if (event && (schemaType === 'Event' || schemaType === 'MusicEvent')) {
       const timeParts = event.time ? event.time.split(/\s*[–\-]\s*/) : [];
@@ -164,12 +142,14 @@ export const SEO: React.FC<SEOProps> = ({
       });
     }
 
-    const jsonLd = { "@context": "https://schema.org", "@graph": graph };
-    const script = document.createElement('script');
-    script.id = 'json-ld-schema';
-    script.type = 'application/ld+json';
-    script.innerHTML = JSON.stringify(jsonLd);
-    document.head.appendChild(script);
+    if (graph.length > 0) {
+      const jsonLd = { "@context": "https://schema.org", "@graph": graph };
+      const script = document.createElement('script');
+      script.id = 'json-ld-schema';
+      script.type = 'application/ld+json';
+      script.innerHTML = JSON.stringify(jsonLd);
+      document.head.appendChild(script);
+    }
 
   }, [t, titleKey, descriptionKey, keywordsKey, schemaType, image, event, location]);
 

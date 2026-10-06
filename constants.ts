@@ -23,6 +23,9 @@ export const MOCK_SELLERS: SellerProfile[] = [
 
 export const DISCOGS_PROFILE_URL = "https://www.discogs.com/es/user/discos-ruzafa";
 
+// Posts de Instagram destacados en la Home (URLs de embeds)
+export const INSTAGRAM_FEATURED_POSTS: string[] = [];
+
 const BC_BASE = "https://bandcamp.com/EmbeddedPlayer/album=";
 const BC_STYLE = "/size=large/bgcol=333333/linkcol=ea580c/minimal=true/transparent=true/";
 

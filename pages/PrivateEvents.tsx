@@ -1,32 +1,21 @@
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, Send, CheckCircle2, Camera, Calendar as CalendarIcon, Utensils, MessageCircle } from 'lucide-react';
-import { useSobremesa } from '../components/SobremesaModal';
+import { Loader2, Send, CheckCircle2, Calendar as CalendarIcon, Utensils, MessageCircle } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
-import { CachedImage } from '../components/CachedImage';
 import { CalendarPolaroid } from '../components/CalendarPolaroid';
-
-// GALERÍA TÉCNICA — 7 fotos del local
-const SPACE_GALLERY = [
-  { url: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/ac1a7472-de26-46de-37f3-7ec5509f5900/public', title: 'Sala Principal', tag: 'EspacioCompleto' },
-  { url: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7af028d2-be2a-44ae-a2bd-d2e05db8ac00/w=800', title: 'Rincón Analógico', tag: 'Ambiente' },
-  { url: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/53d83bbb-47b5-45ce-4f69-00fdc063fd00/w=800', title: 'Archivo de Vinilos', tag: 'Almacén' },
-  { url: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/f66760c8-cc6c-457a-dc23-5edbe31a2200/w=800', title: 'Bola de Espejos', tag: 'Atmósfera' },
-  { url: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/cd431032-310e-4ccc-c602-68787da5ae00/w=800', title: 'Zona Lounge', tag: 'LivingRoom' },
-  { url: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/36b8814e-df61-468c-614a-788a5fbfa700/w=800', title: 'Sala de Escucha', tag: 'ListeningRoom' },
-  { url: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/496db3dc-f7c7-4d22-d05a-ac0198681c00/w=800', title: 'Cabina DJ', tag: 'Booth' },
-];
+import { useLanguage } from '../context/LanguageContext';
 
 const TIPOS = [
-  { name: 'Listening session', tag: '→ HIFI' },
-  { name: 'Showcase de sello',  tag: '→ DJ + EQ' },
-  { name: 'Presentación de marca', tag: '→ FULL' },
-  { name: 'Cumpleaños raro', tag: '→ PRIVADO' },
-  { name: 'Rodaje / foto', tag: '→ ESPACIO' },
+  { key: 'venues.tipo1', tag: '→ HIFI' },
+  { key: 'venues.tipo2', tag: '→ DJ + EQ' },
+  { key: 'venues.tipo3', tag: '→ FULL' },
+  { key: 'venues.tipo4', tag: '→ PRIVADO' },
+  { key: 'venues.tipo5', tag: '→ ESPACIO' },
 ];
 
 export const PrivateEvents: React.FC = () => {
+  const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [bookedDays, setBookedDays] = useState<Set<string>>(new Set());
@@ -34,8 +23,10 @@ export const PrivateEvents: React.FC = () => {
     name: '', email: '',
     date: new Date().toISOString().split('T')[0],
     time: '19:00',
+    endTime: '22:00',
     eventType: 'cultural_event',
-    concept: ''
+    concept: '',
+    wantsCatering: false,
   });
 
   useEffect(() => {
@@ -49,103 +40,68 @@ export const PrivateEvents: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.concept) {
-      alert('Faltan campos obligatorios');
+      alert(t('venues.form.missing_fields'));
       return;
     }
+    
+    // Validación: viernes/sábado no bookeable después de 22:00
+    const selectedDate = new Date(formData.date);
+    const dayOfWeek = selectedDate.getDay(); // 5 = viernes, 6 = sábado
+    const startHour = parseInt(formData.time.split(':')[0], 10);
+    const endHour = parseInt(formData.endTime.split(':')[0], 10);
+    
+    if ((dayOfWeek === 5 || dayOfWeek === 6) && endHour > 22) {
+      alert('Viernes y sábados el espacio no está disponible para alquiler después de las 22:00 (programación de sesiones).');
+      return;
+    }
+    
+    // Validación: solo bookeable 19:00-22:00
+    if (startHour < 19 || endHour > 22 || startHour >= endHour) {
+      alert('El horario de alquiler es de 19:00 a 22:00.');
+      return;
+    }
+    
     setIsProcessing(true);
     await dataService.createInboxMessage({
       type: 'lead',
       sender: formData.name,
       email: formData.email,
-      content: `[ALQUILER ESPACIO]: ${formData.eventType.toUpperCase()}. Concepto: ${formData.concept}`,
+      content: `[ALQUILER ESPACIO]: ${formData.eventType.toUpperCase()}.${formData.wantsCatering ? ' (Quiere info de catering)' : ''} Concepto: ${formData.concept}`,
       metadata: { source: 'alquiler-local', ...formData } as any,
     });
     setIsProcessing(false);
     setIsSubmitted(true);
   };
 
-  const { open: openSobremesa } = useSobremesa();
-
   return (
     <div className="min-h-screen bg-ink text-paper pb-24">
-      <SEO titleKey="Alquiler del local · Eventos privados | MAT32" descriptionKey="Espacio histórico en Ruzafa para colectivos, promotores, sellos y marcas. Sound system Hi-Fi, cabina vinyl-friendly, aforo 40-100. Calendario libre + presupuesto en 24h." />
+      <SEO titleKey="Alquiler de espacio para eventos en colaboración · Ruzafa, Valencia | MAT32" descriptionKey="Hagámoslo juntos. Espacio Hi-Fi en Ruzafa para showcases, listenings, presentaciones de marca, cumpleaños y rodajes. Aforo 40-100 pax, Altec A7, cabina vinyl, catering opcional. Presupuesto en 24h sin compromiso." />
 
-      {/* HERO · slide 10 */}
+      {/* HERO */}
       <section className="container mx-auto px-6 md:px-10 pt-12 md:pt-16 pb-10 hairline-ink-b">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div>
-            <div className="mono-tag" style={{ color: '#c8462a' }}>PRIVADOS · /ALQUILER</div>
+            <div className="mono-tag" style={{ color: '#c8462a' }}>{t('venues.hero.tag')}</div>
             <h1 className="display mt-3" style={{ fontSize: 'clamp(54px, 9vw, 132px)', lineHeight: 0.82, letterSpacing: '-0.02em' }}>
-              Alquiler<br/><span style={{ color: '#c8462a' }}>del local.</span>
+              {t('venues.hero.h1_pre')}<br/><span style={{ color: '#c8462a' }}>{t('venues.hero.h1_color')}</span>
             </h1>
             <p className="serif-italic text-2xl text-paper/70 mt-4 max-w-2xl leading-snug">
-              Sitio para tu cosa: presentaciones, showcases, listening sessions, cumpleaños raros, marcas que no quieren un sitio cualquiera.
+              {t('venues.hero.desc')}
             </p>
           </div>
           <div className="hairline-ink p-4 bg-ink-2 mono-tag !text-[10px]">
-            <div style={{ color: '#d8ff5a' }}>● LIVE_AVAILABILITY</div>
-            <div className="text-paper/70 mt-1.5">EUROPE · MADRID</div>
-            <div style={{ color: '#c8462a' }} className="mt-1">G·CALENDAR EMBED</div>
+            <div style={{ color: '#d8ff5a' }}>{t('venues.hero.open')}</div>
+            <div className="text-paper/70 mt-1.5">VLC · RUZAFA</div>
+            <div style={{ color: '#c8462a' }} className="mt-1">{t('venues.hero.respond')}</div>
           </div>
         </div>
         <div className="flex flex-wrap gap-2 mt-8">
           <a href="#booking-form" className="bg-bermellon text-paper px-5 py-3 mono-tag hover:bg-paper hover:text-ink transition-colors">
-            SOLICITAR FECHA →
+            {t('venues.form.tag')} →
           </a>
           <a href="https://wa.me/34622190802" target="_blank" rel="noopener" className="hairline-ink px-5 py-3 mono-tag hover:bg-paper hover:text-ink transition-colors flex items-center gap-2">
             <MessageCircle size={14} /> WHATSAPP DIRECTO
           </a>
-        </div>
-      </section>
-
-      {/* CATERING CROSS-SELL */}
-      <section className="container mx-auto px-6 md:px-10 py-12 hairline-ink-b">
-        <div className="hairline-ink p-6 md:p-8 bg-ink-2">
-          <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
-            <div className="flex-1">
-              <div className="mono-tag flex items-center gap-2" style={{ color: '#c8462a' }}>
-                <Utensils size={12} /> + CATERING OPCIONAL · MÍN. 20 PAX
-              </div>
-              <div className="grid grid-cols-3 gap-3 mt-4">
-                <div className="hairline-ink p-3">
-                  <div className="display text-paper text-xl">Picoteo</div>
-                  <div className="mono-tag mt-1" style={{ color: '#c8462a' }}>6€ / PAX</div>
-                </div>
-                <div className="hairline-ink p-3">
-                  <div className="display text-paper text-xl">Tabla</div>
-                  <div className="mono-tag mt-1" style={{ color: '#c8462a' }}>12€ / PAX</div>
-                </div>
-                <div className="hairline-ink p-3">
-                  <div className="display text-paper text-xl">Premium</div>
-                  <div className="mono-tag mt-1" style={{ color: '#c8462a' }}>18€ / PAX</div>
-                </div>
-              </div>
-              <p className="serif-italic text-paper/60 text-sm mt-3">Vermut, cerveza, vino o barra libre. Depósito 5€/pax descontable.</p>
-            </div>
-            <button onClick={openSobremesa} className="shrink-0 bg-bermellon text-paper px-5 py-3 mono-tag hover:bg-paper hover:text-ink transition-colors">
-              SOLICITAR CATERING →
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* GALERÍA */}
-      <section className="container mx-auto px-6 md:px-10 py-16 hairline-ink-b">
-        <div className="flex items-baseline gap-4 mb-8">
-          <Camera size={20} className="text-paper" />
-          <h2 className="display text-3xl md:text-5xl">El espacio.</h2>
-          <span className="mono-tag text-paper/40">7 ÁNGULOS</span>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          {SPACE_GALLERY.map((img, idx) => (
-            <div key={idx} className={`relative group hairline-ink overflow-hidden ${idx === 0 ? 'col-span-2 row-span-2' : ''}`}>
-              <CachedImage src={img.url} alt={img.title} className="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700" aspectRatio={idx === 0 ? 'aspect-video' : 'aspect-square'} />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
-                <span className="mono-tag" style={{ color: '#d8ff5a' }}>#{img.tag}</span>
-                <h4 className="display text-paper text-xl mt-1">{img.title}</h4>
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -156,14 +112,14 @@ export const PrivateEvents: React.FC = () => {
           <div className="lg:col-span-5 space-y-6">
             <div className="flex items-baseline gap-3 mb-2">
               <CalendarIcon size={18} className="text-paper" />
-              <h2 className="display text-2xl md:text-3xl">Disponibilidad.</h2>
+              <h2 className="display text-2xl md:text-3xl">{t('venues.availability.h2')}</h2>
             </div>
-            <p className="serif-italic text-paper/60 text-sm">Las franjas libres son las que puedes solicitar.</p>
-            <CalendarPolaroid bookedDays={bookedDays} contextDark />
+            <p className="serif-italic text-paper/60 text-sm">{t('venues.availability.desc')}</p>
+            <CalendarPolaroid bookedDays={bookedDays} contextDark bookingMode />
 
             {/* TECH SPECS */}
             <div className="hairline-ink p-5 bg-ink-2">
-              <div className="mono-tag" style={{ color: '#c8462a' }}>FICHA TÉCNICA</div>
+              <div className="mono-tag" style={{ color: '#c8462a' }}>{t('venues.specs.title')}</div>
               <ul className="mt-4 space-y-3 mono-tag !text-[11px] text-paper/85">
                 <li className="flex justify-between hairline-ink-b pb-2"><span className="text-paper/55">AFORO MÁX</span><span className="text-paper">100 PAX</span></li>
                 <li className="flex justify-between hairline-ink-b pb-2"><span className="text-paper/55">SISTEMA PA</span><span className="text-paper">ALTEC A7 + KLIPSCH LA SCALA</span></li>
@@ -175,12 +131,12 @@ export const PrivateEvents: React.FC = () => {
 
             {/* TIPOS DE EVENTO */}
             <div className="bg-paper text-ink p-5 hairline-ink">
-              <div className="mono-tag" style={{ color: '#c8462a' }}>TIPO DE EVENTO</div>
+              <div className="mono-tag" style={{ color: '#c8462a' }}>{t('venues.type_tag')}</div>
               <ul className="mt-3 space-y-1.5">
-                {TIPOS.map(t => (
-                  <li key={t.name} className="flex justify-between items-baseline hairline-b pb-2 last:border-b-0">
-                    <span className="display text-base">{t.name}</span>
-                    <span className="mono-tag text-ink-soft">{t.tag}</span>
+                {TIPOS.map(tipo => (
+                  <li key={tipo.key} className="flex justify-between items-baseline hairline-b pb-2 last:border-b-0">
+                    <span className="display text-base">{t(tipo.key)}</span>
+                    <span className="mono-tag text-ink-soft">{tipo.tag}</span>
                   </li>
                 ))}
               </ul>
@@ -190,27 +146,33 @@ export const PrivateEvents: React.FC = () => {
           {/* FORM — col 2 */}
           <div className="lg:col-span-7">
             {isSubmitted ? (
-              <div className="hairline-ink p-12 text-center bg-ink-2">
+              <div className="hairline-ink p-10 md:p-12 text-center bg-ink-2">
                 <CheckCircle2 className="w-16 h-16 mx-auto mb-6" style={{ color: '#d8ff5a' }} />
-                <h2 className="display text-3xl md:text-4xl">Solicitud recibida.</h2>
-                <p className="serif-italic text-paper/65 mt-3 text-lg">Te respondemos en menos de 24h con presupuesto y rider.</p>
-                <button onClick={() => setIsSubmitted(false)} className="mt-8 hairline-ink px-6 py-3 mono-tag hover:bg-paper hover:text-ink transition-colors">
-                  ENVIAR OTRA →
-                </button>
+                <h2 className="display text-3xl md:text-4xl">{t('venues.confirmed.h2')}</h2>
+                <p className="serif-italic text-paper/65 mt-3 text-lg max-w-md mx-auto">{t('venues.confirmed.desc')}</p>
+                <div className="flex flex-wrap justify-center gap-2 mt-8">
+                  <a href="https://wa.me/34622190802" target="_blank" rel="noopener" className="bg-bermellon text-paper px-5 py-3 mono-tag hover:bg-paper hover:text-ink transition-colors flex items-center gap-2">
+                    <MessageCircle size={14} /> {t('venues.confirmed.whatsapp')}
+                  </a>
+                  <button onClick={() => setIsSubmitted(false)} className="hairline-ink px-5 py-3 mono-tag hover:bg-paper hover:text-ink transition-colors">
+                    {t('venues.confirmed.another')}
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="hairline-ink p-6 md:p-8 bg-ink-2">
-                <div className="mono-tag mb-6" style={{ color: '#c8462a' }}>SOLICITAR FECHA</div>
+                <div className="mono-tag mb-2" style={{ color: '#c8462a' }}>{t('venues.form.tag')}</div>
+                <p className="serif-italic text-paper/60 text-sm mb-6 leading-snug">{t('venues.form.desc')}</p>
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="mono-tag !text-[9px] block mb-2" style={{ color: '#c8462a' }}>NOMBRE / MARCA</label>
+                      <label className="mono-tag !text-[9px] block mb-2" style={{ color: '#c8462a' }}>{t('venues.form.label_name')}</label>
                       <input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}
                         placeholder="P.EJ. SELLO_VLC"
                         className="w-full bg-ink hairline-ink p-3 text-paper mono-tag !text-[11px] !tracking-[0.15em] !normal-case outline-none focus:border-bermellon transition-colors" />
                     </div>
                     <div>
-                      <label className="mono-tag !text-[9px] block mb-2" style={{ color: '#c8462a' }}>CORREO</label>
+                      <label className="mono-tag !text-[9px] block mb-2" style={{ color: '#c8462a' }}>EMAIL</label>
                       <input required type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })}
                         placeholder="hola@empresa.com"
                         className="w-full bg-ink hairline-ink p-3 text-paper mono-tag !text-[11px] !tracking-[0.15em] !normal-case outline-none focus:border-bermellon transition-colors" />
@@ -218,40 +180,57 @@ export const PrivateEvents: React.FC = () => {
                   </div>
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
-                      <label className="mono-tag !text-[9px] block mb-2" style={{ color: '#c8462a' }}>FECHA</label>
-                      <input required type="date" min={new Date().toISOString().split('T')[0]} value={formData.date}
+                      <label className="mono-tag !text-[9px] block mb-2" style={{ color: '#c8462a' }}>{t('venues.form.label_date')}</label>
+                      <input type="date" min={new Date().toISOString().split('T')[0]} value={formData.date}
                         onChange={e => setFormData({ ...formData, date: e.target.value })}
                         className="w-full bg-ink hairline-ink p-3 text-paper mono-tag !text-[11px] outline-none focus:border-bermellon transition-colors [color-scheme:dark]" />
                     </div>
                     <div>
-                      <label className="mono-tag !text-[9px] block mb-2" style={{ color: '#c8462a' }}>HORA</label>
+                      <label className="mono-tag !text-[9px] block mb-2" style={{ color: '#c8462a' }}>{t('venues.form.label_time')}</label>
                       <input type="time" value={formData.time} onChange={e => setFormData({ ...formData, time: e.target.value })}
                         className="w-full bg-ink hairline-ink p-3 text-paper mono-tag !text-[11px] outline-none focus:border-bermellon transition-colors [color-scheme:dark]" />
                     </div>
                     <div>
-                      <label className="mono-tag !text-[9px] block mb-2" style={{ color: '#c8462a' }}>TIPO</label>
+                      <label className="mono-tag !text-[9px] block mb-2" style={{ color: '#c8462a' }}>HORA FIN</label>
+                      <input type="time" value={formData.endTime} onChange={e => setFormData({ ...formData, endTime: e.target.value })}
+                        className="w-full bg-ink hairline-ink p-3 text-paper mono-tag !text-[11px] outline-none focus:border-bermellon transition-colors [color-scheme:dark]" />
+                    </div>
+                    <div className="md:col-span-3">
+                      <label className="mono-tag !text-[9px] block mb-2" style={{ color: '#c8462a' }}>{t('venues.form.label_type')}</label>
                       <select value={formData.eventType} onChange={e => setFormData({ ...formData, eventType: e.target.value })}
                         className="w-full bg-ink hairline-ink p-3 text-paper mono-tag !text-[11px] !normal-case outline-none focus:border-bermellon transition-colors">
-                        <option value="cultural_event">Cultural / showcase</option>
-                        <option value="brand_event">Marca / corporate</option>
-                        <option value="private_party">Privada / cumpleaños</option>
-                        <option value="shoot">Rodaje / foto</option>
+                        <option value="cultural_event">{t('venues.form.type_cultural')}</option>
+                        <option value="brand_event">{t('venues.form.type_brand')}</option>
+                        <option value="private_party">{t('venues.form.type_party')}</option>
+                        <option value="shoot">{t('venues.form.type_shoot')}</option>
+                        <option value="other">{t('venues.form.type_other')}</option>
                       </select>
                     </div>
                   </div>
                   <div>
-                    <label className="mono-tag !text-[9px] block mb-2" style={{ color: '#c8462a' }}>CONCEPTO</label>
+                    <label className="mono-tag !text-[9px] block mb-2" style={{ color: '#c8462a' }}>{t('venues.form.label_idea')}</label>
                     <textarea required value={formData.concept} onChange={e => setFormData({ ...formData, concept: e.target.value })}
-                      placeholder="Showcase de sello con tres artistas. Listening de 19h a 21h, set largo después. Necesitamos buen sonido y zona para que la gente se siente."
+                      placeholder={t('venues.form.idea_placeholder')}
                       className="w-full bg-ink hairline-ink p-4 h-40 text-paper serif-italic text-sm outline-none focus:border-bermellon resize-none transition-colors leading-snug"
                     />
                   </div>
+                  <label className="flex items-start gap-3 hairline-ink p-3 cursor-pointer hover:bg-ink transition-colors">
+                    <input type="checkbox" checked={formData.wantsCatering}
+                      onChange={e => setFormData({ ...formData, wantsCatering: e.target.checked })}
+                      className="mt-0.5 accent-bermellon" />
+                    <div className="flex-1">
+                      <div className="mono-tag flex items-center gap-2" style={{ color: '#c8462a' }}>
+                        <Utensils size={11} /> {t('venues.form.catering_tag')}
+                      </div>
+                      <p className="serif-italic text-paper/55 text-xs mt-1">{t('venues.form.catering_desc')}</p>
+                    </div>
+                  </label>
                   <button type="submit"
                     className="w-full bg-bermellon text-paper py-4 mono-tag !text-[12px] !tracking-[0.5em] hover:bg-paper hover:text-ink transition-colors flex items-center justify-center gap-3">
                     {isProcessing ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
-                    {isProcessing ? 'ENVIANDO…' : '→ ENVIAR SOLICITUD'}
+                    {isProcessing ? t('venues.form.submit_sending') : t('venues.form.submit_idle')}
                   </button>
-                  <p className="mono-tag text-center text-paper/50">RESPUESTA EN &lt; 24H · CON PRESUPUESTO Y RIDER</p>
+                  <p className="mono-tag text-center text-paper/50">{t('venues.form.footer_no_commitment')}</p>
                 </form>
               </div>
             )}
@@ -264,8 +243,38 @@ export const PrivateEvents: React.FC = () => {
           <span className="text-paper/65">+34 622 19 08 02</span>
           <span className="text-paper/40">·</span>
           <span className="text-paper/65">RESPONDEMOS EN 24H</span>
-          <span className="ml-auto" style={{ color: '#d8ff5a' }}>CONSULTA SIN COMPROMISO →</span>
+          <span className="ml-auto" style={{ color: '#d8ff5a' }}>{t('venues.form.footer_free_enquiry')}</span>
         </div>
+      </section>
+
+      {/* CATERING */}
+      <section className="container mx-auto px-6 md:px-10 py-14 hairline-ink-t">
+        <div className="flex items-baseline gap-3 mb-2">
+          <Utensils size={18} className="text-paper/70" />
+          <h2 className="display text-2xl md:text-3xl text-paper/85">{t('venues.catering.h2_pre')} {t('venues.catering.h2_main')}</h2>
+          <span className="mono-tag text-paper/40">{t('venues.catering.optional')}</span>
+        </div>
+        <p className="serif-italic text-paper/55 max-w-2xl text-sm leading-snug mb-6">
+          {t('venues.catering.desc')}
+        </p>
+        <div className="grid sm:grid-cols-3 gap-3">
+          <div className="hairline-ink p-4 bg-ink-2">
+            <div className="display text-paper text-xl">{t('venues.catering.snacks.name')}</div>
+            <div className="serif-italic text-paper/55 text-xs mt-1 leading-snug">{t('venues.catering.snacks.desc')}</div>
+            <div className="mono-tag mt-3 text-paper/65">DESDE <span style={{ color: '#c8462a' }}>6€/PAX</span></div>
+          </div>
+          <div className="hairline-ink p-4 bg-ink-2">
+            <div className="display text-paper text-xl">{t('venues.catering.board.name')}</div>
+            <div className="serif-italic text-paper/55 text-xs mt-1 leading-snug">{t('venues.catering.board.desc')}</div>
+            <div className="mono-tag mt-3 text-paper/65">DESDE <span style={{ color: '#c8462a' }}>12€/PAX</span></div>
+          </div>
+          <div className="hairline-ink p-4 bg-ink-2">
+            <div className="display text-paper text-xl">{t('venues.catering.premium.name')}</div>
+            <div className="serif-italic text-paper/55 text-xs mt-1 leading-snug">{t('venues.catering.premium.desc')}</div>
+            <div className="mono-tag mt-3 text-paper/65">DESDE <span style={{ color: '#c8462a' }}>18€/PAX</span></div>
+          </div>
+        </div>
+        <p className="mono-tag !text-[10px] text-paper/40 mt-4">{t('venues.catering.footer')}</p>
       </section>
     </div>
   );

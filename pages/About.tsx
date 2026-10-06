@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Disc, MapPin } from 'lucide-react';
 import { SEO } from '../components/SEO';
+import { useLanguage } from '../context/LanguageContext';
 
 const VIDEO_LONG = { id: 'Gdw6VmMVJok', start: 646 };
 const VIDEO_SHORT = { id: 'wkEQNfchTcE' };
 
 export const About: React.FC = () => {
+  const { t } = useLanguage();
+
   useEffect(() => {
     document.body.classList.add('theme-paper');
     return () => { document.body.classList.remove('theme-paper'); };
@@ -24,10 +27,14 @@ export const About: React.FC = () => {
           <Disc size={12} /> RARETRAXXX · RUZAFA
         </div>
         <h1 className="display mt-3" style={{ fontSize: 'clamp(54px, 9vw, 132px)', lineHeight: 0.85 }}>
-          Nos<span style={{ color: '#c8462a' }}>otros.</span>
+          {t('about.hero.h1_pre')}<span style={{ color: '#c8462a' }}>{t('about.hero.h1_color')}</span>
         </h1>
         <p className="serif-italic text-2xl text-ink-soft mt-5 max-w-3xl leading-snug hairline-l pl-6">
-          Bar hi-fi, almacén de discos y colectivo en Ruzafa. MAT32 se gestiona siguiendo el ideal del colectivo <b className="text-ink not-italic">Raretraxxx</b>: compartir y descubrir música, con quienes siguen los mismos principios.
+          {t('about.hero.desc').split('Raretraxxx').map((part, i, arr) =>
+            i < arr.length - 1
+              ? <React.Fragment key={i}>{part}<b className="text-ink not-italic">Raretraxxx</b></React.Fragment>
+              : part
+          )}
         </p>
       </section>
 
@@ -36,7 +43,7 @@ export const About: React.FC = () => {
         <figure>
           <VideoDuotone video={VIDEO_LONG} />
           <figcaption className="mt-4 serif-italic text-ink-soft text-base leading-snug max-w-3xl">
-            Documental <b className="text-ink not-italic">RARETRAXXX</b> por <b className="text-ink not-italic">Andrónico</b>.
+            {t('about.documentary')} <b className="text-ink not-italic">RARETRAXXX</b> {t('about.by')} <b className="text-ink not-italic">Andrónico</b>.
           </figcaption>
         </figure>
 
@@ -56,25 +63,25 @@ export const About: React.FC = () => {
               </div>
               <div className="p-5 md:p-7 flex flex-col justify-center gap-4">
                 <audio controls preload="none" className="w-full" src="/audio/jardi-electronic-mat32.mp3">
-                  Tu navegador no soporta audio HTML5.
+                  {t('about.audio.fallback')}
                 </audio>
                 <a href="https://www.apuntmedia.es/programes/territori-sonor/complets/20-09-2024-neus-ferri-l-algoritme-sonor-xala-muses-jardi-electronic_135_1732336.html"
                    target="_blank" rel="noopener noreferrer"
                    className="mono-tag hover:text-ink transition-colors" style={{ color: '#c8462a' }}>
-                  VER PROGRAMA COMPLETO EN À PUNT ↗
+                  {t('about.apunt.link')}
                 </a>
               </div>
             </div>
           </div>
           <figcaption className="mt-4 serif-italic text-ink-soft text-base leading-snug max-w-3xl">
-            Reportaje <b className="text-ink not-italic">Territori Sonor</b> sobre Jardí Electrònic en MAT32. Por <b className="text-ink not-italic">Ferran Toledo</b>, À Punt Media.
+            {t('about.report')} <b className="text-ink not-italic">Territori Sonor</b> {t('about.report_about')} <b className="text-ink not-italic">Ferran Toledo</b>, À Punt Media.
           </figcaption>
         </figure>
 
         <figure className="max-w-3xl mx-auto">
           <VideoDuotone video={VIDEO_SHORT} />
           <figcaption className="mt-4 serif-italic text-ink-soft text-base leading-snug">
-            Sesión en el local. Flyer <b className="text-ink not-italic">Facil Graphics</b>.
+            {t('about.session_caption')} <b className="text-ink not-italic">Facil Graphics</b>.
           </figcaption>
         </figure>
       </section>
@@ -87,7 +94,7 @@ export const About: React.FC = () => {
             Raretraxxx <span style={{ color: '#c8462a' }}>booking.</span>
           </h2>
           <p className="serif-italic text-ink-soft text-lg mt-3 max-w-xl leading-snug">
-            Sesiones de Raretraxxx: eventos privados, aperturas, escucha, baile. Escríbenos con fecha, lugar y formato.
+            {t('about.booking.desc')}
           </p>
           <a href="mailto:hola@mat32.com?subject=Raretraxxx%20Booking"
              className="inline-flex items-center gap-2 mt-6 mono-tag hairline px-5 py-3 hover:bg-ink hover:text-paper transition-colors">
@@ -108,15 +115,23 @@ export const About: React.FC = () => {
 
         <div className="mt-16 pt-10 hairline-t">
           <div className="mono-tag flex items-center gap-2" style={{ color: '#c8462a' }}>
-            <MapPin size={12} /> DÓNDE ESTAMOS
+            <MapPin size={12} /> {t('about.where.tag')}
           </div>
           <h3 className="display mt-3 text-2xl md:text-3xl">C/ Matías Perelló 32</h3>
           <p className="serif-italic text-ink-soft mt-1 text-lg">Ruzafa · Valencia · 46005</p>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6 hairline overflow-hidden max-w-xl">
+            <iframe
+              title="MAT32 en Google Maps · Calle Matías Perelló 32, Ruzafa, Valencia"
+              src="https://storage.googleapis.com/maps-solutions-2ix7wunb2w/locator-plus/et5g/locator-plus.html"
+              width="100%" height="380" style={{ border: 0 }}
+              loading="lazy" allow="geolocation"
+            />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-3">
             <a href="https://maps.google.com/?q=MAT32+Valencia+Mat%C3%ADas+Perell%C3%B3+32" target="_blank" rel="noopener"
                className="mono-tag hairline px-3 py-2 hover:bg-ink hover:text-paper transition-colors">MAPS ↗</a>
-            <a href="https://www.instagram.com/mat32valencia" target="_blank" rel="noopener"
-               className="mono-tag hairline px-3 py-2 hover:bg-ink hover:text-paper transition-colors">@MAT32VALENCIA</a>
+            <a href="https://www.instagram.com/mat32__" target="_blank" rel="noopener"
+               className="mono-tag hairline px-3 py-2 hover:bg-ink hover:text-paper transition-colors">@MAT32__</a>
           </div>
         </div>
       </section>

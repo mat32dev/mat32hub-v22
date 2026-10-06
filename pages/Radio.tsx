@@ -12,6 +12,11 @@ interface Track {
   youtube_url: string | null;
   youtube_id: string | null;
   video_title: string;
+  country?: string | null;
+  label?: string | null;
+  year?: string | null;
+  dc_genre?: string | null;
+  dc_style?: string | null;
 }
 
 const GENRE_COLOR: Record<string, string> = {
@@ -84,27 +89,6 @@ export const RadioPage: React.FC = () => {
         </div>
       </section>
 
-      {/* NEURAL TREE — fondo ink (preservado) */}
-      <section className="py-10 md:py-14 hairline-b bg-ink text-paper relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(200,70,42,0.08),_transparent_70%)] pointer-events-none" />
-        <div className="container mx-auto px-6 max-w-6xl relative z-10">
-          <div className="mb-6 md:mb-8">
-            <div className="mono-tag" style={{ color: '#d8ff5a' }}>CONSTELACIÓN · ALLEGRETTO!</div>
-            <h2 className="display mt-2 text-paper" style={{ fontSize: 'clamp(28px, 4vw, 56px)', lineHeight: 0.95 }}>
-              Tejido <span style={{ color: '#c8462a' }}>sonoro.</span>
-            </h2>
-            <p className="serif-italic text-paper/65 mt-3 text-base max-w-2xl">
-              Cada punto es un tema. Los hilos conectan artistas y fuentes compartidas. Click para pinchar.
-            </p>
-          </div>
-          {loadingTracks ? (
-            <div className="py-20 text-center"><Loader2 className="animate-spin w-8 h-8 mx-auto" style={{ color: '#c8462a' }} /></div>
-          ) : (
-            <NeuralTree tracks={allTracks} />
-          )}
-        </div>
-      </section>
-
       {/* PLAYER · Thorens TD-160D — preservado, fondo ink */}
       <section id="tt-player" className="py-12 md:py-16 hairline-b bg-ink-2 text-paper scroll-mt-20">
         <div className="container mx-auto px-6 max-w-5xl">
@@ -141,6 +125,7 @@ export const RadioPage: React.FC = () => {
             </h2>
             <p className="serif-italic text-ink-soft mt-3 text-base md:text-lg max-w-2xl">
               Historial completo de tracks que populan Allegretto! Radio. Curados desde MAT32 Ruzafa.
+              Los resaltados comparten género con lo que suena ahora: candidatos para pinchar después.
             </p>
           </div>
           <ArchiveList tracks={allTracks} />
@@ -420,227 +405,43 @@ const TurntablePlayer: React.FC = () => {
 };
 
 
-// ── NEURAL TREE · conexiones entre tracks (reactivado) ──
-// Nodos y aristas más prominentes que la versión anterior.
-const NeuralTree: React.FC<{ tracks: Track[] }> = ({ tracks }) => {
-  const { tracks: radioTracks, setCurrentAndPlay, current } = useRadio();
-  const [hover, setHover] = useState<Track | null>(null);
-  const [selected, setSelected] = useState<Track | null>(null);
-  const [t, setT] = useState(0);
+// El campo `genre` que llega del backend es el género del CANAL de YouTube, no
+// el del tema: etiquetaba de "Electronic" todo lo de Ullar Siir (soul incluido) y
+// de "Mixed" todo lo de DYTID. Se usa el género real del disco (Discogs) y, si un
+// tema aún no está catalogado, no se le pone etiqueta en vez de inventarle una.
+function trackGenre(tr: Track): string | null {
+  const style = (tr.dc_style || '').split(',')[0]?.trim();
+  if (style) return style;
+  const genre = (tr.dc_genre || '').split(',')[0]?.trim();
+  return genre || null;
+}
 
-  useEffect(() => {
-    let raf = 0;
-    let lastUpdate = 0;
-    const start = performance.now();
-    const THROTTLE_MS = 80;
-    const tick = (now: number) => {
-      if (now - lastUpdate >= THROTTLE_MS) {
-        setT((now - start) / 1000);
-        lastUpdate = now;
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  const W = 900, H = 900;
-  const CX = W / 2, CY = H / 2;
-  const breath = 1 + Math.sin(t * 0.8) * 0.05;
-
-  const genreList = useMemo(
-    () => Array.from(new Set(tracks.map(tr => tr.genre || 'Mixed'))).sort(),
-    [tracks]
-  );
-
-  const positions = useMemo(() => {
-    const pos = new Map<number, { x: number; y: number }>();
-    tracks.forEach((tr, i) => {
-      const gIdx = genreList.indexOf(tr.genre || 'Mixed');
-      const genreCount = tracks.filter(x => (x.genre || 'Mixed') === tr.genre).length;
-      const baseAngle = (gIdx / genreList.length) * Math.PI * 2;
-      const within = tracks.filter(x => (x.genre || 'Mixed') === tr.genre).indexOf(tr);
-      const spread = ((2 * Math.PI) / genreList.length) * 0.95;
-      const jitter = ((tr.id % 100) / 100 - 0.5) * 0.12;
-      const angle = baseAngle - spread / 2 + (within / Math.max(1, genreCount - 1)) * spread + jitter;
-      const rRing = ((i * 37) % 180) + 160 + (tr.id % 30);
-      pos.set(tr.id, { x: CX + Math.cos(angle) * rRing, y: CY + Math.sin(angle) * rRing });
-    });
-    return pos;
-  }, [tracks, genreList]);
-
-  // Aristas más agresivas
-  const edges = useMemo(() => {
-    const out: Array<{ from: Track; to: Track; strength: number; color: string }> = [];
-    const byArtist = new Map<string, Track[]>();
-    const byChannel = new Map<string, Track[]>();
-    tracks.forEach(tr => {
-      const art = (tr.artist || '').toLowerCase().trim();
-      const ch = (tr as any).channel_name || '';
-      if (art) {
-        if (!byArtist.has(art)) byArtist.set(art, []);
-        byArtist.get(art)!.push(tr);
-      }
-      if (ch) {
-        if (!byChannel.has(ch)) byChannel.set(ch, []);
-        byChannel.get(ch)!.push(tr);
-      }
-    });
-    byArtist.forEach(arr => {
-      if (arr.length > 1) {
-        for (let i = 0; i < arr.length - 1 && out.length < 600; i++) {
-          out.push({ from: arr[i], to: arr[i + 1], strength: 1, color: '#ea580c' });
-        }
-      }
-    });
-    byChannel.forEach(arr => {
-      if (arr.length > 1 && arr.length < 40) {
-        for (let i = 0; i < arr.length - 1 && out.length < 600; i++) {
-          if (arr[i].artist !== arr[i + 1].artist) {
-            out.push({ from: arr[i], to: arr[i + 1], strength: 0.55, color: '#a855f7' });
-          }
-        }
-      }
-    });
-    return out;
-  }, [tracks]);
-
-  const playTrack = (tr: Track) => {
-    const idx = radioTracks.findIndex(r => r.id === tr.id);
-    if (idx >= 0) {
-      setCurrentAndPlay(idx);
-      setSelected(null);
-      // No scroll to top: el player queda justo debajo en la siguiente sección
-      document.getElementById('tt-player')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  };
-
-  return (
-    <div className="relative select-none">
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto max-h-[90vh]" style={{ background: 'radial-gradient(circle at center, rgba(234,88,12,0.06), transparent 70%)' }}>
-        <defs>
-          <filter id="nt-glow" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="10" />
-          </filter>
-          <radialGradient id="nt-center-grad">
-            <stop offset="0%" stopColor="#ea580c" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="#ea580c" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-
-        {/* Stars backdrop más vivas */}
-        {Array.from({ length: 60 }).map((_, i) => {
-          const a = (i / 60) * Math.PI * 2;
-          const r = 400 + (i % 3) * 25;
-          const x = CX + Math.cos(a + t * 0.003) * r;
-          const y = CY + Math.sin(a + t * 0.003) * r;
-          const op = 0.18 + Math.sin(t + i) * 0.12;
-          return <circle key={`s-${i}`} cx={x} cy={y} r="1.2" fill="#ea580c" opacity={Math.abs(op)} />;
-        })}
-
-        <circle cx={CX} cy={CY} r={140 * breath} fill="url(#nt-center-grad)" />
-
-        {/* Conexiones — más prominentes */}
-        {edges.map((e, i) => {
-          const pa = positions.get(e.from.id);
-          const pb = positions.get(e.to.id);
-          if (!pa || !pb) return null;
-          const hl = hover && (hover.id === e.from.id || hover.id === e.to.id);
-          const pulse = 0.15 + Math.sin(t * 1.2 + i) * 0.06;
-          const baseOpacity = e.strength === 1 ? 0.42 : 0.22;
-          return (
-            <line key={`e-${i}`}
-              x1={pa.x} y1={pa.y} x2={pb.x} y2={pb.y}
-              stroke={e.color}
-              strokeOpacity={hl ? 1 : baseOpacity + pulse}
-              strokeWidth={hl ? 2.6 : e.strength === 1 ? 1.4 : 0.75}
-            />
-          );
-        })}
-
-        {/* Nodes — más grandes */}
-        {tracks.map(tr => {
-          const p = positions.get(tr.id);
-          if (!p) return null;
-          const floatX = Math.sin(t * 0.7 + tr.id * 0.1) * 4;
-          const floatY = Math.cos(t * 0.9 + tr.id * 0.13) * 4;
-          const tx = p.x + floatX;
-          const ty = p.y + floatY;
-          const isHover = hover?.id === tr.id;
-          const isSelected = selected?.id === tr.id;
-          const isCurrent = current?.id === tr.id;
-          const pulseOpacity = 0.65 + Math.sin(t * 2 + tr.id) * 0.2;
-          const color = GENRE_COLOR[tr.genre] || '#a8a29e';
-          const r = isSelected ? 13 : isHover ? 10 : isCurrent ? 9 : 4.5;
-          return (
-            <g key={tr.id}
-              onMouseEnter={() => setHover(tr)}
-              onMouseLeave={() => setHover(h => h?.id === tr.id ? null : h)}
-              style={{ cursor: 'pointer' }}
-              onClick={(e) => { e.stopPropagation(); setSelected(tr); }}
-            >
-              {(isHover || isSelected || isCurrent) && (
-                <circle cx={tx} cy={ty} r={r + 14} fill={color}
-                  opacity={isSelected ? 0.75 : isCurrent ? 0.6 : 0.45}
-                  filter="url(#nt-glow)" />
-              )}
-              <circle cx={tx} cy={ty} r={r} fill={color}
-                opacity={isHover || isSelected ? 1 : isCurrent ? 1 : pulseOpacity} />
-              {isSelected && (
-                <circle cx={tx} cy={ty} r={r + 7} fill="none" stroke="#ffffff" strokeWidth="1.8" />
-              )}
-              {isCurrent && (
-                <circle cx={tx} cy={ty} r={r + 5} fill="none" stroke={color} strokeWidth="1.5" opacity="0.9">
-                  <animate attributeName="r" from={r + 5} to={r + 18} dur="1.6s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" from="0.9" to="0" dur="1.6s" repeatCount="indefinite" />
-                </circle>
-              )}
-            </g>
-          );
-        })}
-
-        {/* Center node */}
-        <g>
-          <circle cx={CX} cy={CY} r={90 * breath} fill="#ea580c" opacity="0.08" filter="url(#nt-glow)" />
-          <circle cx={CX} cy={CY} r={56 * breath} fill="#0c0a09" stroke="#ea580c" strokeWidth="2.5" />
-          <circle cx={CX} cy={CY} r="46" fill="none" stroke="#ea580c" strokeWidth="0.6" strokeDasharray="2 3" opacity="0.7" />
-          <text x={CX} y={CY - 4} textAnchor="middle" fontSize="16" fontWeight="900" fill="#ea580c" fontFamily="'Exo 2', sans-serif" letterSpacing="3">ALLEGRETTO!</text>
-          <text x={CX} y={CY + 15} textAnchor="middle" fontSize="9" fontWeight="700" fill="#f5f5f4" fontFamily="monospace" letterSpacing="4">RADIO</text>
-        </g>
-      </svg>
-
-      {hover && !selected && (
-        <div className="pointer-events-none absolute top-3 left-3 right-3 md:top-4 md:left-1/2 md:-translate-x-1/2 md:right-auto md:min-w-[280px] md:max-w-[360px] bg-mat-950/95 backdrop-blur border border-mat-700 rounded-xl px-4 py-3 shadow-2xl">
-          <div className="text-[9px] font-black uppercase tracking-widest mb-1" style={{ color: GENRE_COLOR[hover.genre] || '#ea580c' }}>{hover.genre}</div>
-          <div className="text-sm font-black text-white leading-tight">{hover.artist || hover.video_title}</div>
-          {hover.title && <div className="text-xs text-gray-500 mt-0.5">{hover.title}</div>}
-          <div className="text-[9px] text-mat-500 font-bold mt-2 uppercase tracking-widest">Click para seleccionar →</div>
-        </div>
-      )}
-
-      {selected && (
-        <div className="absolute top-3 left-3 right-3 md:top-4 md:left-1/2 md:-translate-x-1/2 md:right-auto md:min-w-[320px] md:max-w-[400px] bg-mat-950/95 backdrop-blur border-2 rounded-2xl shadow-2xl"
-          style={{ borderColor: GENRE_COLOR[selected.genre] || '#ea580c' }}>
-          <div className="p-4">
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <div className="flex-1 min-w-0">
-                <div className="text-[9px] font-black uppercase tracking-widest mb-1" style={{ color: GENRE_COLOR[selected.genre] || '#ea580c' }}>{selected.genre}</div>
-                <div className="text-base font-black text-white leading-tight">{selected.artist || selected.video_title}</div>
-                {selected.title && <div className="text-xs text-gray-400 mt-0.5">{selected.title}</div>}
-              </div>
-              <button onClick={() => setSelected(null)} className="text-gray-500 hover:text-white shrink-0 -mt-1 -mr-1 p-1">✕</button>
-            </div>
-            <button onClick={() => playTrack(selected)}
-              className="w-full py-3 bg-mat-500 hover:bg-mat-400 text-white text-xs font-black uppercase tracking-[0.3em] rounded-xl flex items-center justify-center gap-2 active:scale-95">
-              <Play size={14} fill="currentColor" /> REPRODUCIR
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+const DISCOGS_GENRE_COLOR: Record<string, string> = {
+  'funk / soul': '#c8462a',
+  soul: '#c8462a',
+  funk: '#d9683f',
+  disco: '#e08a3c',
+  jazz: '#c9922e',
+  electronic: '#4f7fb5',
+  house: '#5b8fd6',
+  techno: '#3f6fa5',
+  rock: '#8a5a3c',
+  pop: '#b06a8a',
+  latin: '#3f9670',
+  reggae: '#3f9655',
+  'hip hop': '#7a5aa8',
+  blues: '#5a6f8a',
+  'folk, world, & country': '#6f8a4f',
+  classical: '#8a8070',
 };
-
+function genreColorByName(g?: string | null): string {
+  if (!g) return '#8a7a63'; // sin catalogar todavía
+  const key = g.toLowerCase();
+  if (DISCOGS_GENRE_COLOR[key]) return DISCOGS_GENRE_COLOR[key];
+  const partial = Object.keys(DISCOGS_GENRE_COLOR).find(k => key.includes(k) || k.includes(key));
+  return partial ? DISCOGS_GENRE_COLOR[partial] : '#8a7a63';
+}
+const genreColor = (tr: Track): string => genreColorByName(trackGenre(tr));
 
 // ── FIRST-PERSON DIGGER (no usado) — se conserva por si se reutiliza ──
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1164,17 +965,31 @@ const ArchiveList: React.FC<{ tracks: Track[] }> = ({ tracks }) => {
   const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
 
+  // Géneros reales del disco (Discogs). El `t.genre` del backend es el del canal
+  // de YouTube y etiquetaba mal (todo Ullar Siir como "Electronic"), así que no se usa.
   const genres = useMemo(() => {
-    const s = new Set<string>();
-    tracks.forEach(t => t.genre && s.add(t.genre));
-    return Array.from(s).sort();
+    const counts = new Map<string, number>();
+    tracks.forEach(t => {
+      const g = trackGenre(t);
+      if (g) counts.set(g, (counts.get(g) || 0) + 1);
+    });
+    // Solo los géneros con presencia real, para no llenar la barra de rarezas sueltas.
+    return Array.from(counts.entries())
+      .filter(([, n]) => n >= 3)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 12)
+      .map(([g]) => g);
   }, [tracks]);
 
   const filtered = useMemo(() => tracks.filter(t => {
-    if (filter !== 'all' && t.genre !== filter) return false;
+    if (filter !== 'all' && trackGenre(t) !== filter) return false;
     if (search && !(`${t.artist} ${t.title} ${t.video_title}`.toLowerCase().includes(search.toLowerCase()))) return false;
     return true;
   }), [tracks, filter, search]);
+
+  // Recomendación para pinchar después: temas que comparten género con el que
+  // suena ahora. Solo se marca si tenemos género real de los dos.
+  const currentGenre = current ? trackGenre(current as any) : null;
 
   const playTrack = (tr: Track) => {
     const idx = radioTracks.findIndex(r => r.id === tr.id);
@@ -1188,13 +1003,13 @@ const ArchiveList: React.FC<{ tracks: Track[] }> = ({ tracks }) => {
     <div>
       <div className="flex items-center gap-3 mb-6 flex-wrap">
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar artista o título..."
-          className="flex-1 min-w-[200px] bg-mat-900 border border-mat-800 rounded-lg px-4 py-2 text-sm text-white outline-none focus:border-mat-500" />
+          className="flex-1 min-w-[200px] bg-paper-2 border border-ink/15 rounded-lg px-4 py-2 text-sm text-ink placeholder:text-ink-mute outline-none focus:border-[#c8462a]" />
         <div className="flex gap-1 flex-wrap">
-          <button onClick={() => setFilter('all')} className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg ${filter === 'all' ? 'bg-mat-500 text-white' : 'bg-mat-900 text-gray-400'}`}>TODO</button>
+          <button onClick={() => setFilter('all')} className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg border ${filter === 'all' ? 'bg-[#c8462a] border-[#c8462a] text-white' : 'bg-transparent border-ink/15 text-ink-soft hover:border-ink/40'}`}>TODO</button>
           {genres.map(g => (
-            <button key={g} onClick={() => setFilter(g)}
-              className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg border-l-4 ${filter === g ? 'bg-mat-500 text-white' : 'bg-mat-900 text-gray-400'}`}
-              style={{ borderLeftColor: GENRE_COLOR[g] || '#44403c' }}>
+            <button key={g} onClick={() => setFilter(filter === g ? 'all' : g)}
+              className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg border border-l-4 ${filter === g ? 'bg-[#c8462a] border-[#c8462a] text-white' : 'bg-transparent border-ink/15 text-ink-soft hover:border-ink/40'}`}
+              style={{ borderLeftColor: genreColorByName(g) }}>
               {g}
             </button>
           ))}
@@ -1202,23 +1017,29 @@ const ArchiveList: React.FC<{ tracks: Track[] }> = ({ tracks }) => {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="py-10 text-center text-gray-500 text-sm">Sin resultados</div>
+        <div className="py-10 text-center text-ink-mute text-sm">Sin resultados</div>
       ) : (
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-1 text-sm" itemScope itemType="https://schema.org/MusicPlaylist">
           <meta itemProp="name" content="Allegretto! Radio — Archivo completo" />
           {filtered.map(t => {
             const isCurrent = current?.id === t.id;
+            const g = trackGenre(t);
+            // Mismo género que lo que suena → candidato para pinchar después.
+            const suggested = !isCurrent && !!g && g === currentGenre;
+            const color = genreColor(t);
             return (
               <li key={t.id} itemScope itemType="https://schema.org/MusicRecording">
                 <button onClick={() => playTrack(t)}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${isCurrent ? 'bg-mat-500/10 border border-mat-500/30' : 'hover:bg-mat-900'}`}>
-                  <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: GENRE_COLOR[t.genre] || '#44403c' }} />
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${isCurrent ? 'bg-[#c8462a]/10 border border-[#c8462a]/40' : 'hover:bg-paper-2'}`}
+                  style={suggested ? { backgroundColor: `${color}14`, boxShadow: `inset 3px 0 0 ${color}` } : undefined}>
+                  <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
                   <div className="flex-1 min-w-0 truncate">
-                    <span itemProp="byArtist" className={`font-bold truncate ${isCurrent ? 'text-mat-500' : 'text-white'}`}>{t.artist || t.video_title}</span>
+                    <span itemProp="byArtist" className={`font-bold truncate ${isCurrent ? 'text-[#c8462a]' : 'text-ink'}`}>{t.artist || t.video_title}</span>
                     {t.title && <span className="text-gray-500"> — <span itemProp="name">{t.title}</span></span>}
                   </div>
-                  <span className="text-[9px] text-gray-600 font-black uppercase tracking-widest shrink-0">{t.genre}</span>
-                  {isCurrent && <span className="text-[9px] font-black text-mat-500 uppercase tracking-widest shrink-0 animate-pulse">AHORA</span>}
+                  {t.year && <span className="text-[9px] text-gray-600 font-mono shrink-0">{t.year}</span>}
+                  {g && <span className="text-[9px] font-black uppercase tracking-widest shrink-0" style={{ color: suggested ? color : '#9a9a98' }}>{g}</span>}
+                  {isCurrent && <span className="text-[9px] font-black uppercase tracking-widest shrink-0 animate-pulse" style={{ color: '#c8462a' }}>AHORA</span>}
                 </button>
               </li>
             );

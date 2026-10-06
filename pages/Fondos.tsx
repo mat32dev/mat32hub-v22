@@ -193,7 +193,7 @@ const Card: React.FC<{ item: Item; onOpen: () => void }> = ({ item, onOpen }) =>
           </div>
         )}
         {item.featured && (
-          <span className="absolute top-2 left-2 mono-tag !text-[9px] bg-claudia px-2 py-1" style={{ color: '#1a1611' }}>★ DESTACADO</span>
+          <span className="absolute top-2 left-2 mono-tag !text-[9px] bg-claudia px-2 py-1" style={{ color: '#0f0f0f' }}>★ DESTACADO</span>
         )}
         {pct != null && (
           <span className="absolute top-2 right-2 mono-tag !text-[9px] bg-bermellon text-paper px-2 py-1">−{pct}%</span>

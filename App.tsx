@@ -8,7 +8,6 @@ import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { RadioProvider } from './context/RadioContext';
 import { CartDrawer } from './components/CartDrawer';
 import { RadioBar } from './components/RadioBar';
-import { LiveBar } from './components/LiveBar';
 
 import { Home } from './pages/Home';
 import { Bar } from './pages/Bar';
@@ -22,7 +21,7 @@ import { Marketplace } from './pages/Marketplace';
 import { Fondos } from './pages/Fondos';
 import { SelectorsPage } from './pages/Selectors';
 import { VerifyMember } from './pages/VerifyMember';
-import { SobremesaProvider, useSobremesa } from './components/SobremesaModal';
+import { SobremesaProvider } from './components/SobremesaModal';
 import { SobremesaOk, SobremesaCancel } from './pages/SobremesaPayment';
 import { Contact } from './pages/Contact';
 import { PrivateEvents } from './pages/PrivateEvents';
@@ -33,14 +32,15 @@ import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminEntityList } from './pages/admin/AdminEntityList';
 import { AdminEntityForm } from './pages/admin/AdminEntityForm';
 import { AdminInbox } from './pages/admin/AdminInbox';
-import { AdminSelectors } from './pages/admin/AdminSelectors';
+import { AdminAllegretto } from './pages/admin/AdminAllegretto';
+import { AdminInstagramPosts } from './pages/admin/AdminInstagramPosts';
 import { AdminMenu } from './pages/admin/AdminMenu';
 import { AdminSobremesa } from './pages/admin/AdminSobremesa';
 import { AdminFood } from './pages/admin/AdminFood';
 import { AdminPosCatalog } from './pages/admin/AdminPosCatalog';
 import { AdminFondos } from './pages/admin/AdminFondos';
+import { AdminSelectors } from './pages/admin/AdminSelectors';
 import { AdminReferenceSelectors } from './pages/admin/AdminReferenceSelectors';
-import { AdminAllegretto } from './pages/admin/AdminAllegretto';
 import { Proveedor } from './pages/Proveedor';
 import { POS } from './pages/POS';
 import { MemberPanel } from './pages/MemberPanel';
@@ -52,10 +52,34 @@ import { RecordDetail } from './pages/RecordDetail';
 import { PostDetail } from './pages/PostDetail';
 import { RadioPage } from './pages/Radio';
 
-const Navigation = () => {
+// Banner temporal de contratación — desactivar aquí cuando cierre la temporada
+const HIRING_BANNER_ACTIVE = true;
+const HIRING_BANNER_KEY = 'mat32_hiring_banner_dismissed_v1';
+
+const HiringBanner: React.FC<{ onDismiss: () => void }> = ({ onDismiss }) => (
+  <div className="fixed top-0 left-0 right-0 z-[105] h-10 bg-bermellon text-paper flex items-center hairline-b">
+    <div className="container mx-auto px-5 md:px-8 flex items-center justify-between gap-3">
+      <span className="mono-tag !text-[10px] sm:!text-[11px] !tracking-[0.12em] !normal-case truncate">
+        TRABAJA CON NOSOTROS <span className="hidden sm:inline opacity-80">· Buscamos staff para la nueva temporada</span>
+      </span>
+      <div className="flex items-center gap-2 shrink-0">
+        <a
+          href="mailto:hola@mat32.com?subject=Candidatura%20%C2%B7%20Trabaja%20con%20nosotros&body=Hola%20MAT32%2C%0A%0AMe%20gustar%C3%ADa%20aplicar%20para%20la%20nueva%20temporada.%20Adjunto%20mi%20CV.%0A%0APuesto%20de%20inter%C3%A9s%3A%20%0ADisponibilidad%3A%20"
+          className="mono-tag !text-[10px] !normal-case bg-paper text-bermellon px-2.5 py-1 hover:bg-ink hover:text-paper transition-colors whitespace-nowrap"
+        >
+          ENVÍA TU CV →
+        </a>
+        <button onClick={onDismiss} aria-label="Cerrar aviso" className="p-1 text-paper/80 hover:text-paper">
+          <X size={14} />
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+const Navigation: React.FC<{ bannerVisible: boolean }> = ({ bannerVisible }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const { t, language, toggleLanguage } = useLanguage();
-  const { open: openSobremesa } = useSobremesa();
   const location = useLocation();
 
   React.useEffect(() => {
@@ -72,28 +96,15 @@ const Navigation = () => {
 
   const navLinks: { name: string; path: string; children?: { name: string; path: string }[] }[] = [
     { name: t('nav.home'), path: '/' },
-    { name: t('nav.bar'), path: '/mat32-bar/' },
     { name: t('nav.events'), path: '/events' },
+    { name: t('nav.open_decks'), path: '/open-decks' },
     {
       name: t('nav.records'),
       path: '/records',
       children: [
-        { name: 'Marketplace · 3PL', path: '/marketplace' },
-        { name: 'Fondos Reservados', path: '/fondos-reservados' },
+        { name: t('nav.about_us'), path: '/about' },
       ],
     },
-    {
-      name: t('nav.community'),
-      path: '/community',
-    },
-    {
-      name: 'Academy',
-      path: '/academy',
-      children: [
-        { name: t('nav.open_decks'), path: '/open-decks' },
-      ],
-    },
-    { name: 'Nosotros', path: '/nosotros' },
     {
       name: t('nav.contact'),
       path: '/contact',
@@ -112,10 +123,10 @@ const Navigation = () => {
   return (
     <>
       {/* RESTYLE v2 — paper header, hairline, mono nav */}
-      <header className="fixed top-0 left-0 right-0 z-[100] h-14 sm:h-16 bg-paper hairline-b flex items-center">
+      <header className={`fixed left-0 right-0 z-[100] h-14 sm:h-16 bg-paper hairline-b flex items-center transition-[top] ${bannerVisible ? 'top-10' : 'top-0'}`}>
         <div className="container mx-auto px-5 md:px-8 flex items-center justify-between">
           <Link to="/" className="flex items-baseline gap-3 group shrink-0">
-            <span className="wordmark text-ink text-2xl sm:text-[28px]">MAT<sup>32</sup></span>
+            <span className="wordmark text-ink text-xl sm:text-[24px]">MAT<sup style={{ fontSize: '0.55em', verticalAlign: 'super', top: '-0.55em' }}>32</sup></span>
           </Link>
 
           <nav className="hidden xl:flex items-center gap-7">
@@ -147,10 +158,10 @@ const Navigation = () => {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link to="/alquiler-local-eventos-horas-valencia" className="hidden sm:inline-flex items-center mono-tag bg-ink text-paper px-3 py-2 hover:bg-bermellon transition-colors">
+            <Link to="/alquiler-local-eventos-horas-valencia" className="hidden sm:inline-flex items-center mono-tag window-panel bg-paper text-ink px-3 py-2 hover:bg-teal hover:text-paper transition-colors">
               TU EVENTO AQUÍ →
             </Link>
-            <button onClick={toggleLanguage} className="hidden sm:flex items-center gap-1.5 mono-tag !text-[10px] hairline px-3 py-2 text-ink hover:bg-ink hover:text-paper transition-colors">
+            <button onClick={toggleLanguage} className="hidden sm:flex items-center gap-1.5 mono-tag !text-[10px] hairline px-3 py-1.5 text-ink-soft hover:text-bermellon transition-colors">
               <Globe size={12} /> {language === 'es' ? 'EN' : 'ES'}
             </button>
             <button onClick={() => setIsOpen(!isOpen)} className="xl:hidden p-2 text-ink hairline">
@@ -160,10 +171,8 @@ const Navigation = () => {
         </div>
       </header>
 
-      <LiveBar />
-
       {isOpen && (
-        <div className="fixed top-14 sm:top-16 left-0 right-0 z-[110] bg-paper hairline-b animate-fade-in xl:hidden">
+        <div className={`fixed left-0 right-0 z-[110] bg-paper hairline-b animate-fade-in xl:hidden ${bannerVisible ? 'top-[calc(2.5rem+3.5rem)] sm:top-[calc(2.5rem+4rem)]' : 'top-14 sm:top-16'}`}>
           <nav className="container mx-auto px-5 py-4 grid grid-cols-2 gap-x-4 gap-y-1">
             {navLinks.map((l, idx) => (
               <React.Fragment key={idx}>
@@ -190,6 +199,7 @@ const Navigation = () => {
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
+  const { t } = useLanguage();
   const isAdmin = location.pathname.startsWith('/admin');
   const isMember = location.pathname.startsWith('/member');
   const isVerify = location.pathname.startsWith('/verify/');
@@ -258,6 +268,7 @@ const AppRoutes: React.FC = () => {
           <Route path="allegretto" element={<AdminAllegretto />} />
           <Route path="inbox" element={<AdminInbox />} />
           <Route path="selectors" element={<AdminSelectors />} />
+          <Route path="instagram-posts" element={<AdminInstagramPosts />} />
           <Route path="members" element={<AdminEntityList entity="members" />} />
           <Route path="members/new" element={<AdminEntityForm entity="members" />} />
           <Route path="members/:id" element={<AdminEntityForm entity="members" />} />
@@ -266,9 +277,19 @@ const AppRoutes: React.FC = () => {
     );
   }
 
+  const [bannerVisible, setBannerVisible] = React.useState(() => {
+    if (!HIRING_BANNER_ACTIVE) return false;
+    try { return sessionStorage.getItem(HIRING_BANNER_KEY) !== '1'; } catch { return true; }
+  });
+  const dismissBanner = () => {
+    setBannerVisible(false);
+    try { sessionStorage.setItem(HIRING_BANNER_KEY, '1'); } catch {}
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-paper text-ink font-sans pt-[calc(3.5rem+28px)] sm:pt-[calc(4rem+28px)] pb-14">
-      <Navigation />
+    <div className={`flex flex-col min-h-screen bg-paper text-ink font-sans pb-14 ${bannerVisible ? 'pt-[calc(3.5rem+28px+2.5rem)] sm:pt-[calc(4rem+28px+2.5rem)]' : 'pt-[calc(3.5rem+28px)] sm:pt-[calc(4rem+28px)]'}`}>
+      {bannerVisible && <HiringBanner onDismiss={dismissBanner} />}
+      <Navigation bannerVisible={bannerVisible} />
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -310,8 +331,8 @@ const AppRoutes: React.FC = () => {
       <footer className="bg-ink text-paper">
         <div className="container mx-auto px-6 md:px-10 py-10 grid md:grid-cols-3 gap-8 items-start">
           <div>
-            <span className="wordmark text-paper text-3xl">MAT<sup>32</sup></span>
-            <p className="serif-italic text-paper/70 mt-3 max-w-xs leading-snug">Local acogedor con dos zonas: relax para sentarse y dancefloor para bailar. Tienda de día, sala de noche.</p>
+            <span className="wordmark text-paper text-2xl">MAT<sup style={{ fontSize: '0.55em', verticalAlign: 'super', top: '-0.55em' }}>32</sup></span>
+            <p className="serif-italic text-paper/70 mt-3 max-w-xs leading-snug">{t('footer.tagline')}</p>
           </div>
           <div className="space-y-2 mono-tag !text-[10px] !tracking-[0.25em]">
             <div className="text-paper/60">CONTACTO</div>
@@ -321,12 +342,21 @@ const AppRoutes: React.FC = () => {
             <div style={{ color: '#c8462a' }}>@MAT32VALENCIA</div>
           </div>
           <div className="space-y-2 mono-tag !text-[10px] !tracking-[0.25em]">
-            <div className="text-paper/60">LEGAL</div>
+            <div className="text-paper/60">EXPLORA</div>
+            <Link to="/mat32-bar/" className="block hover:text-bermellon transition-colors">BAR</Link>
+            <Link to="/nosotros" className="block hover:text-bermellon transition-colors">NOSOTROS</Link>
+            <Link to="/gallery" className="block hover:text-bermellon transition-colors">FOTOS DEL ESPACIO</Link>
+            <Link to="/community" className="block hover:text-bermellon transition-colors">COMUNIDAD</Link>
+            <Link to="/fondos-reservados" className="block hover:text-bermellon transition-colors">FONDOS RESERVADOS</Link>
+            <Link to="/marketplace" className="block hover:text-bermellon transition-colors">MARKETPLACE</Link>
+            <Link to="/academy" className="block hover:text-bermellon transition-colors">ACADEMY</Link>
             <Link to="/alquiler-local-eventos-horas-valencia" className="block hover:text-bermellon transition-colors">ALQUILER LOCAL</Link>
+            <div className="text-paper/60 pt-3">LEGAL</div>
             <Link to="/legal/aviso-legal" className="block hover:text-bermellon transition-colors">AVISO LEGAL</Link>
             <Link to="/legal/privacidad" className="block hover:text-bermellon transition-colors">PRIVACIDAD</Link>
             <Link to="/legal/cookies" className="block hover:text-bermellon transition-colors">COOKIES</Link>
             <Link to="/legal/condiciones" className="block hover:text-bermellon transition-colors">CONDICIONES</Link>
+            <Link to="/legal/devoluciones" className="block hover:text-bermellon transition-colors">DEVOLUCIONES</Link>
           </div>
         </div>
         <div className="hairline-ink-t">

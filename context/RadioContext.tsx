@@ -16,6 +16,11 @@ export interface RadioTrack {
   thumbnail_url: string;
   video_title: string;
   genre: string;
+  country?: string | null;
+  label?: string | null;
+  year?: string | null;
+  dc_genre?: string | null;
+  dc_style?: string | null;
 }
 
 interface RadioContextType {
@@ -127,7 +132,10 @@ export const RadioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const MAX_RETRIES = 4;
     const load = async () => {
       try {
-        const res = await fetch(`${API}/radio/tracks?limit=2000`);
+        // diverse=1 reparte el cupo entre buckets (país, década) para que el mapa
+        // tenga material de todas las épocas y continentes, no 1000 temas US/UK de
+        // los 2010s. Ullar Siir entra siempre completo.
+        const res = await fetch(`${API}/radio/tracks?limit=1000&diverse=1&per_bucket=12&include_channel=${encodeURIComponent('Ullar Siir')}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         const list: RadioTrack[] = data.tracks || [];

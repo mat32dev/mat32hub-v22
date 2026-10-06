@@ -15,7 +15,7 @@ export const DoctorVinyl: React.FC = () => {
   const tips = [
     {
       title: "Control de Humedad",
-      desc: "Evita que tus vinilos se comben. Te enseñamos el setup ideal de estantería.",
+      desc: "Evita que tus discos de vinilo se comben. Te enseñamos el setup ideal de estantería.",
       icon: <Wind className="text-mat-500" />,
       video: "#"
     },

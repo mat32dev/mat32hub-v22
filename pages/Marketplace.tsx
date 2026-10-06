@@ -275,7 +275,7 @@ export const Marketplace: React.FC = () => {
             </Field>
             <Field label="CUÉNTANOS MÁS (OPCIONAL)">
               <textarea rows={3} value={form.message} onChange={e => setForm({ ...form, message: e.target.value })}
-                placeholder="Colección, necesidades especiales, preguntas." className="mat-input serif-italic" style={{ fontFamily: 'Fraunces, serif', fontStyle: 'italic' }} />
+                placeholder="Colección, necesidades especiales, preguntas." className="mat-input serif-italic" />
             </Field>
             <button type="submit" disabled={sending}
               className="w-full bg-bermellon text-paper py-4 mono-tag !text-[12px] !tracking-[0.5em] hover:bg-ink transition-colors disabled:opacity-50 flex items-center justify-center gap-3">
@@ -291,7 +291,7 @@ export const Marketplace: React.FC = () => {
         </div>
       </section>
 
-      <style>{`.mat-input { width:100%; background:#f1e8d8; border:1.5px solid #1a1611; padding:10px 14px; color:#1a1611; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:0.05em; outline:none; transition:border-color 0.2s; } .mat-input:focus{ border-color:#c8462a; }`}</style>
+      <style>{`.mat-input { width:100%; background:#f2f2f0; border:1px solid #7a7a78; padding:10px 14px; color:#0f0f0f; font-family:'DM Mono',monospace; font-size:12px; letter-spacing:0.05em; outline:none; transition:border-color 0.2s; } .mat-input:focus{ border-color:#c8462a; }`}</style>
     </div>
   );
 };
@@ -305,8 +305,8 @@ const Stat: React.FC<{ value: string; label: string }> = ({ value, label }) => (
 
 const Plan: React.FC<{ title: string; price: string; unit: string; extra: string; desc: string; features: string[]; highlight?: boolean }> = ({ title, price, unit, extra, desc, features, highlight }) => (
   <div className={`p-7 hairline-ink relative ${highlight ? 'bg-bermellon text-paper' : 'bg-ink-2'}`}>
-    {highlight && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-claudia text-ink mono-tag !text-[9px] px-3 py-1" style={{ color: '#1a1611' }}>★ MÁS POPULAR</div>}
-    <div className="mono-tag" style={{ color: highlight ? '#1a1611' : '#c8462a' }}>{title}</div>
+    {highlight && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-claudia text-ink mono-tag !text-[9px] px-3 py-1" style={{ color: '#0f0f0f' }}>★ MÁS POPULAR</div>}
+    <div className="mono-tag" style={{ color: highlight ? '#0f0f0f' : '#c8462a' }}>{title}</div>
     <div className="flex items-baseline gap-2 mt-3">
       <span className="display text-5xl">{price}</span>
       <span className="mono-tag opacity-80">{unit}</span>

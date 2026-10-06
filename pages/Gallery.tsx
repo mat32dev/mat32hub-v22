@@ -1,133 +1,195 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Camera, Filter, X, ChevronRight, Maximize2, Tag, Disc } from 'lucide-react';
+import { X, Maximize2 } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
 import { GalleryItem } from '../types';
 import { CachedImage } from '../components/CachedImage';
+import { Link } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
+
+const VENUE_PHOTOS = [
+  { id: 'v1', imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/ac1a7472-de26-46de-37f3-7ec5509f5900/public', title: 'Main Room', category: 'space', tags: ['main room', 'full space', 'events'] },
+  { id: 'v2', imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/7af028d2-be2a-44ae-a2bd-d2e05db8ac00/w=800', title: 'Analog Corner', category: 'vibe', tags: ['analog', 'hi-fi', 'vibe'] },
+  { id: 'v3', imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/53d83bbb-47b5-45ce-4f69-00fdc063fd00/w=800', title: 'Vinyl Archive', category: 'shop', tags: ['vinyl', 'records', 'store'] },
+  { id: 'v4', imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/f66760c8-cc6c-457a-dc23-5edbe31a2200/w=800', title: 'Mirror Ball', category: 'vibe', tags: ['atmosphere', 'dancefloor', 'night'] },
+  { id: 'v5', imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/cd431032-310e-4ccc-c602-68787da5ae00/w=800', title: 'Lounge Zone', category: 'space', tags: ['lounge', 'sofas', 'chill'] },
+  { id: 'v6', imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/36b8814e-df61-468c-614a-788a5fbfa700/w=800', title: 'Listening Room', category: 'space', tags: ['listening room', 'altec', 'hi-fi'] },
+  { id: 'v7', imageUrl: 'https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/496db3dc-f7c7-4d22-d05a-ac0198681c00/w=800', title: 'DJ Booth', category: 'booth', tags: ['booth', 'technics', 'vinyl'] },
+];
+
+const CAT_KEYS = [
+  { key: 'all',   label: 'gallery.cat.all' },
+  { key: 'space', label: 'gallery.cat.space' },
+  { key: 'vibe',  label: 'gallery.cat.vibe' },
+  { key: 'booth', label: 'gallery.cat.booth' },
+  { key: 'shop',  label: 'gallery.cat.shop' },
+];
+
+type PhotoItem = { id: string; imageUrl: string; title: string; category: string; tags: string[]; description?: string };
 
 export const Gallery: React.FC = () => {
-  const [images, setImages] = useState<GalleryItem[]>([]);
-  const [taxonomy, setTaxonomy] = useState<{categories: string[], tags: string[]}>({categories: [], tags: []});
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [loading, setLoading] = useState(true);
-  const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
+  const { t } = useLanguage();
+  const [dbImages, setDbImages] = useState<GalleryItem[]>([]);
+  const [selectedCat, setSelectedCat] = useState('all');
+  const [lightbox, setLightbox] = useState<PhotoItem | null>(null);
 
   useEffect(() => {
-    const load = async () => {
-      const [imgData, taxData] = await Promise.all([
-        dataService.getLocalGallery(),
-        dataService.getGalleryTaxonomy()
-      ]);
-      setImages(imgData);
-      setTaxonomy(taxData);
-      setLoading(false);
-    };
-    load();
+    dataService.getLocalGallery().then(setDbImages).catch(() => {});
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setLightbox(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const filteredImages = useMemo(() => {
-    if (selectedCategory === 'All') return images;
-    return images.filter(img => img.category === selectedCategory);
-  }, [selectedCategory, images]);
+  const allPhotos: PhotoItem[] = useMemo(() => {
+    const db: PhotoItem[] = dbImages.map(i => ({ id: i.id, imageUrl: i.imageUrl, title: i.title, category: i.category, tags: i.tags, description: i.description }));
+    const venueIds = new Set(VENUE_PHOTOS.map(v => v.imageUrl));
+    const extraDb = db.filter(i => !venueIds.has(i.imageUrl));
+    return [...VENUE_PHOTOS, ...extraDb];
+  }, [dbImages]);
+
+  const filtered = useMemo(() =>
+    selectedCat === 'all' ? allPhotos : allPhotos.filter(p => p.category === selectedCat),
+    [allPhotos, selectedCat]
+  );
+
+  const lightboxIdx = lightbox ? filtered.findIndex(p => p.id === lightbox.id) : -1;
+  const goPrev = () => lightboxIdx > 0 && setLightbox(filtered[lightboxIdx - 1]);
+  const goNext = () => lightboxIdx < filtered.length - 1 && setLightbox(filtered[lightboxIdx + 1]);
 
   return (
     <div className="min-h-screen bg-paper text-ink pb-24">
-      <SEO titleKey="Galería | El Santuario Hi-Fi" descriptionKey="Explora visualmente Mat32, el mejor local para eventos en Valencia y bar Hi-Fi." />
+      <SEO
+        titleKey="Fotos del espacio · MAT32 Ruzafa · Bar Hi-Fi & Sala Eventos Valencia"
+        descriptionKey="Interior de MAT32 Valencia: sala Hi-Fi con Altec A7, dancefloor, zona lounge, cabina vinyl Technics 1210 y almacén de discos de segunda mano. Espacio para eventos en Ruzafa."
+      />
 
-      <div className="bg-mat-950 py-32 md:py-52 border-b border-mat-800 relative overflow-hidden text-center">
-        <Disc className="w-24 h-24 text-mat-500 mx-auto mb-10 animate-spin-slow opacity-20 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-        <h1 className="text-7xl md:text-[10rem] font-black uppercase tracking-tighter text-white font-exo leading-[0.8] relative z-10">THE <span className="text-mat-500">SIGNAL.</span></h1>
-        <p className="text-gray-500 text-xl mt-8 italic opacity-80 max-w-2xl mx-auto px-6 relative z-10 font-light leading-relaxed">Estética analógica y diseño Hi-Fi en el corazón de Valencia.</p>
-      </div>
-
-      <div className="container mx-auto px-6 py-12">
-        <div className="flex flex-col lg:flex-row gap-16">
-          
-          <aside className="lg:w-80 flex-shrink-0">
-            <div className="sticky top-32 space-y-12">
-              <div>
-                <h3 className="text-[10px] font-black text-mat-500 uppercase tracking-[0.4em] mb-8 flex items-center gap-2">
-                  <Filter size={14} /> FILTRAR_VISTA
-                </h3>
-                <nav className="space-y-2">
-                  <button 
-                    onClick={() => setSelectedCategory('All')}
-                    className={`w-full text-left px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between group ${selectedCategory === 'All' ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:bg-mat-800 hover:text-white'}`}
-                  >
-                    <span>TODO EL LOCAL</span>
-                  </button>
-                  {taxonomy.categories.map(cat => (
-                    <button 
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat)}
-                      className={`w-full text-left px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between group ${selectedCategory === cat ? 'bg-mat-500 text-white shadow-lg' : 'text-gray-500 hover:bg-mat-800 hover:text-white'}`}
-                    >
-                      <span>{cat}</span>
-                      <ChevronRight size={14} className={selectedCategory === cat ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} />
-                    </button>
-                  ))}
-                </nav>
-              </div>
-
-              <div className="p-10 bg-mat-800 rounded-[3rem] border border-mat-700 shadow-2xl relative overflow-hidden group">
-                 <div className="absolute top-0 left-0 w-full h-1 bg-mat-500"></div>
-                 <Camera className="text-mat-500 mb-6" size={24} />
-                 <h4 className="text-[10px] font-black text-white uppercase tracking-widest mb-2">RESERVA EL ESPACIO</h4>
-                 <p className="text-gray-500 text-[10px] leading-relaxed italic mb-8">¿Planeas un rodaje o un evento? Mat32 es el set perfecto.</p>
-                 <a href="/alquiler-local-eventos-horas-valencia" className="inline-flex items-center gap-2 text-mat-500 font-black text-[9px] uppercase tracking-widest hover:gap-4 transition-all">SABER MÁS <ChevronRight size={12} /></a>
-              </div>
-            </div>
-          </aside>
-
-          <div className="flex-1">
-            <div className="columns-1 md:columns-2 xl:columns-3 gap-8 space-y-8">
-              {filteredImages.map(img => (
-                <div 
-                  key={img.id} 
-                  className="relative group rounded-[3rem] overflow-hidden bg-mat-800 border-2 border-mat-800 cursor-zoom-in break-inside-avoid shadow-2xl transition-all hover:border-mat-500"
-                  onClick={() => setLightbox(img)}
-                >
-                  <CachedImage 
-                    src={img.imageUrl} 
-                    alt={img.title} 
-                    aspectRatio="aspect-auto" 
-                    className="w-full grayscale group-hover:grayscale-0 transition-all duration-1000"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-mat-950/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-10">
-                     <h4 className="text-white font-black uppercase text-2xl tracking-tighter font-exo leading-none mb-3">{img.title}</h4>
-                     <div className="flex flex-wrap gap-2">
-                        {img.tags.map(t => (
-                          <span key={t} className="text-[8px] font-black text-mat-500 uppercase tracking-widest bg-mat-900 px-2 py-1 rounded border border-mat-700">{t}</span>
-                        ))}
-                     </div>
-                  </div>
-                  <div className="absolute top-8 right-8 p-4 bg-black/50 backdrop-blur-xl rounded-full text-white opacity-0 group-hover:opacity-100 transition-all scale-50 group-hover:scale-100">
-                    <Maximize2 size={18} />
-                  </div>
-                </div>
-              ))}
-            </div>
+      {/* Hero texto */}
+      <section className="container mx-auto px-6 md:px-10 pt-12 pb-10 hairline-b">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div>
+            <div className="mono-tag" style={{ color: '#c8462a' }}>{t('gallery.hero.tag')}</div>
+            <h1 className="display mt-3" style={{ fontSize: 'clamp(42px, 7vw, 96px)', lineHeight: 0.88 }}>
+              {t('gallery.hero.h1_pre')}<br /><span style={{ color: '#c8462a' }}>{t('gallery.hero.h1_color')}</span>
+            </h1>
+          </div>
+          <div className="flex flex-wrap gap-2 shrink-0">
+            <Link to="/alquiler-local-eventos-horas-valencia" className="bg-bermellon text-paper px-5 py-3 mono-tag hover:bg-ink transition-colors">
+              {t('gallery.hero.cta')}
+            </Link>
+            <Link to="/open-decks" className="hairline px-5 py-3 mono-tag hover:bg-ink hover:text-paper transition-colors">
+              OPEN DECKS
+            </Link>
           </div>
         </div>
-      </div>
 
-      {lightbox && (
-        <div className="fixed inset-0 z-[200] bg-black/98 backdrop-blur-3xl flex items-center justify-center p-6 animate-fade-in" onClick={() => setLightbox(null)}>
-           <button className="absolute top-10 right-10 text-white hover:text-mat-500 transition-colors"><X size={40} /></button>
-           <div className="max-w-6xl w-full h-full flex flex-col items-center justify-center gap-10" onClick={e => e.stopPropagation()}>
-              <img src={lightbox.imageUrl} className="max-h-[75vh] object-contain rounded-[2rem] shadow-[0_0_100px_rgba(234,88,12,0.15)] border border-mat-800" alt={lightbox.title} />
-              <div className="text-center space-y-4">
-                 <h3 className="text-5xl font-black text-white uppercase tracking-tighter font-exo">{lightbox.title}</h3>
-                 <p className="text-gray-400 italic text-lg font-light">"{lightbox.description}"</p>
-                 <div className="flex justify-center items-center gap-6 pt-6">
-                    <span className="px-6 py-2 bg-mat-800 text-mat-500 text-[10px] font-black uppercase rounded-full border border-mat-700 tracking-widest">{lightbox.category}</span>
-                    <div className="flex items-center gap-2 text-gray-600 text-[10px] font-black uppercase tracking-widest">
-                       <Tag size={14} className="text-mat-700" /> {lightbox.tags.join(' ')}
-                    </div>
-                 </div>
+        {/* Stats strip */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 hairline-t mt-8 divide-x divide-ink/10">
+          {[
+            ['100 PAX', t('gallery.stats.capacity')],
+            ['Altec A7', 'Sistema P.A.'],
+            ['2× Technics 1210', 'Turntables'],
+            ['Ruzafa · VLC', t('gallery.stats.location')],
+          ].map(([val, label]) => (
+            <div key={label} className="px-4 pt-6 pb-2">
+              <div className="display text-xl text-ink">{val}</div>
+              <div className="mono-tag text-ink/40 mt-1">{label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Filtros */}
+      <section className="container mx-auto px-6 md:px-10 py-6 hairline-b">
+        <div className="flex flex-wrap gap-2">
+          {CAT_KEYS.map(cat => (
+            <button
+              key={cat.key}
+              onClick={() => setSelectedCat(cat.key)}
+              className={`mono-tag px-4 py-2 transition-colors ${selectedCat === cat.key ? 'bg-ink text-paper' : 'hairline text-ink/60 hover:text-ink hover:border-ink'}`}
+            >
+              {t(cat.label).toUpperCase()}
+            </button>
+          ))}
+          <span className="mono-tag text-ink/30 ml-auto self-center">{filtered.length} {t('gallery.photos')}</span>
+        </div>
+      </section>
+
+      {/* Grid */}
+      <section className="container mx-auto px-6 md:px-10 py-10">
+        <div className="columns-1 sm:columns-2 lg:columns-3 gap-3 space-y-3">
+          {filtered.map((photo, idx) => (
+            <div
+              key={photo.id}
+              className="relative group break-inside-avoid hairline overflow-hidden cursor-zoom-in"
+              onClick={() => setLightbox(photo)}
+            >
+              <CachedImage
+                src={photo.imageUrl}
+                alt={`${photo.title} — MAT32 Valencia · Bar Hi-Fi Ruzafa`}
+                aspectRatio={idx === 0 ? 'aspect-video' : 'aspect-auto'}
+                className="w-full transition-all duration-500 group-hover:scale-[1.02]"
+              />
+              <div className="absolute inset-0 bg-ink/0 group-hover:bg-ink/40 transition-colors flex items-end p-4">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="mono-tag text-paper text-[10px]">{photo.title}</div>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {photo.tags.map(tag => <span key={tag} className="mono-tag text-paper/60 text-[9px]">#{tag}</span>)}
+                  </div>
+                </div>
+                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Maximize2 size={16} className="text-paper" />
+                </div>
               </div>
-           </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="bg-ink text-paper hairline-t mt-10">
+        <div className="container mx-auto px-6 md:px-10 py-12 grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h2 className="display text-3xl md:text-4xl leading-tight">{t('gallery.cta.h2')}</h2>
+            <p className="serif-italic text-paper/60 mt-3 leading-snug">{t('gallery.cta.desc')}</p>
+          </div>
+          <div className="flex flex-wrap gap-3 md:justify-end">
+            <Link to="/alquiler-local-eventos-horas-valencia" className="bg-bermellon text-paper px-6 py-4 mono-tag hover:bg-paper hover:text-ink transition-colors">
+              {t('gallery.cta.button')}
+            </Link>
+            <a href="https://wa.me/34622190802" target="_blank" rel="noopener" className="hairline-ink px-6 py-4 mono-tag text-paper hover:bg-paper hover:text-ink transition-colors">
+              WHATSAPP
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Lightbox */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[200] bg-ink/95 flex items-center justify-center p-4"
+          onClick={() => setLightbox(null)}
+        >
+          <button className="absolute top-5 right-5 text-paper/60 hover:text-paper transition-colors z-10">
+            <X size={28} />
+          </button>
+          {lightboxIdx > 0 && (
+            <button onClick={e => { e.stopPropagation(); goPrev(); }} className="absolute left-4 top-1/2 -translate-y-1/2 text-paper/40 hover:text-paper transition-colors text-4xl font-light z-10">‹</button>
+          )}
+          {lightboxIdx < filtered.length - 1 && (
+            <button onClick={e => { e.stopPropagation(); goNext(); }} className="absolute right-4 top-1/2 -translate-y-1/2 text-paper/40 hover:text-paper transition-colors text-4xl font-light z-10">›</button>
+          )}
+          <div className="max-w-5xl w-full max-h-[90vh] flex flex-col items-center gap-4" onClick={e => e.stopPropagation()}>
+            <img
+              src={lightbox.imageUrl}
+              alt={`${lightbox.title} — MAT32 Valencia`}
+              className="max-h-[80vh] object-contain"
+            />
+            <div className="text-center">
+              <div className="display text-paper text-xl">{lightbox.title}</div>
+              <div className="mono-tag text-paper/40 mt-1">{lightboxIdx + 1} / {filtered.length}</div>
+            </div>
+          </div>
         </div>
       )}
     </div>

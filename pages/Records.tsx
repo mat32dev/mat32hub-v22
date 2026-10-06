@@ -93,19 +93,20 @@ export const Records: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-ink text-paper pb-24">
-      <SEO titleKey="El almacén · Discos | MAT32" descriptionKey="Stock real de la tienda. Lo que no entra en la pared, no entra aquí. Sin pre-orders, sin reservados, sin humo. Crate digger, marketplace y Digger Radar." />
+      <SEO titleKey="Tienda y almacén de Discos de segunda mano · Valencia | MAT32 Ruzafa" descriptionKey="Tienda y almacén de Discos de segunda mano en Ruzafa, Valencia. House, Disco, Soul, Jazz. Stock real, sin pre-orders ni reservados. Crate digger, marketplace 3PL y Digger Radar." />
 
       {/* HERO · slide 07 */}
       <section className="container mx-auto px-6 md:px-10 pt-12 md:pt-16 pb-8">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div>
-            <div className="mono-tag" style={{ color: '#c8462a' }}>SECCIÓN · /DISCOS</div>
+            <div className="mono-tag" style={{ color: '#c8462a' }}>DISCOS 2ND HAND · RUZAFA · VALENCIA</div>
             <h1 className="display mt-3" style={{ fontSize: 'clamp(54px, 9vw, 132px)', lineHeight: 0.85 }}>
               El almacén,<br/><span style={{ color: '#c8462a' }}>online.</span>
             </h1>
+            <p className="mono-tag mt-2 text-paper/55 !text-[10px]">TIENDA Y ALMACÉN DE DISCOS DE SEGUNDA MANO</p>
           </div>
           <p className="serif-italic text-paper/70 text-lg md:text-xl max-w-md md:text-right leading-snug">
-            Stock real de la tienda. Lo que no entra en la pared, no entra aquí. Sin pre-orders, sin reservados, sin humo.
+            Discos de segunda mano en Ruzafa. Lo que ves está en tienda.
           </p>
         </div>
       </section>
@@ -118,8 +119,8 @@ export const Records: React.FC = () => {
             <Store className="w-5 h-5" style={{ color: '#c8462a' }} />
             <div>
               <div className="mono-tag" style={{ color: '#c8462a' }}>MARKETPLACE · 3PL</div>
-              <div className="display text-base md:text-lg mt-1">¿Tienes discos? Véndelos con nosotros.</div>
-              <p className="serif-italic text-sm text-paper/60 mt-0.5">Fulfillment 3PL: gestionamos catálogo, envío y cobro.</p>
+              <div className="display text-base md:text-lg mt-1">Tienes discos para vender.</div>
+              <p className="serif-italic text-sm text-paper/60 mt-0.5">Gestionamos el catálogo, el envío y el cobro.</p>
             </div>
           </div>
           <span className="mono-tag shrink-0">SABER MÁS →</span>
@@ -176,11 +177,11 @@ export const Records: React.FC = () => {
               {!isFiltered ? (
                 <div className="mt-10 mb-6 flex items-end justify-between gap-4 hairline-ink-b pb-3">
                   <div>
-                    <div className="mono-tag" style={{ color: '#c8462a' }}>SELECCIÓN CURADA</div>
+                    <div className="mono-tag" style={{ color: '#c8462a' }}>SELECCIÓN</div>
                     <h2 className="display mt-2" style={{ fontSize: 'clamp(28px, 4vw, 56px)', lineHeight: 0.9 }}>
-                      Best of <span style={{ color: '#c8462a' }}>the crate.</span>
+                      Lo mejor <span style={{ color: '#c8462a' }}>del stock.</span>
                     </h2>
-                    <p className="serif-italic text-paper/50 mt-2 text-sm">Los 50 mejores vinilos de nuestra colección · ordenados por precio</p>
+                    <p className="serif-italic text-paper/50 mt-2 text-sm">50 discos · ordenados por precio</p>
                   </div>
                   <div className="mono-tag text-paper/40 shrink-0">50 PICKS</div>
                 </div>
@@ -205,7 +206,7 @@ export const Records: React.FC = () => {
               </div>
               {!isFiltered && (
                 <div className="mt-12 text-center">
-                  <p className="mono-tag text-paper/40">¿BUSCAS ALGO CONCRETO? USA EL BUSCADOR O FILTRA POR GÉNERO ARRIBA.</p>
+                  <p className="mono-tag text-paper/40">Usa el buscador o filtra por género arriba.</p>
                 </div>
               )}
             </>

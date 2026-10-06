@@ -175,7 +175,7 @@ export const Community: React.FC = () => {
                  ) : filteredRecords.length === 0 ? (
                     <div className="col-span-full py-24 text-center border-2 border-dashed border-mat-800 rounded-[3rem]">
                        <Disc className="w-16 h-16 text-mat-800 mx-auto mb-6 opacity-40 animate-spin-slow" />
-                       <p className="text-gray-600 font-black uppercase text-xs tracking-widest">No hay vinilos disponibles ahora mismo.</p>
+                       <p className="text-gray-600 font-black uppercase text-xs tracking-widest">No hay discos de vinilo disponibles ahora mismo.</p>
                     </div>
                  ) : (
                    filteredRecords.map(r => (

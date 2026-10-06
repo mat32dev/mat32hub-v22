@@ -76,73 +76,79 @@ export const EventCard: React.FC<EventCardProps> = ({ event, isPast = false }) =
   return (
     <article
       onClick={() => navigate(`/events/${event.id}`)}
-      className={`group flex flex-col md:flex-row hairline relative cursor-pointer transition-colors ${
+      className={`group window-panel relative cursor-pointer ${
         isPast
-          ? 'opacity-55 grayscale bg-paper-2'
+          ? 'opacity-55 grayscale'
           : isAttending
-            ? 'bg-paper-2 ring-2 ring-bermellon'
-            : 'bg-paper hover:bg-ink hover:text-paper'
+            ? 'ring-2 ring-bermellon'
+            : 'hover:opacity-90 transition-opacity'
       }`}
     >
-      {!isPast && (
-        <div className="absolute top-3 right-3 z-30">
-          <div className="mono-tag bg-bermellon text-paper px-2.5 py-1">
-            <Pin size={8} className="inline mr-1" /> {getDayName(event.date)}
-          </div>
-        </div>
-      )}
-
-      {/* IMAGE */}
-      <div className="md:w-1/3 relative bg-ink flex-shrink-0 overflow-hidden hairline-r">
-        <CachedImage src={eventImageSrc} alt={event.title} className="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" />
-        {isAttending && !isPast && (
-          <div className="absolute inset-0 bg-bermellon/30 flex items-center justify-center">
-            <CheckCircle2 size={36} className="text-paper" />
-          </div>
-        )}
+      <div className="window-titlebar">
+        <span className="flex items-center gap-2">
+          <Calendar size={11} /> {dia} {mes} <span className="opacity-50">·</span> <Clock size={11} /> {event.time}
+        </span>
+        {!isPast && <span style={{ color: '#09aea1' }}>{getDayName(event.date)}</span>}
       </div>
-
-      {/* CONTENT */}
-      <div className="flex-1 p-5 md:p-7 flex flex-col">
-        <header className="mb-3">
-          <div className="mono-tag flex items-center gap-2 flex-wrap" style={{ color: '#c8462a' }}>
-            <Calendar size={11} /> {dia} {mes} <span className="opacity-50">·</span> <Clock size={11} /> {event.time}
+      <div className="window-body">
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* IMAGE */}
+          <div className="md:w-1/3 relative bg-ink flex-shrink-0 overflow-hidden">
+            <CachedImage src={eventImageSrc} alt={event.title} className="w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" />
+            {isAttending && !isPast && (
+              <div className="absolute inset-0 bg-bermellon/30 flex items-center justify-center">
+                <CheckCircle2 size={36} className="text-paper" />
+              </div>
+            )}
           </div>
-          <h3 className="display mt-3" style={{ fontSize: 'clamp(22px, 2.4vw, 32px)', lineHeight: 0.95 }}>
-            {event.title}
-          </h3>
-          {event.description && <p className="serif-italic text-ink-soft group-hover:text-paper/70 mt-2 text-sm leading-snug line-clamp-2 transition-colors">{event.description}</p>}
-        </header>
 
-        <div className="mt-auto pt-4 hairline-t group-hover:border-paper/40 flex flex-wrap items-center gap-3 justify-between transition-colors">
-          {!isPast ? (
-            event.price === 0 ? (
-              isAttending ? (
-                <button onClick={handleLeave} className="px-5 py-2.5 mono-tag bg-bermellon text-paper hover:bg-ink-2 transition-colors">
-                  ESTÁS EN LA LISTA
-                </button>
+          {/* CONTENT */}
+          <div className="flex-1 flex flex-col">
+            <header className="mb-2">
+              <h3 className="display mt-1" style={{ fontSize: 'clamp(22px, 2.4vw, 32px)', lineHeight: 0.95 }}>
+                {event.title}
+              </h3>
+              {event.description && <p className="serif-italic text-ink-soft mt-2 text-sm leading-snug line-clamp-2">{event.description}</p>}
+            </header>
+
+            <div className="mt-auto flex flex-wrap items-center gap-3 justify-between">
+              {!isPast ? (
+                event.price === 0 ? (
+                  isAttending ? (
+                    <button onClick={handleLeave} className="px-5 py-2.5 mono-tag bg-bermellon text-paper hover:bg-ink-2 transition-colors">
+                      ESTÁS EN LA LISTA
+                    </button>
+                  ) : (
+                    <button onClick={openModal} className="px-5 py-2.5 mono-tag bg-bermellon text-paper hover:bg-ink-2 transition-colors">
+                      APUNTARSE GRATIS
+                    </button>
+                  )
+                ) : (
+                  <button onClick={handlePaidAction} className={`px-5 py-2.5 mono-tag transition-colors ${isAttending ? 'bg-paper-2 text-ink' : 'bg-bermellon text-paper hover:bg-ink-2'}`}>
+                    {isAttending ? 'ESTÁS EN LA LISTA' : `RESERVAR €${event.price}`}
+                  </button>
+                )
               ) : (
-                <button onClick={openModal} className="px-5 py-2.5 mono-tag bg-bermellon text-paper hover:bg-ink-2 transition-colors">
-                  APUNTARSE GRATIS
-                </button>
-              )
-            ) : (
-              <button onClick={handlePaidAction} className={`px-5 py-2.5 mono-tag transition-colors ${isAttending ? 'bg-paper-2 text-ink' : 'bg-bermellon text-paper hover:bg-ink-2'}`}>
-                {isAttending ? 'ESTÁS EN LA LISTA' : `RESERVAR €${event.price}`}
-              </button>
-            )
-          ) : (
-            <span className="mono-tag text-ink-soft">SESIÓN FINALIZADA</span>
-          )}
+                <span className="mono-tag text-ink-soft">SESIÓN FINALIZADA</span>
+              )}
 
-          {!isPast && (
-            <div className="flex gap-2">
-              <button onClick={openModal} className={`p-2.5 hairline transition-colors ${isAttending ? 'bg-bermellon text-paper' : 'hover:bg-ink hover:text-paper group-hover:hairline-ink'}`} title="Lista de asistentes">
-                <Users size={14} />
-              </button>
-              <GoogleCalendarButton event={event} />
+              {!isPast && (
+                <div className="flex gap-2">
+                  <button onClick={openModal} className={`p-2.5 hairline transition-colors ${isAttending ? 'bg-bermellon text-paper' : 'hover:bg-ink hover:text-paper group-hover:hairline-ink'}`} title="Lista de asistentes">
+                    <Users size={14} />
+                  </button>
+                  <GoogleCalendarButton event={event} />
+                </div>
+              )}
             </div>
-          )}
+
+            {/* HAPPY HOUR STRIP */}
+            {!isPast && (
+              <div className="mt-3 pt-2 mono-tag flex flex-wrap items-center gap-x-4 gap-y-0.5" style={{ color: '#09aea1' }}>
+                <span className="!text-[9px]">HAPPY HOUR · Cerveza 1×3€ 2×5€ · Tabla Jamón</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

@@ -28,7 +28,7 @@ export const Wishlist: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-paper text-ink pb-32">
-      <SEO titleKey="Mi Wishlist | Mat32 Digger Hub" descriptionKey="Tu selección personal de vinilos y rarezas guardadas en Mat32 Valencia." />
+      <SEO titleKey="Mi Wishlist | Mat32 Digger Hub" descriptionKey="Tu selección personal de discos de vinilo y rarezas guardadas en Mat32 Valencia." />
 
       <div className="bg-mat-950 py-24 md:py-40 border-b border-mat-800 relative overflow-hidden text-center">
         <Disc className="w-24 h-24 text-mat-500 mx-auto mb-10 animate-spin-slow opacity-20 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />

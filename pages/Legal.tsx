@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { SEO } from '../components/SEO';
-import { Shield, Lock, FileText, ChevronLeft, Disc, Cookie } from 'lucide-react';
+import { Shield, Lock, FileText, ChevronLeft, Disc, Cookie, RotateCcw } from 'lucide-react';
 
 // Datos corporativos reales — Raretraxxx Beat S.L. (compartido con gethostia.com)
 const COMPANY = {
@@ -23,6 +23,7 @@ export const Legal: React.FC = () => {
       case 'privacidad':  return { title: 'Política de Privacidad', icon: <Shield className="w-12 h-12 text-mat-500" />, body: <Privacidad /> };
       case 'cookies':     return { title: 'Política de Cookies', icon: <Cookie className="w-12 h-12 text-mat-500" />, body: <Cookies /> };
       case 'condiciones': return { title: 'Términos y Condiciones', icon: <Lock className="w-12 h-12 text-mat-500" />, body: <Condiciones /> };
+      case 'devoluciones': return { title: 'Política de Devoluciones', icon: <RotateCcw className="w-12 h-12 text-mat-500" />, body: <Devoluciones /> };
       default:            return { title: 'Legal', icon: <Disc className="w-12 h-12 text-mat-500" />, body: <Index /> };
     }
   })();
@@ -43,6 +44,7 @@ export const Legal: React.FC = () => {
             <Link to="/legal/privacidad" className="px-3 py-1.5 bg-mat-900 border border-mat-700 rounded-lg text-gray-400 hover:text-mat-500">Privacidad</Link>
             <Link to="/legal/cookies" className="px-3 py-1.5 bg-mat-900 border border-mat-700 rounded-lg text-gray-400 hover:text-mat-500">Cookies</Link>
             <Link to="/legal/condiciones" className="px-3 py-1.5 bg-mat-900 border border-mat-700 rounded-lg text-gray-400 hover:text-mat-500">Condiciones</Link>
+            <Link to="/legal/devoluciones" className="px-3 py-1.5 bg-mat-900 border border-mat-700 rounded-lg text-gray-400 hover:text-mat-500">Devoluciones</Link>
           </div>
         </div>
       </div>
@@ -86,6 +88,7 @@ const Index: React.FC = () => (
       <li><Link to="/legal/privacidad">Política de privacidad</Link> — tratamiento de datos personales.</li>
       <li><Link to="/legal/cookies">Política de cookies</Link> — tecnologías de seguimiento.</li>
       <li><Link to="/legal/condiciones">Términos y condiciones</Link> — uso del sitio, reservas y compras.</li>
+      <li><Link to="/legal/devoluciones">Política de devoluciones</Link> — desistimiento, cambios y reembolsos de la tienda.</li>
     </ul>
   </div>
 );
@@ -311,5 +314,68 @@ const Condiciones: React.FC = () => (
 
     <h2>10. Ley aplicable y jurisdicción</h2>
     <p>Las presentes Condiciones se rigen por la legislación española. Para la resolución de cualquier controversia, ambas partes se someten expresamente a los Juzgados y Tribunales del domicilio del consumidor conforme a la normativa aplicable.</p>
+  </div>
+);
+
+// ── DEVOLUCIONES ────────────────────────────────
+const Devoluciones: React.FC = () => (
+  <div>
+    <p>Esta política de devoluciones aplica a los productos físicos comprados en la tienda online de {COMPANY.name} (discos de vinilo y merchandising, sección <Link to="/marketplace">Marketplace</Link>). Cumple con la Ley General para la Defensa de los Consumidores y Usuarios (Real Decreto Legislativo 1/2007) y la normativa europea de comercio electrónico.</p>
+
+    <table>
+      <thead>
+        <tr><th>Resumen</th><th>Condición</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Plazo para devolver</td><td>14 días naturales desde la recepción del pedido</td></tr>
+        <tr><td>Coste de la devolución</td><td>A cargo del cliente, salvo error, defecto o daño de transporte (entonces gratis)</td></tr>
+        <tr><td>Método de reembolso</td><td>Mismo medio de pago utilizado en la compra</td></tr>
+        <tr><td>Plazo de reembolso</td><td>Máximo 14 días naturales desde que recibimos el producto devuelto</td></tr>
+        <tr><td>Productos excluidos</td><td>Discos con precinto de higiene/protección abierto</td></tr>
+      </tbody>
+    </table>
+
+    <h2>1. Derecho de desistimiento</h2>
+    <p>El Usuario dispone de <strong>14 días naturales</strong> desde la recepción del pedido para desistir de la compra sin necesidad de justificar su decisión, conforme al artículo 102 y siguientes del Real Decreto Legislativo 1/2007.</p>
+    <p>Para ejercerlo, basta con comunicarlo dentro de ese plazo por email a <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>, indicando el número de pedido y los productos a devolver. Tras confirmar la solicitud, el Usuario dispone de 14 días naturales adicionales para reenviar el producto.</p>
+
+    <h2>2. Cómo iniciar una devolución</h2>
+    <ol>
+      <li>Escribe a <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> con tu número de pedido y el motivo (desistimiento, defecto, error en el envío).</li>
+      <li>Te confirmamos la solicitud y te indicamos la dirección de envío: {COMPANY.address}.</li>
+      <li>Envías el producto bien protegido, a ser posible en su embalaje original.</li>
+      <li>Verificamos el estado del producto recibido y procesamos el reembolso.</li>
+    </ol>
+
+    <h2>3. Estado del producto devuelto</h2>
+    <p>El producto debe devolverse en el mismo estado en que fue entregado, sin señales de uso indebido, con su funda, inserto y embalaje original en la medida de lo posible. En el caso de discos de vinilo, la manipulación razonable para inspeccionar el producto no afecta al derecho de desistimiento.</p>
+
+    <h2>4. Excepciones al derecho de desistimiento</h2>
+    <p>Conforme al artículo 103.i del RDL 1/2007, <strong>no se admite la devolución de discos sellados cuyo precinto de higiene o protección haya sido retirado</strong> tras la entrega, al tratarse de grabaciones sonoras susceptibles de copia. Esta excepción no aplica a productos con defecto de fabricación o error en el envío.</p>
+
+    <h2>5. Gastos de envío de la devolución</h2>
+    <p>Los gastos de envío para devolver el producto corren a cargo del Usuario, salvo en los siguientes casos, en los que {COMPANY.name} asume el coste íntegro:</p>
+    <ul>
+      <li>El producto recibido no coincide con el pedido realizado.</li>
+      <li>El producto llega defectuoso o dañado durante el transporte.</li>
+      <li>El error es atribuible a {COMPANY.name} (envío incorrecto, descripción errónea del estado del disco).</li>
+    </ul>
+
+    <h2>6. Reembolso</h2>
+    <p>Una vez recibido y verificado el producto devuelto, {COMPANY.name} reembolsará el importe pagado (incluidos los gastos de envío iniciales, salvo la parte correspondiente a envíos exprés adicionales) utilizando el mismo medio de pago empleado en la compra, en un plazo máximo de <strong>14 días naturales</strong> desde la recepción de la devolución o desde que el Usuario acredite haberla enviado, lo que ocurra antes.</p>
+
+    <h2>7. Productos defectuosos, dañados o pedidos erróneos</h2>
+    <p>Si el disco llega dañado, con un defecto de fabricación no descrito en la ficha del producto, o si recibes un pedido distinto al solicitado, contáctanos en un plazo de 48 horas desde la recepción a <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> adjuntando fotos del producto y del embalaje. Ofreceremos, a elección del Usuario, sustitución del producto o reembolso íntegro, sin coste alguno para el cliente.</p>
+
+    <h2>8. Cambios</h2>
+    <p>No gestionamos cambios directos de producto. Para cambiar un artículo, solicita la devolución conforme a esta política y realiza un nuevo pedido con el producto deseado.</p>
+
+    <h2>9. Contacto</h2>
+    <p>Para cualquier consulta sobre devoluciones, reembolsos o incidencias con tu pedido:</p>
+    <ul>
+      <li>Email: <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a></li>
+      <li>Teléfono / WhatsApp: {COMPANY.phone}</li>
+      <li>Dirección de devoluciones: {COMPANY.address}</li>
+    </ul>
   </div>
 );

@@ -17,17 +17,11 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [language, setLanguage] = useState<Language>('en');
 
   useEffect(() => {
-    // Try to get saved language first
     const savedLang = localStorage.getItem('mat32_lang') as Language;
     if (savedLang && (savedLang === 'en' || savedLang === 'es')) {
       setLanguage(savedLang);
-    } else {
-      // Auto-detect language if no saved preference
-      const browserLang = navigator.language.split('-')[0];
-      if (browserLang === 'es') {
-        setLanguage('es');
-      }
     }
+    // Default is 'en' — no browser auto-detect
   }, []);
 
   const toggleLanguage = () => {
