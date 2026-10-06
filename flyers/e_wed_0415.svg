@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900">
+  <!-- WEEK 3: CREAM / PAPER bg -->
+  <rect width="900" height="900" fill="#f2ede4"/>
+  <!-- Paper texture lines -->
+  <rect x="0" y="0" width="900" height="2" fill="#e0d8cc"/>
+  <rect x="0" y="898" width="900" height="2" fill="#e0d8cc"/>
+  <!-- Left accent bar -->
+  <rect x="0" y="0" width="6" height="900" fill="#ea580c"/>
+  <!-- Series label -->
+  <text x="40" y="60" font-family="'Arial Black', Arial, sans-serif" font-size="11" font-weight="900" fill="#ea580c" letter-spacing="10">MAT32 · MIÉRCOLES</text>
+  <!-- Main title -->
+  <text x="40" y="330" font-family="'Arial Black', Arial, sans-serif" font-size="200" font-weight="900" fill="#0a0a0a" letter-spacing="-10">SO</text>
+  <text x="40" y="530" font-family="'Arial Black', Arial, sans-serif" font-size="200" font-weight="900" fill="#0a0a0a" letter-spacing="-10">UL.</text>
+  <!-- Orange underline -->
+  <rect x="40" y="548" width="600" height="4" fill="#ea580c"/>
+  <!-- Sub -->
+  <text x="40" y="600" font-family="Arial, sans-serif" font-size="13" fill="#888" letter-spacing="7">MEMPHIS · STAX · MOTOWN · DEEP FUNK</text>
+  <!-- Bottom -->
+  <rect x="0" y="840" width="900" height="60" fill="#0a0a0a"/>
+  <text x="40" y="879" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ffffff" letter-spacing="3">MIÉRCOLES 15 ABR 2026 · 19:30H</text>
+  <text x="860" y="879" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ea580c" text-anchor="end" letter-spacing="2">ENTRADA LIBRE</text>
+</svg>

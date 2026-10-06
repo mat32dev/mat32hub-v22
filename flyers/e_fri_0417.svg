@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900">
+  <!-- WEEK 3: CREAM bg — vinyl on cream -->
+  <rect width="900" height="900" fill="#f2ede4"/>
+  <!-- Vinyl circles on cream -->
+  <circle cx="450" cy="380" r="260" fill="none" stroke="#e0d8cc" stroke-width="1.5"/>
+  <circle cx="450" cy="380" r="220" fill="none" stroke="#e0d8cc" stroke-width="1"/>
+  <circle cx="450" cy="380" r="180" fill="none" stroke="#e0d8cc" stroke-width="1"/>
+  <circle cx="450" cy="380" r="140" fill="none" stroke="#ddd5c8" stroke-width="1"/>
+  <circle cx="450" cy="380" r="100" fill="none" stroke="#e0d8cc" stroke-width="1"/>
+  <circle cx="450" cy="380" r="60" fill="#e8e1d8" stroke="#ddd5c8" stroke-width="1"/>
+  <circle cx="450" cy="380" r="12" fill="#ea580c"/>
+  <!-- Top label -->
+  <text x="450" y="60" font-family="'Arial Black', Arial, sans-serif" font-size="13" font-weight="900" fill="#bbb" text-anchor="middle" letter-spacing="8">ELECTRIC AVENUE · MAT32 · RUZAFA</text>
+  <!-- Main title -->
+  <text x="450" y="700" font-family="'Arial Black', Arial, sans-serif" font-size="82" font-weight="900" fill="#0a0a0a" text-anchor="middle" letter-spacing="-3">ITALO DISCO</text>
+  <text x="450" y="785" font-family="'Arial Black', Arial, sans-serif" font-size="48" font-weight="900" fill="#ea580c" text-anchor="middle" letter-spacing="2">CLASSICS</text>
+  <!-- Bottom -->
+  <rect x="0" y="840" width="900" height="60" fill="#0a0a0a"/>
+  <text x="450" y="879" font-family="'Arial Black', Arial, sans-serif" font-size="16" font-weight="900" fill="#ea580c" text-anchor="middle" letter-spacing="8">VIERNES 17 ABRIL 2026 — 21:00H</text>
+</svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900">
+  <rect width="900" height="900" fill="#0a0a0a"/>
+  <!-- Diagonal stripes texture -->
+  <line x1="0" y1="180" x2="180" y2="0" stroke="#111" stroke-width="2"/>
+  <line x1="0" y1="360" x2="360" y2="0" stroke="#111" stroke-width="2"/>
+  <line x1="0" y1="540" x2="540" y2="0" stroke="#111" stroke-width="2"/>
+  <line x1="0" y1="720" x2="720" y2="0" stroke="#111" stroke-width="2"/>
+  <line x1="0" y1="900" x2="900" y2="0" stroke="#111" stroke-width="2"/>
+  <line x1="180" y1="900" x2="900" y2="180" stroke="#111" stroke-width="2"/>
+  <line x1="360" y1="900" x2="900" y2="360" stroke="#111" stroke-width="2"/>
+  <line x1="540" y1="900" x2="900" y2="540" stroke="#111" stroke-width="2"/>
+  <line x1="720" y1="900" x2="900" y2="720" stroke="#111" stroke-width="2"/>
+  <!-- Orange accent bar left -->
+  <rect x="0" y="0" width="6" height="900" fill="#ea580c"/>
+  <!-- Series label -->
+  <text x="40" y="60" font-family="'Arial Black', Arial, sans-serif" font-size="11" font-weight="900" fill="#444" letter-spacing="10">MAT32 · MIÉRCOLES</text>
+  <!-- Main title -->
+  <text x="40" y="340" font-family="'Arial Black', Arial, sans-serif" font-size="200" font-weight="900" fill="#ffffff" letter-spacing="-10">SAL</text>
+  <text x="40" y="540" font-family="'Arial Black', Arial, sans-serif" font-size="200" font-weight="900" fill="#ea580c" letter-spacing="-10">SA.</text>
+  <!-- Sub -->
+  <text x="40" y="610" font-family="Arial, sans-serif" font-size="13" fill="#555" letter-spacing="7">TROPICAL · RITMO · BAILE</text>
+  <!-- Bottom -->
+  <rect x="0" y="840" width="900" height="60" fill="#111"/>
+  <rect x="6" y="840" width="900" height="2" fill="#ea580c"/>
+  <text x="40" y="879" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ffffff" letter-spacing="3">MIÉRCOLES 1 ABR 2026 · 19:30H</text>
+  <text x="860" y="879" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ea580c" text-anchor="end" letter-spacing="2">ENTRADA LIBRE</text>
+</svg>

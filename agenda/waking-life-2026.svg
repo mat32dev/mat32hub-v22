@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="60%" r="75%">
+      <stop offset="0%" stop-color="#1a3a2a"/>
+      <stop offset="55%" stop-color="#0a1d14"/>
+      <stop offset="100%" stop-color="#03090a"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#bg)"/>
+
+  <!-- Sol minimal al fondo -->
+  <circle cx="400" cy="300" r="140" fill="url(#glow)"/>
+  <circle cx="400" cy="300" r="62" fill="none" stroke="#f59e0b" stroke-width="1.2" opacity="0.6"/>
+
+  <!-- Pinos minimalistas -->
+  <g fill="#04140b" stroke="#081e14" stroke-width="1">
+    <polygon points="70,430 110,330 150,430"/>
+    <polygon points="130,440 170,350 210,440"/>
+    <polygon points="690,435 650,340 610,435"/>
+    <polygon points="740,440 700,360 660,440"/>
+  </g>
+  <rect x="0" y="430" width="800" height="70" fill="#04140b"/>
+
+  <!-- Texto -->
+  <g font-family="'Exo 2', serif" text-anchor="middle">
+    <text x="400" y="170" font-size="17" font-weight="300" fill="#f59e0b" letter-spacing="18">F  E  S  T  I  V  A  L</text>
+    <text x="400" y="260" font-size="82" font-weight="300" fill="white" letter-spacing="2" font-style="italic">Waking Life</text>
+    <text x="400" y="298" font-size="22" font-weight="900" fill="#f59e0b" letter-spacing="14">2026</text>
+    <line x1="330" y1="345" x2="470" y2="345" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="400" y="378" font-family="monospace" font-size="12" font-weight="700" fill="#a1a19a" letter-spacing="4">16—23 JUNIO · CRATO · PORTUGAL</text>
+  </g>
+</svg>

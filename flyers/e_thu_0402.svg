@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900">
+  <rect width="900" height="900" fill="#0a0a0a"/>
+  <!-- Dot grid -->
+  <circle cx="80" cy="80" r="3" fill="#1a1a1a"/>
+  <circle cx="180" cy="80" r="3" fill="#1a1a1a"/>
+  <circle cx="280" cy="80" r="3" fill="#1a1a1a"/>
+  <circle cx="380" cy="80" r="3" fill="#1a1a1a"/>
+  <circle cx="480" cy="80" r="3" fill="#1a1a1a"/>
+  <circle cx="580" cy="80" r="3" fill="#1a1a1a"/>
+  <circle cx="680" cy="80" r="3" fill="#1a1a1a"/>
+  <circle cx="780" cy="80" r="3" fill="#1a1a1a"/>
+  <circle cx="80" cy="180" r="3" fill="#1a1a1a"/>
+  <circle cx="180" cy="180" r="3" fill="#222"/>
+  <circle cx="280" cy="180" r="3" fill="#1a1a1a"/>
+  <circle cx="380" cy="180" r="3" fill="#1a1a1a"/>
+  <circle cx="480" cy="180" r="3" fill="#1a1a1a"/>
+  <circle cx="580" cy="180" r="3" fill="#1a1a1a"/>
+  <circle cx="680" cy="180" r="3" fill="#222"/>
+  <circle cx="780" cy="180" r="3" fill="#1a1a1a"/>
+  <circle cx="80" cy="680" r="3" fill="#1a1a1a"/>
+  <circle cx="180" cy="680" r="3" fill="#1a1a1a"/>
+  <circle cx="280" cy="680" r="3" fill="#222"/>
+  <circle cx="380" cy="680" r="3" fill="#1a1a1a"/>
+  <circle cx="480" cy="680" r="3" fill="#1a1a1a"/>
+  <circle cx="580" cy="680" r="3" fill="#222"/>
+  <circle cx="680" cy="680" r="3" fill="#1a1a1a"/>
+  <circle cx="780" cy="680" r="3" fill="#1a1a1a"/>
+  <circle cx="80" cy="780" r="3" fill="#1a1a1a"/>
+  <circle cx="180" cy="780" r="3" fill="#1a1a1a"/>
+  <circle cx="280" cy="780" r="3" fill="#1a1a1a"/>
+  <circle cx="380" cy="780" r="3" fill="#1a1a1a"/>
+  <circle cx="480" cy="780" r="3" fill="#1a1a1a"/>
+  <circle cx="580" cy="780" r="3" fill="#1a1a1a"/>
+  <circle cx="680" cy="780" r="3" fill="#1a1a1a"/>
+  <circle cx="780" cy="780" r="3" fill="#1a1a1a"/>
+  <!-- Orange dot accent -->
+  <circle cx="820" cy="140" r="8" fill="#ea580c"/>
+  <circle cx="840" cy="140" r="8" fill="#ea580c"/>
+  <circle cx="860" cy="140" r="8" fill="#ea580c"/>
+  <circle cx="820" cy="160" r="8" fill="#ea580c" opacity="0.4"/>
+  <!-- Series label -->
+  <text x="80" y="110" font-family="'Arial Black', Arial, sans-serif" font-size="11" font-weight="900" fill="#444" letter-spacing="10">MAT32 · JUEVES</text>
+  <!-- Main title -->
+  <text x="80" y="370" font-family="'Arial Black', Arial, sans-serif" font-size="175" font-weight="900" fill="#ffffff" letter-spacing="-8">CUM</text>
+  <text x="80" y="545" font-family="'Arial Black', Arial, sans-serif" font-size="175" font-weight="900" fill="#ea580c" letter-spacing="-8">BIA.</text>
+  <!-- Sub -->
+  <text x="80" y="615" font-family="Arial, sans-serif" font-size="13" fill="#555" letter-spacing="6">COLOMBIA · CARIBE · PERCUSIÓN</text>
+  <!-- Bottom -->
+  <rect x="0" y="838" width="900" height="62" fill="#0f0f0f"/>
+  <text x="80" y="878" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ffffff" letter-spacing="3">JUEVES 2 ABR 2026 · 19:30H</text>
+  <text x="820" y="878" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ea580c" text-anchor="end" letter-spacing="2">ENTRADA LIBRE</text>
+</svg>

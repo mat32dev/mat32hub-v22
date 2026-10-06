@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900">
+  <!-- WEEK 3: CREAM / PAPER bg -->
+  <rect width="900" height="900" fill="#f2ede4"/>
+  <!-- Technical grid -->
+  <rect x="80" y="80" width="740" height="740" fill="none" stroke="#e0d8cc" stroke-width="1"/>
+  <rect x="80" y="80" width="370" height="370" fill="none" stroke="#e0d8cc" stroke-width="1"/>
+  <rect x="450" y="80" width="370" height="370" fill="none" stroke="#e0d8cc" stroke-width="1"/>
+  <rect x="80" y="450" width="370" height="370" fill="none" stroke="#e0d8cc" stroke-width="1"/>
+  <!-- Orange square accent -->
+  <rect x="80" y="80" width="30" height="30" fill="#ea580c"/>
+  <!-- Series label -->
+  <text x="130" y="104" font-family="'Arial Black', Arial, sans-serif" font-size="11" font-weight="900" fill="#ea580c" letter-spacing="10">MAT32 · JUEVES</text>
+  <!-- Main title -->
+  <text x="80" y="350" font-family="'Arial Black', Arial, sans-serif" font-size="220" font-weight="900" fill="#0a0a0a" letter-spacing="-12">IDM</text>
+  <!-- Sub -->
+  <text x="80" y="430" font-family="Arial, sans-serif" font-size="13" fill="#999" letter-spacing="6">INTELLIGENT DANCE MUSIC</text>
+  <text x="80" y="460" font-family="Arial, sans-serif" font-size="12" fill="#bbb" letter-spacing="5">APHEX TWIN · AUTECHRE · BOARDS OF CANADA</text>
+  <!-- Bottom rule -->
+  <rect x="80" y="520" width="740" height="1" fill="#e0d8cc"/>
+  <!-- Bottom -->
+  <rect x="0" y="840" width="900" height="60" fill="#0a0a0a"/>
+  <text x="80" y="879" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ffffff" letter-spacing="3">JUEVES 16 ABR 2026 · 19:30H</text>
+  <text x="820" y="879" font-family="'Arial Black', Arial, sans-serif" font-size="15" font-weight="900" fill="#ea580c" text-anchor="end" letter-spacing="2">ENTRADA LIBRE</text>
+</svg>

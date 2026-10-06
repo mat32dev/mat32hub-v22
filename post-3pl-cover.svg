@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="25%" r="80%">
+      <stop offset="0%" stop-color="#2a1a0e"/>
+      <stop offset="55%" stop-color="#0c0a09"/>
+      <stop offset="100%" stop-color="#050403"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#ea580c" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ea580c" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1a1a1a" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#bg)"/>
+  <rect width="800" height="500" fill="url(#grid)" opacity="0.6"/>
+  <circle cx="260" cy="250" r="260" fill="url(#glow)"/>
+
+  <!-- Cajas apiladas (iso) -->
+  <g transform="translate(190 170)">
+    <!-- caja grande (atrás) -->
+    <g opacity="0.5">
+      <polygon points="30,70 130,25 230,70 130,115" fill="#44403c" stroke="#ea580c" stroke-width="1.2"/>
+      <polygon points="30,70 30,170 130,215 130,115" fill="#292524" stroke="#ea580c" stroke-width="1.2"/>
+      <polygon points="230,70 230,170 130,215 130,115" fill="#1c1917" stroke="#ea580c" stroke-width="1.2"/>
+    </g>
+    <!-- caja mediana (frente) -->
+    <g>
+      <polygon points="50,130 140,90 230,130 140,170" fill="#78716c" stroke="#ea580c" stroke-width="1.5"/>
+      <polygon points="50,130 50,230 140,270 140,170" fill="#44403c" stroke="#ea580c" stroke-width="1.5"/>
+      <polygon points="230,130 230,230 140,270 140,170" fill="#292524" stroke="#ea580c" stroke-width="1.5"/>
+      <!-- cinta fragil -->
+      <rect x="82" y="195" width="56" height="8" fill="#ea580c" opacity="0.8"/>
+      <text x="110" y="202" font-family="monospace" font-size="7" font-weight="900" fill="white" text-anchor="middle" letter-spacing="1.5">FRAGILE</text>
+    </g>
+    <!-- flecha envío -->
+    <g transform="translate(265 155)">
+      <line x1="0" y1="0" x2="80" y2="0" stroke="#ea580c" stroke-width="3" stroke-linecap="round"/>
+      <polygon points="80,0 70,-8 70,8" fill="#ea580c"/>
+    </g>
+  </g>
+
+  <!-- Texto -->
+  <g font-family="'Exo 2', 'Helvetica Neue', sans-serif">
+    <text x="530" y="180" font-size="18" font-weight="900" fill="#ea580c" letter-spacing="7">MAT32 · RUZAFA</text>
+    <text x="530" y="255" font-size="76" font-weight="900" fill="white" letter-spacing="-3">3PL</text>
+    <text x="530" y="300" font-size="24" font-weight="900" fill="white" letter-spacing="-0.5">Fulfillment para sellers</text>
+    <text x="530" y="328" font-size="14" font-weight="300" fill="#a8a29e" letter-spacing="1">de discos · desde Valencia</text>
+    <line x1="530" y1="360" x2="720" y2="360" stroke="#ea580c" stroke-width="2"/>
+    <text x="530" y="395" font-family="monospace" font-size="11" font-weight="700" fill="#78716c" letter-spacing="3">DROP · PACK · FULL STACK</text>
+  </g>
+</svg>
