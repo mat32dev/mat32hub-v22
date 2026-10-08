@@ -20,8 +20,11 @@ import { useLanguage } from '../context/LanguageContext';
 // ─────────────────────────────────────────────────────────────
 
 const base: string = (import.meta as any).env.BASE_URL ?? '/';
-const BG_CABINA = `linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.62)), url(${base}img/cabina-oscura.jpg)`;
-const BG_SALA = `linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.65)), url(${base}img/sala-barra.jpg)`;
+// Rotación de fotos de cabina: cambia cada 2 semanas, solo oscuras
+const CABINAS = Array.from({ length: 10 }, (_, i) => `img/cabina-${String(i + 1).padStart(2, '0')}.jpg`);
+const ROT = Math.floor(Date.now() / (14 * 24 * 3600 * 1000));
+const BG_CABINA = `linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.62)), url(${base}${CABINAS[ROT % CABINAS.length]})`;
+const BG_SALA = `linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.65)), url(${base}${CABINAS[(ROT + 5) % CABINAS.length]})`;
 
 const HoyPanel: React.FC = () => {
   const [now, setNow] = useState(new Date());
@@ -263,7 +266,7 @@ export const Home: React.FC = () => {
               La sala.
             </h2>
             <p className="serif-italic mt-5 text-lg md:text-xl leading-snug" style={{ color: '#e8e2d6' }}>
-              {t('home.hero.intro')}
+              Altec Lansing A7 · 2× Technics 1210 · Rotary analógico.
             </p>
             <ul className="mt-6 mono-tag" style={{ color: '#d8d2c6', fontSize: '.8rem', listStyle: 'none' }}>
               <li style={{ padding: '10px 0', borderTop: '1px solid rgba(255,255,255,.14)' }}>JUE — OPEN DECKS · 19:30</li>

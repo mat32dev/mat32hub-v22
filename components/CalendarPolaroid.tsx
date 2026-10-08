@@ -79,7 +79,7 @@ export const CalendarPolaroid: React.FC<Props> = ({ events = [], bookedDays, con
       <div className="bg-ink px-5 py-2.5 flex items-center justify-between hairline-ink-b">
         <span className="mono-tag flex items-center gap-2" style={{ color: '#d8ff5a' }}>
           <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#d8ff5a' }} />
-          {bookingMode ? 'BOOKING_AVAILABILITY' : 'LIVE_AVAILABILITY'}
+          {bookingMode ? 'DISPONIBILIDAD' : 'LIVE_AVAILABILITY'}
         </span>
         <span className="mono-tag !text-[9px] text-paper/55">EUROPE/MADRID</span>
       </div>
