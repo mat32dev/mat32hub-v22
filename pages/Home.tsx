@@ -20,8 +20,8 @@ import { useLanguage } from '../context/LanguageContext';
 // ─────────────────────────────────────────────────────────────
 
 const base: string = (import.meta as any).env.BASE_URL ?? '/';
-const BG_CABINA = `linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.78)), url(${base}img/cabina-oscura.jpg)`;
-const BG_SALA = `linear-gradient(rgba(0,0,0,.68),rgba(0,0,0,.8)), url(${base}img/sala-barra.jpg)`;
+const BG_CABINA = `linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.62)), url(${base}img/cabina-oscura.jpg)`;
+const BG_SALA = `linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.65)), url(${base}img/sala-barra.jpg)`;
 
 const HoyPanel: React.FC = () => {
   const [now, setNow] = useState(new Date());
@@ -90,8 +90,8 @@ export const Home: React.FC = () => {
   const [allRecords, setAllRecords] = useState<VinylRecord[]>([]);
 
   useEffect(() => {
-    document.body.classList.add('theme-ink');
-    return () => { document.body.classList.remove('theme-ink'); };
+    document.body.classList.add('theme-ink', 'page-home-club');
+    return () => { document.body.classList.remove('theme-ink', 'page-home-club'); };
   }, []);
 
   useEffect(() => {

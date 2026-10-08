@@ -522,6 +522,16 @@
       .hero-display { font-family: 'Exo 2', sans-serif; font-weight: 900; letter-spacing: -0.03em; line-height: 0.9; text-transform: uppercase; }
       .bg-fixed-club { background-attachment: fixed; background-size: cover; background-position: center; color: #fff; }
       @media (max-width: 768px) { .bg-fixed-club { background-attachment: scroll; } }
+
+      /* Header transparente solo en home club (fotos oscuras) */
+      body.page-home-club header.fixed {
+        background: linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,0)) !important;
+        border-bottom-color: transparent !important;
+      }
+      body.page-home-club header.fixed > div > a .wordmark,
+      body.page-home-club header.fixed > div > nav > div > a,
+      body.page-home-club header.fixed > div > div button { color: #fff !important; }
+      body.page-home-club header.fixed > div > div button.hairline { border-color: rgba(255,255,255,.4) !important; }
     </style>
 
     <script type="importmap">
