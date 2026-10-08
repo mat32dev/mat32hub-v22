@@ -411,15 +411,7 @@ export const Home: React.FC = () => {
         </section>
       )}
 
-      {/* ─── FOOTER STRIP · slide 04 ─── */}
-      <section className="bg-ink text-paper">
-        <div className="container mx-auto px-6 md:px-10 py-5 flex flex-wrap items-center justify-between gap-3 mono-tag text-[10px]">
-          <span>EST. 2022 · RUZAFA, VLC</span>
-          <span className="hidden md:inline">MATÍAS PERELLÓ 32 · 46005</span>
-          <span>+34 622 19 08 02 · HOLA@MAT32.COM</span>
-          <span style={{ color: '#c8462a' }}>@MAT32VALENCIA</span>
-        </div>
-      </section>
+      
     </div>
   );
 };

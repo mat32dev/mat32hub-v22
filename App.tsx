@@ -329,40 +329,36 @@ const AppRoutes: React.FC = () => {
       <CartDrawer />
       <RadioBar />
       <footer className="bg-ink text-paper">
-        <div className="container mx-auto px-6 md:px-10 py-10 grid md:grid-cols-3 gap-8 items-start">
+        <div className="container mx-auto px-6 md:px-10 py-8 grid grid-cols-2 md:grid-cols-4 gap-8 items-start">
           <div>
             <span className="wordmark text-paper text-2xl">MAT<sup style={{ fontSize: '0.55em', verticalAlign: 'super', top: '-0.55em' }}>32</sup></span>
             <p className="serif-italic text-paper/70 mt-3 max-w-xs leading-snug">{t('footer.tagline')}</p>
           </div>
           <div className="space-y-2 mono-tag !text-[10px] !tracking-[0.25em]">
+            <div className="text-paper/60">EL LOCAL</div>
+            <div>MATÍAS PERELLÓ 32 · RUZAFA</div>
+            <div>46005 VALENCIA</div>
+            <div>JUE–SÁB · 19:30–02:00</div>
+          </div>
+          <div className="space-y-2 mono-tag !text-[10px] !tracking-[0.25em]">
             <div className="text-paper/60">CONTACTO</div>
-            <div>MATÍAS PERELLÓ 32 · 46005 VALENCIA</div>
             <div>+34 622 19 08 02</div>
             <div>HOLA@MAT32.COM</div>
-            <div style={{ color: '#c8462a' }}>@MAT32VALENCIA</div>
+            <a href="https://www.instagram.com/mat32valencia" target="_blank" rel="noopener" className="block hover:text-bermellon transition-colors" style={{ color: '#c8462a' }}>@MAT32VALENCIA</a>
           </div>
           <div className="space-y-2 mono-tag !text-[10px] !tracking-[0.25em]">
             <div className="text-paper/60">EXPLORA</div>
-            <Link to="/mat32-bar/" className="block hover:text-bermellon transition-colors">BAR</Link>
-            <Link to="/nosotros" className="block hover:text-bermellon transition-colors">NOSOTROS</Link>
-            <Link to="/gallery" className="block hover:text-bermellon transition-colors">FOTOS DEL ESPACIO</Link>
-            <Link to="/community" className="block hover:text-bermellon transition-colors">COMUNIDAD</Link>
-            <Link to="/fondos-reservados" className="block hover:text-bermellon transition-colors">FONDOS RESERVADOS</Link>
-            <Link to="/marketplace" className="block hover:text-bermellon transition-colors">MARKETPLACE</Link>
-            <Link to="/academy" className="block hover:text-bermellon transition-colors">ACADEMY</Link>
-            <Link to="/alquiler-local-eventos-horas-valencia" className="block hover:text-bermellon transition-colors">ALQUILER LOCAL</Link>
-            <div className="text-paper/60 pt-3">LEGAL</div>
+            <Link to="/events" className="block hover:text-bermellon transition-colors">AGENDA</Link>
+            <Link to="/records" className="block hover:text-bermellon transition-colors">DISCOS</Link>
+            <Link to="/open-decks" className="block hover:text-bermellon transition-colors">OPEN DECKS</Link>
             <Link to="/legal/aviso-legal" className="block hover:text-bermellon transition-colors">AVISO LEGAL</Link>
             <Link to="/legal/privacidad" className="block hover:text-bermellon transition-colors">PRIVACIDAD</Link>
-            <Link to="/legal/cookies" className="block hover:text-bermellon transition-colors">COOKIES</Link>
-            <Link to="/legal/condiciones" className="block hover:text-bermellon transition-colors">CONDICIONES</Link>
-            <Link to="/legal/devoluciones" className="block hover:text-bermellon transition-colors">DEVOLUCIONES</Link>
           </div>
         </div>
         <div className="hairline-ink-t">
           <div className="container mx-auto px-6 md:px-10 py-4 flex flex-wrap justify-between items-center gap-3 mono-tag !text-[10px] text-paper/50">
             <span>© 2026 RARETRAXXX BEAT S.L. · CIF B22628846</span>
-            <Link to="/admin" className="hover:text-bermellon transition-colors">MATRIX_ACCESS</Link>
+            <Link to="/admin" className="hover:text-bermellon transition-colors">ADMIN</Link>
           </div>
         </div>
       </footer>

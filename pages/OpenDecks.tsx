@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { CheckCircle, Loader2, Music, Instagram, ExternalLink, Radio, Volume2, VolumeX } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
-import { CachedImage } from '../components/CachedImage';
 import { useRadio } from '../context/RadioContext';
 
 const STREET_RADIO_POST_URL = 'https://www.instagram.com/p/DY7mOHWixdK/';
@@ -54,6 +53,11 @@ export const OpenDecks: React.FC = () => {
   const videoSectionRef = useRef<HTMLDivElement>(null);
   const videoPlayingRef = useRef(false);
   const [videoMuted, setVideoMuted] = useState(true);
+
+  useEffect(() => {
+    document.body.classList.add('theme-ink');
+    return () => { document.body.classList.remove('theme-ink'); };
+  }, []);
 
   useEffect(() => {
     const el = videoSectionRef.current;
@@ -132,13 +136,13 @@ export const OpenDecks: React.FC = () => {
     <div className="min-h-screen bg-paper text-ink pb-24">
       <SEO titleKey="Open Decks · MAT32 Valencia" descriptionKey="Toca en MAT32. Sesiones en discos en el sistema Altec A7 + Technics 1210. Mándanos tu mix y te ponemos en la rotación." />
 
-      {/* HERO */}
+      {/* HERO · vídeo de fondo */}
       <div className="relative h-[58vh] overflow-hidden hairline-b">
-        <CachedImage
-          src="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public"
-          alt="Cabina MAT32"
-          priority
+        <video
           className="w-full h-full object-cover"
+          src="/video/street-radio-green-booth.mp4"
+          poster="https://imagedelivery.net/7eVyq4DUYp7Fp7fSI12t_Q/de211934-62c1-4fb5-6c4a-35cd8a0d9700/public"
+          autoPlay muted loop playsInline preload="metadata"
         />
         <div className="absolute inset-0 bg-ink/65" />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
