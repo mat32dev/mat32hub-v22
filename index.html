@@ -523,15 +523,22 @@
       .bg-fixed-club { background-attachment: fixed; background-size: cover; background-position: center; color: #fff; }
       @media (max-width: 768px) { .bg-fixed-club { background-attachment: scroll; } }
 
-      /* Header transparente solo en home club (fotos oscuras) */
-      body.page-home-club header.fixed {
-        background: linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,0)) !important;
-        border-bottom-color: transparent !important;
-      }
-      body.page-home-club header.fixed > div > a .wordmark,
-      body.page-home-club header.fixed > div > nav > div > a,
-      body.page-home-club header.fixed > div > div button { color: #fff !important; }
-      body.page-home-club header.fixed > div > div button.hairline { border-color: rgba(255,255,255,.4) !important; }
+      /* Club oscuro global (páginas públicas con body.theme-ink).
+         Las islas oscuras (bg-ink/text-paper) se quedan igual. */
+      body.theme-ink .bg-paper { background-color: #161310; }
+      body.theme-ink .bg-paper-2 { background-color: #1e1a15; }
+      body.theme-ink .text-ink { color: #f4f1ea; }
+      body.theme-ink .text-ink-soft { color: #a8a29a; }
+      body.theme-ink .window-panel { background: #161310; border-color: rgba(255,255,255,.12); }
+      body.theme-ink .hairline { border-color: rgba(255,255,255,.14); }
+      body.theme-ink .hairline-t { border-top-color: rgba(255,255,255,.14); }
+      body.theme-ink .hairline-b { border-bottom-color: rgba(255,255,255,.14); }
+      body.theme-ink .hairline-l { border-left-color: rgba(255,255,255,.14); }
+      body.theme-ink .hairline-r { border-right-color: rgba(255,255,255,.14); }
+
+      /* Sin beige en los extremos al hacer scroll (rebote iOS/Android) */
+      html:has(body.theme-ink) { background-color: #0e0c09; }
+      html:has(body.theme-paper) { background-color: #f2f2f0; }
     </style>
 
     <script type="importmap">

@@ -10,7 +10,6 @@ import { WhatsAppButton } from '../components/WhatsAppButton';
 import { CalendarPolaroid } from '../components/CalendarPolaroid';
 import { InstagramEmbed } from '../components/InstagramEmbed';
 import { INSTAGRAM_FEATURED_POSTS } from '../constants';
-import { useLanguage } from '../context/LanguageContext';
 
 // ─────────────────────────────────────────────────────────────
 // HOME · CLUB ANALÓGICO (fondo oscuro + fotos fijas v2)
@@ -86,7 +85,6 @@ const HoyPanel: React.FC = () => {
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
   const [upcomingEvents, setUpcomingEvents] = useState<Event[]>([]);
   const [allUpcoming, setAllUpcoming] = useState<Event[]>([]);
   const [bookedDays, setBookedDays] = useState<Set<string>>(new Set());
@@ -144,7 +142,7 @@ export const Home: React.FC = () => {
               </h1>
               <div className="mono-tag mt-2" style={{ color: '#a8a29a' }}>RUZAFA · VALENCIA</div>
               <p className="serif-italic mt-6 text-xl md:text-2xl max-w-2xl leading-snug" style={{ color: '#e8e2d6' }}>
-                {t('home.hero.intro')}
+                Discos de día, club de noche. Cante, barra y sonido analógico en Matías Perelló 32.
               </p>
               <div className="flex flex-wrap gap-2 mt-8">
                 <Link to="/alquiler-local-eventos-horas-valencia#booking-form" className="bg-bermellon text-paper px-5 py-3 mono-tag hover:bg-ink transition-colors">
@@ -208,9 +206,9 @@ export const Home: React.FC = () => {
         <div className="container mx-auto px-6 md:px-10 py-16 md:py-20">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
             <div>
-              <div className="mono-tag" style={{ color: '#c8462a' }}>DESTACADOS</div>
+              <div className="mono-tag" style={{ color: '#c8462a' }}>AGENDA</div>
               <h2 className="display text-white mt-3" style={{ fontSize: 'clamp(40px, 6vw, 84px)', lineHeight: 0.9 }}>
-                Tres noches<br/>en <span style={{ color: '#c8462a' }}>directo.</span>
+                Próximas<br/>noches<span style={{ color: '#c8462a' }}>.</span>
               </h2>
             </div>
             <Link to="/events" className="mono-tag pb-1 inline-flex items-center gap-2 hover:text-bermellon transition-colors self-start md:self-end" style={{ color: '#f4f1ea', borderBottom: '1px solid rgba(255,255,255,.3)' }}>
@@ -285,17 +283,12 @@ export const Home: React.FC = () => {
         <div className="container mx-auto px-6 md:px-10 py-16 md:py-20">
           <div className="grid md:grid-cols-[1.3fr_1fr] gap-10 md:gap-16 items-center">
             <div>
-              <div className="mono-tag" style={{ color: '#d8ff5a' }}>COLABORACIONES · NOCHE</div>
+              <div className="mono-tag" style={{ color: '#d8ff5a' }}>TU EVENTO EN MAT32</div>
               <h2 className="display mt-4" style={{ fontSize: 'clamp(40px, 6vw, 84px)', lineHeight: 0.9 }}>
-                Tu colectivo,<br/>nuestra cabina.
+                Tu evento<br/>en mat32.
               </h2>
               <p className="serif-italic mt-6 text-xl md:text-2xl text-paper/70 max-w-xl leading-snug">
-                Viernes y sábados programamos nuestra línea: House, Disco, Boogie, Electronic.
-                Buscamos colectivos y DJs para noches propias o residencias regulares.
-              </p>
-              <p className="serif-italic mt-4 text-lg text-paper/50 max-w-xl leading-snug">
-                También abrimos otros días para vuestras fiestas — sin condición de estilo.
-                Open Decks (jueves 19:30–22:00) para probar la cabina y conocernos.
+                Sin condición de estilo. Cabina abierta a discos y barra lista. Escríbenos y lo montamos.
               </p>
               <div className="flex flex-wrap gap-2 mt-10">
                 <a href="https://wa.me/34622190802?text=Hola%20MAT32%2C%20queremos%20proponer%20una%20colaboraci%C3%B3n%20nocturna%20con%20nuestro%20colectivo"
@@ -339,54 +332,6 @@ export const Home: React.FC = () => {
 
             <CalendarPolaroid events={allUpcoming} bookedDays={bookedDays} bookingMode />
           </div>
-        </div>
-      </section>
-
-      {/* ─── PRÓXIMOS EVENTOS ─── */}
-      <section style={{ background: 'rgba(0,0,0,.55)' }}>
-        <div className="container mx-auto px-6 md:px-10 py-16 md:py-20">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
-            <div>
-              <div className="mono-tag" style={{ color: '#c8462a' }}>AGENDA · 03 PRÓXIMOS</div>
-              <h2 className="display text-white mt-3" style={{ fontSize: 'clamp(40px, 6vw, 84px)', lineHeight: 0.9 }}>
-                Lo que <span style={{ color: '#c8462a' }}>suena.</span>
-              </h2>
-            </div>
-            <Link to="/events" className="mono-tag pb-1 inline-flex items-center gap-2 hover:text-bermellon transition-colors self-start md:self-end" style={{ color: '#f4f1ea', borderBottom: '1px solid rgba(255,255,255,.3)' }}>
-              TODA LA AGENDA <ArrowRight size={14} />
-            </Link>
-          </div>
-
-          {upcomingEvents.length === 0 ? (
-            <div className="p-10 text-center" style={{ border: '1px solid rgba(255,255,255,.12)' }}>
-              <p className="serif-italic text-lg" style={{ color: '#a8a29a' }}>Sincronizando próximos eventos…</p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-3 gap-4">
-              {upcomingEvents.map(ev => {
-                const d = new Date(ev.date);
-                const dia = String(d.getDate()).padStart(2,'0');
-                const mes = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'][d.getMonth()];
-                return (
-                  <Link key={ev.id} to={`/events`} className="group transition-colors hover:bg-white/5" style={{ background: 'rgba(20,17,13,.72)', border: '1px solid rgba(255,255,255,.1)' }}>
-                    <div className="px-6 md:px-8 py-2 flex justify-between items-center" style={{ borderBottom: '1px solid rgba(255,255,255,.1)' }}>
-                      <span className="mono-tag">{['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'][d.getDay()]} {dia} {mes}</span>
-                      {ev.time && <span className="mono-tag opacity-60">{ev.time}</span>}
-                    </div>
-                    <div className="p-6 md:p-7">
-                      <h3 className="display text-white mt-1" style={{ fontSize: 'clamp(26px, 2.8vw, 38px)', lineHeight: 0.95 }}>
-                        {ev.title}
-                      </h3>
-                      {ev.description && <p className="serif-italic mt-2 text-sm opacity-80 line-clamp-3">{ev.description}</p>}
-                      <div className="mono-tag mt-4 flex items-center gap-2 group-hover:translate-x-1 transition-transform" style={{ color: '#09aea1' }}>
-                        DETALLES <ArrowRight size={14} />
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
         </div>
       </section>
 
