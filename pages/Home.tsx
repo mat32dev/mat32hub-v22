@@ -314,21 +314,21 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ─── DISPONIBILIDAD EN VIVO · POLAROID (slide 10) ─── */}
-      <section style={{ background: '#e8ddc6' }}>
+      <section style={{ background: 'rgba(0,0,0,.35)' }}>
         <div className="container mx-auto px-6 md:px-10 py-16 md:py-20">
           <div className="grid md:grid-cols-2 gap-10 md:gap-14 items-center">
             <div>
-              <h2 className="display" style={{ fontSize: 'clamp(38px, 6vw, 80px)', lineHeight: 0.9, color: '#1a1611' }}>
+              <h2 className="display text-white" style={{ fontSize: 'clamp(38px, 6vw, 80px)', lineHeight: 0.9 }}>
                 Calendario <span style={{ color: '#c8462a' }}>libre.</span>
               </h2>
-              <p className="serif-italic mt-5 text-lg md:text-xl leading-snug max-w-xl" style={{ color: '#4a3f2e' }}>
+              <p className="serif-italic mt-5 text-lg md:text-xl leading-snug max-w-xl" style={{ color: '#d8d2c6' }}>
                 Sincronizado con la agenda real. Mira los huecos disponibles para tu evento y escríbenos. Respondemos en 24h con presupuesto y rider técnico.
               </p>
               <div className="flex flex-wrap gap-2 mt-8">
                 <Link to="/events" className="bg-bermellon text-paper px-5 py-3 mono-tag hover:bg-ink transition-colors">
                   SOLICITAR FECHA →
                 </Link>
-                <Link to="/events" className="hairline px-5 py-3 mono-tag hover:bg-ink hover:text-paper transition-colors">
+                <Link to="/events" className="px-5 py-3 mono-tag text-white transition-colors hover:bg-white/10" style={{ border: '1px solid rgba(255,255,255,.4)' }}>
                   VER AGENDA PÚBLICA
                 </Link>
               </div>
