@@ -13,10 +13,15 @@ import { INSTAGRAM_FEATURED_POSTS } from '../constants';
 import { useLanguage } from '../context/LanguageContext';
 
 // ─────────────────────────────────────────────────────────────
-// HOME · RESTYLE v2 · ALMACÉN CALIENTE + GUIÑO CLAUDIA
-// Tokens: paper #f1e8d8 / ink #1a1611 / bermellón #c8462a / claudia #d8ff5a
-// Fonts:  Archivo Black (display) · Fraunces italic (serif) · DM Mono (mono) · Exo 2 (wordmark)
+// HOME · CLUB ANALÓGICO (fondo oscuro + fotos fijas v2)
+// Logo de siempre (wordmark MAT³², sin cambios) · Hero en Exo 2
+// Copys: los actuales, sin reescritura. Producto = "discos".
+// Panel semanal + resto de bloques live, conservados.
 // ─────────────────────────────────────────────────────────────
+
+const base: string = (import.meta as any).env.BASE_URL ?? '/';
+const BG_CABINA = `linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.78)), url(${base}img/cabina-oscura.jpg)`;
+const BG_SALA = `linear-gradient(rgba(0,0,0,.68),rgba(0,0,0,.8)), url(${base}img/sala-barra.jpg)`;
 
 const HoyPanel: React.FC = () => {
   const [now, setNow] = useState(new Date());
@@ -38,22 +43,20 @@ const HoyPanel: React.FC = () => {
   const nextConfig = dayConfig[nextOpenDay];
 
   return (
-    <div className="window-panel-ink window-body-compact flex flex-col justify-between" style={{ minHeight: '280px' }}>
-      <div className="window-titlebar">
-        <span>HOY · {dateLabel}</span>
-        <span>
-          {isOpen
-            ? <span style={{ color: '#d8ff5a' }}>EN DIRECTO ●</span>
-            : <span style={{ color: '#858585' }}>CERRADO</span>}
-        </span>
+    <div className="flex flex-col justify-between relative" style={{ minHeight: '280px', background: 'rgba(20,17,13,.72)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,.12)' }}>
+      <div className="flex justify-between items-start p-6 md:p-7 pb-0">
+        <span className="mono-tag opacity-70">HOY · {dateLabel}</span>
+        {isOpen
+          ? <span className="mono-tag" style={{ color: '#d8ff5a' }}>EN DIRECTO ●</span>
+          : <span className="mono-tag opacity-50">CERRADO</span>}
       </div>
-      <div className="window-body py-5">
+      <div className="px-6 md:px-7 py-5">
         <div className="mono-tag" style={{ color: '#c8462a' }}>{openDay ? 'PROGRAMA DE HOY' : 'PRÓXIMA APERTURA'}</div>
         <div className="display text-white mt-2" style={{ fontSize: 'clamp(28px, 4vw, 42px)', lineHeight: 0.95 }}>
           {openDay && todayConfig ? (
             <>
               {todayConfig.title}
-              {todayConfig.label === 'VIE' ? null : <> <br/>EN VINILO</>}
+              {todayConfig.label === 'VIE' ? null : <> <br/>EN DISCOS</>}
             </>
           ) : nextConfig ? (
             <>
@@ -64,36 +67,17 @@ const HoyPanel: React.FC = () => {
             <>JUEVES<br/>19:30</>
           )}
         </div>
-        <p className="serif-italic text-paper/85 mt-2 text-base">
+        <p className="serif-italic mt-2 text-base" style={{ color: 'rgba(244,241,234,.85)' }}>
           {openDay && todayConfig
             ? todayConfig.sub
             : 'Jueves Open Decks · Viernes Electric Avenue · Sábado Selectors'}
         </p>
-        <div className="hairline-ink-t pt-3 mono-tag flex justify-between items-center text-[11px]">
+        <div className="mono-tag flex justify-between items-center text-[11px]" style={{ borderTop: '1px solid rgba(255,255,255,.12)', paddingTop: '12px', marginTop: '16px' }}>
           <span>{openDay && todayConfig ? `${todayConfig.time} → 02:00` : '19:30 → 02:00'}</span>
           <span style={{ color: '#09aea1' }}>ENTRADA LIBRE</span>
         </div>
       </div>
     </div>
-  );
-};
-
-const Pilar: React.FC<{ label: string; title: string; sub: string; href: string; tone?: 'paper' | 'paper2' | 'ink' | 'accent' }> = ({ label, title, sub, href, tone = 'paper' }) => {
-  const bg = tone === 'ink' ? 'window-panel-ink' : tone === 'accent' ? 'bg-bermellon text-paper' : 'window-panel';
-  const accent = tone === 'ink' || tone === 'accent' ? '#d8ff5a' : '#09aea1';
-  return (
-    <Link to={href} className={`group block ${bg} transition-colors hover:opacity-90`} style={{ minHeight: '260px' }}>
-      <div className="window-titlebar">
-        <span>{label}</span>
-      </div>
-      <div className={tone === 'ink' ? 'window-body' : 'window-body window-body-compact'}>
-        <div className="display mt-1" style={{ fontSize: 'clamp(28px, 3.2vw, 44px)', lineHeight: 0.95 }}>{title}</div>
-        <p className="serif-italic mt-3 text-base leading-snug opacity-80">{sub}</p>
-        <div className="mono-tag mt-4 flex items-center gap-2 group-hover:translate-x-1 transition-transform">
-          ENTRAR <ArrowRight size={14} />
-        </div>
-      </div>
-    </Link>
   );
 };
 
@@ -106,8 +90,8 @@ export const Home: React.FC = () => {
   const [allRecords, setAllRecords] = useState<VinylRecord[]>([]);
 
   useEffect(() => {
-    document.body.classList.add('theme-paper');
-    return () => { document.body.classList.remove('theme-paper'); };
+    document.body.classList.add('theme-ink');
+    return () => { document.body.classList.remove('theme-ink'); };
   }, []);
 
   useEffect(() => {
@@ -142,31 +126,31 @@ export const Home: React.FC = () => {
   const nextEvent = useMemo(() => allUpcoming[0] || null, [allUpcoming]);
 
   return (
-    <div className="bg-paper text-ink min-h-screen">
+    <div className="min-h-screen" style={{ background: '#0e0c09', color: '#f4f1ea' }}>
       <SEO titleKey="home.seo.title" descriptionKey="home.seo.desc" />
       <WhatsAppButton defaultMessage="Hola MATi, una pregunta desde mat32.com" />
 
-      {/* ─── HERO · slide 04 (back on top) ─── */}
-      <section className="grain hairline-b">
+      {/* ─── HERO · foto fija cabina ─── */}
+      <section className="bg-fixed-club" style={{ backgroundImage: BG_CABINA }}>
         <div className="container mx-auto px-6 md:px-10 pt-12 md:pt-16 pb-10">
           <div className="grid md:grid-cols-[1.55fr_1fr] gap-8 md:gap-12 items-stretch">
             <div className="flex flex-col">
               <div className="mono-tag" style={{ color: '#c8462a' }}>EST. 2022 · MATÍAS PERELLÓ 32 · 46005</div>
-              <h1 className="display mt-4" style={{ fontSize: 'clamp(54px, 9vw, 132px)', lineHeight: 0.85 }}>
+              <h1 className="hero-display text-white mt-4" style={{ fontSize: 'clamp(54px, 9vw, 132px)' }}>
                 DJs CLUB,<br/>DISCOS<br/>Y <span style={{ color: '#c8462a' }}>BARRA.</span>
               </h1>
-              <div className="mono-tag mt-2 text-ink-soft">RUZAFA · VALENCIA</div>
-              <p className="serif-italic mt-6 text-xl md:text-2xl text-ink-soft max-w-2xl leading-snug">
+              <div className="mono-tag mt-2" style={{ color: '#a8a29a' }}>RUZAFA · VALENCIA</div>
+              <p className="serif-italic mt-6 text-xl md:text-2xl max-w-2xl leading-snug" style={{ color: '#e8e2d6' }}>
                 {t('home.hero.intro')}
               </p>
               <div className="flex flex-wrap gap-2 mt-8">
                 <Link to="/alquiler-local-eventos-horas-valencia#booking-form" className="bg-bermellon text-paper px-5 py-3 mono-tag hover:bg-ink transition-colors">
                   SOLICITAR FECHA →
                 </Link>
-                <Link to="/gallery" className="hairline px-5 py-3 mono-tag hover:bg-ink hover:text-paper transition-colors">
+                <Link to="/gallery" className="px-5 py-3 mono-tag text-white transition-colors hover:bg-white/10" style={{ border: '1px solid rgba(255,255,255,.4)' }}>
                   VER LA SALA
                 </Link>
-                <Link to="/events" className="hairline px-5 py-3 mono-tag hover:bg-ink hover:text-paper transition-colors">
+                <Link to="/events" className="px-5 py-3 mono-tag text-white transition-colors hover:bg-white/10" style={{ border: '1px solid rgba(255,255,255,.4)' }}>
                   AGENDA
                 </Link>
               </div>
@@ -178,33 +162,35 @@ export const Home: React.FC = () => {
 
       {/* ─── PRÓXIMO EVENTO · SIEMPRE VISIBLE ─── */}
       {nextEvent && (
-        <section className="hairline-b">
+        <section style={{ background: 'rgba(0,0,0,.55)' }}>
           <Link to="/events" className="block group">
             <div className="container mx-auto px-6 md:px-10 py-10 md:py-14">
-              <div className="window-panel">
-                <div className="window-titlebar"><span>PRÓXIMO</span></div>
-                <div className="window-body">
+              <div style={{ background: 'rgba(20,17,13,.72)', border: '1px solid rgba(255,255,255,.1)' }}>
+                <div className="px-6 md:px-8 py-2 flex justify-between items-center" style={{ borderBottom: '1px solid rgba(255,255,255,.1)' }}>
+                  <span className="mono-tag" style={{ color: '#a8a29a' }}>PRÓXIMO</span>
+                </div>
+                <div className="p-6 md:p-8">
                   <div className="grid md:grid-cols-[1fr_auto] md:items-center gap-6">
                     <div>
                       <div className="mono-tag inline-flex items-center gap-2" style={{ color: '#09aea1' }}>
                         <span className="inline-block w-2 h-2 rounded-full bg-[#09aea1] animate-pulse" /> PRÓXIMO EVENTO
                       </div>
-                      <h2 className="display mt-4" style={{ fontSize: 'clamp(42px, 7vw, 96px)', lineHeight: 0.9 }}>
+                      <h2 className="display text-white mt-4" style={{ fontSize: 'clamp(42px, 7vw, 96px)', lineHeight: 0.9 }}>
                         {nextEvent.title}
                       </h2>
-                      <div className="mono-data mt-4 flex flex-wrap gap-x-6 gap-y-2 text-ink-soft">
+                      <div className="mono-data mt-4 flex flex-wrap gap-x-6 gap-y-2" style={{ color: '#a8a29a' }}>
                         <span>{new Date(nextEvent.date).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
                         <span>{nextEvent.time || '22:00 → 02:00'}</span>
                         <span style={{ color: '#09aea1' }}>{nextEvent.vibe?.[0] || nextEvent.category || 'DJ Set'}</span>
                       </div>
                     </div>
                     {nextEvent.imageUrl && (
-                      <div className="w-40 md:w-52 aspect-square shrink-0 hairline overflow-hidden group-hover:scale-[1.02] transition-transform">
+                      <div className="w-40 md:w-52 aspect-square shrink-0 overflow-hidden group-hover:scale-[1.02] transition-transform" style={{ border: '1px solid rgba(255,255,255,.12)' }}>
                         <img src={nextEvent.imageUrl} alt={nextEvent.title} loading="lazy" className="w-full h-full object-cover" />
                       </div>
                     )}
                   </div>
-                  <div className="mono-tag mt-6 inline-flex items-center gap-2 hairline-ink-b pb-1 group-hover:text-bermellon transition-colors">
+                  <div className="mono-tag mt-6 inline-flex items-center gap-2 pb-1 group-hover:text-bermellon transition-colors" style={{ borderBottom: '1px solid rgba(255,255,255,.3)' }}>
                     VER DETALLE <ArrowRight size={14} />
                   </div>
                 </div>
@@ -215,16 +201,16 @@ export const Home: React.FC = () => {
       )}
 
       {/* ─── DESTACADOS · PRÓXIMAS SESIONES ─── */}
-      <section className="bg-paper-2 hairline-b">
+      <section style={{ background: 'rgba(0,0,0,.35)' }}>
         <div className="container mx-auto px-6 md:px-10 py-16 md:py-20">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
             <div>
               <div className="mono-tag" style={{ color: '#c8462a' }}>DESTACADOS</div>
-              <h2 className="display mt-3" style={{ fontSize: 'clamp(40px, 6vw, 84px)', lineHeight: 0.9 }}>
+              <h2 className="display text-white mt-3" style={{ fontSize: 'clamp(40px, 6vw, 84px)', lineHeight: 0.9 }}>
                 Tres noches<br/>en <span style={{ color: '#c8462a' }}>directo.</span>
               </h2>
             </div>
-            <Link to="/events" className="mono-tag hairline-ink-b pb-1 inline-flex items-center gap-2 hover:text-bermellon transition-colors self-start md:self-end">
+            <Link to="/events" className="mono-tag pb-1 inline-flex items-center gap-2 hover:text-bermellon transition-colors self-start md:self-end" style={{ color: '#f4f1ea', borderBottom: '1px solid rgba(255,255,255,.3)' }}>
               TODA LA AGENDA <ArrowRight size={14} />
             </Link>
           </div>
@@ -233,24 +219,24 @@ export const Home: React.FC = () => {
             <div className="grid md:grid-cols-3 gap-6 md:gap-8">
               {highlights.map(h => (
                 <Link key={h.id} to="/events"
-                  className="group window-panel shadow-[0_18px_40px_rgba(0,0,0,0.14),0_6px_14px_rgba(0,0,0,0.08)]">
-                  <div className="window-titlebar">
+                  className="group" style={{ background: 'rgba(20,17,13,.72)', border: '1px solid rgba(255,255,255,.1)' }}>
+                  <div className="px-6 md:px-8 py-2 flex justify-between items-center" style={{ borderBottom: '1px solid rgba(255,255,255,.1)' }}>
                     <span className="mono-data" style={{ color: '#09aea1' }}>
                       {new Date(h.date).toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase()} 
                       {new Date(h.date).getDate()} 
                       {new Date(h.date).toLocaleDateString('es-ES', { month: 'short' }).toUpperCase()}
                     </span>
-                    <span className="opacity-60">{h.time || '22:00 → 02:00'}</span>
+                    <span className="opacity-60 mono-tag">{h.time || '22:00 → 02:00'}</span>
                   </div>
-                  <div className="window-body">
-                    <div className="aspect-square overflow-hidden bg-ink-2 mb-3">
+                  <div className="p-6 md:p-7">
+                    <div className="aspect-square overflow-hidden bg-black mb-3">
                       <img src={h.imageUrl || `/flyers-jpg/e_${h.id}.svg`} alt={h.title} loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
-                    <div className="display mt-1" style={{ fontSize: 'clamp(26px, 3vw, 36px)', lineHeight: 0.95 }}>{h.title}</div>
+                    <div className="display text-white mt-1" style={{ fontSize: 'clamp(26px, 3vw, 36px)', lineHeight: 0.95 }}>{h.title}</div>
                     <div className="mono-tag mt-1" style={{ color: '#09aea1' }}>{h.vibe?.[0] || h.category || 'DJ Set'}</div>
-                    <p className="serif-italic mt-3 text-sm text-ink-soft leading-snug">{h.description}</p>
-                    <div className="mono-tag mt-5 flex items-center justify-between !text-[10px] pt-3">
+                    <p className="serif-italic mt-3 text-sm leading-snug" style={{ color: 'rgba(244,241,234,.7)' }}>{h.description}</p>
+                    <div className="mono-tag mt-5 flex items-center justify-between !text-[10px] pt-3" style={{ borderTop: '1px solid rgba(255,255,255,.1)' }}>
                       <span style={{ color: '#09aea1' }}>ENTRADA LIBRE</span>
                       <span className="inline-flex items-center gap-1 group-hover:text-bermellon transition-colors">
                         AGENDA <ArrowRight size={12} />
@@ -261,24 +247,33 @@ export const Home: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="hairline p-10 text-center">
-              <p className="serif-italic text-ink-soft text-lg">Programa en preparación. Vuelve pronto.</p>
+            <div className="p-10 text-center" style={{ border: '1px solid rgba(255,255,255,.12)' }}>
+              <p className="serif-italic text-lg" style={{ color: '#a8a29a' }}>Programa en preparación. Vuelve pronto.</p>
             </div>
           )}
         </div>
       </section>
 
-      {/* ─── 4 PILARES · slide 04 bottom strip ─── */}
-      <section className="hairline-b">
-        <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-6 md:px-10">
-          <Pilar label="ESPACIO · NOCHE" title={'Tu evento\naquí'} sub="Colectivos, promotores, sellos. Calendario libre y cabina vinyl-friendly."
-                                 href="/alquiler-local-eventos-horas-valencia" tone="accent" />
-          <Pilar label="AGENDA · NOCHE" title={'Lo que\nsuena'} sub="Residencias, takeovers e invitados. Soul, jazz, house, ambient."
-                 href="/events" tone="paper" />
-          <Pilar label="DISCOS · DÍA" title={'El\nalmacén'} sub="Crate digger, marketplace y Digger Radar para miembros."
-                 href="/records" tone="paper2" />
-          <Pilar label="RADIO · 24/7" title={'Allegretto!\nradio'} sub="Tracks de cabina en streaming. Vinyl rips, sin lista de reproducción."
-                 href="/radio" tone="ink" />
+      {/* ─── EL ESPACIO · foto fija sala ─── */}
+      <section className="bg-fixed-club" style={{ backgroundImage: BG_SALA }}>
+        <div className="container mx-auto px-6 md:px-10 py-16 md:py-24">
+          <div style={{ maxWidth: '640px' }}>
+            <div className="mono-tag" style={{ color: '#c8462a' }}>EL ESPACIO</div>
+            <h2 className="hero-display text-white mt-3" style={{ fontSize: 'clamp(40px, 6vw, 84px)' }}>
+              La sala.
+            </h2>
+            <p className="serif-italic mt-5 text-lg md:text-xl leading-snug" style={{ color: '#e8e2d6' }}>
+              {t('home.hero.intro')}
+            </p>
+            <ul className="mt-6 mono-tag" style={{ color: '#d8d2c6', fontSize: '.8rem', listStyle: 'none' }}>
+              <li style={{ padding: '10px 0', borderTop: '1px solid rgba(255,255,255,.14)' }}>JUE — OPEN DECKS · 19:30</li>
+              <li style={{ padding: '10px 0', borderTop: '1px solid rgba(255,255,255,.14)' }}>VIE — ELECTRIC AVENUE · 22:00</li>
+              <li style={{ padding: '10px 0', borderTop: '1px solid rgba(255,255,255,.14)', borderBottom: '1px solid rgba(255,255,255,.14)' }}>SÁB — SELECTORS · 22:00</li>
+            </ul>
+            <Link to="/gallery" className="inline-block mt-8 px-5 py-3 mono-tag text-white transition-colors hover:bg-white/10" style={{ border: '1px solid rgba(255,255,255,.4)' }}>
+              VER LA SALA
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -319,14 +314,14 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ─── DISPONIBILIDAD EN VIVO · POLAROID (slide 10) ─── */}
-      <section className="bg-paper-2 hairline-b">
+      <section style={{ background: '#e8ddc6' }}>
         <div className="container mx-auto px-6 md:px-10 py-16 md:py-20">
           <div className="grid md:grid-cols-2 gap-10 md:gap-14 items-center">
             <div>
-              <h2 className="display" style={{ fontSize: 'clamp(38px, 6vw, 80px)', lineHeight: 0.9 }}>
+              <h2 className="display" style={{ fontSize: 'clamp(38px, 6vw, 80px)', lineHeight: 0.9, color: '#1a1611' }}>
                 Calendario <span style={{ color: '#c8462a' }}>libre.</span>
               </h2>
-              <p className="serif-italic mt-5 text-lg md:text-xl text-ink-soft leading-snug max-w-xl">
+              <p className="serif-italic mt-5 text-lg md:text-xl leading-snug max-w-xl" style={{ color: '#4a3f2e' }}>
                 Sincronizado con la agenda real. Mira los huecos disponibles para tu evento y escríbenos. Respondemos en 24h con presupuesto y rider técnico.
               </p>
               <div className="flex flex-wrap gap-2 mt-8">
@@ -345,23 +340,23 @@ export const Home: React.FC = () => {
       </section>
 
       {/* ─── PRÓXIMOS EVENTOS ─── */}
-      <section className="hairline-b">
+      <section style={{ background: 'rgba(0,0,0,.55)' }}>
         <div className="container mx-auto px-6 md:px-10 py-16 md:py-20">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
             <div>
               <div className="mono-tag" style={{ color: '#c8462a' }}>AGENDA · 03 PRÓXIMOS</div>
-              <h2 className="display mt-3" style={{ fontSize: 'clamp(40px, 6vw, 84px)', lineHeight: 0.9 }}>
+              <h2 className="display text-white mt-3" style={{ fontSize: 'clamp(40px, 6vw, 84px)', lineHeight: 0.9 }}>
                 Lo que <span style={{ color: '#c8462a' }}>suena.</span>
               </h2>
             </div>
-            <Link to="/events" className="mono-tag hairline-ink-b pb-1 inline-flex items-center gap-2 hover:text-bermellon transition-colors self-start md:self-end">
+            <Link to="/events" className="mono-tag pb-1 inline-flex items-center gap-2 hover:text-bermellon transition-colors self-start md:self-end" style={{ color: '#f4f1ea', borderBottom: '1px solid rgba(255,255,255,.3)' }}>
               TODA LA AGENDA <ArrowRight size={14} />
             </Link>
           </div>
 
           {upcomingEvents.length === 0 ? (
-            <div className="hairline-ink p-10 text-center">
-              <p className="serif-italic text-ink-soft text-lg">Sincronizando próximos eventos…</p>
+            <div className="p-10 text-center" style={{ border: '1px solid rgba(255,255,255,.12)' }}>
+              <p className="serif-italic text-lg" style={{ color: '#a8a29a' }}>Sincronizando próximos eventos…</p>
             </div>
           ) : (
             <div className="grid md:grid-cols-3 gap-4">
@@ -370,13 +365,13 @@ export const Home: React.FC = () => {
                 const dia = String(d.getDate()).padStart(2,'0');
                 const mes = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'][d.getMonth()];
                 return (
-                  <Link key={ev.id} to={`/events`} className="group window-panel hover:opacity-90 transition-opacity">
-                    <div className="window-titlebar">
-                      <span>{['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'][d.getDay()]} {dia} {mes}</span>
-                      {ev.time && <span>{ev.time}</span>}
+                  <Link key={ev.id} to={`/events`} className="group transition-colors hover:bg-white/5" style={{ background: 'rgba(20,17,13,.72)', border: '1px solid rgba(255,255,255,.1)' }}>
+                    <div className="px-6 md:px-8 py-2 flex justify-between items-center" style={{ borderBottom: '1px solid rgba(255,255,255,.1)' }}>
+                      <span className="mono-tag">{['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'][d.getDay()]} {dia} {mes}</span>
+                      {ev.time && <span className="mono-tag opacity-60">{ev.time}</span>}
                     </div>
-                    <div className="window-body window-body-compact">
-                      <h3 className="display mt-1" style={{ fontSize: 'clamp(26px, 2.8vw, 38px)', lineHeight: 0.95 }}>
+                    <div className="p-6 md:p-7">
+                      <h3 className="display text-white mt-1" style={{ fontSize: 'clamp(26px, 2.8vw, 38px)', lineHeight: 0.95 }}>
                         {ev.title}
                       </h3>
                       {ev.description && <p className="serif-italic mt-2 text-sm opacity-80 line-clamp-3">{ev.description}</p>}
@@ -433,17 +428,17 @@ export const Home: React.FC = () => {
 
       {/* ─── INSTAGRAM · ÚLTIMOS POSTS ─── */}
       {INSTAGRAM_FEATURED_POSTS.length > 0 && (
-        <section className="bg-paper-2 hairline-b">
+        <section style={{ background: 'rgba(0,0,0,.35)' }}>
           <div className="container mx-auto px-6 md:px-10 py-16 md:py-20">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
               <div>
                 <div className="mono-tag" style={{ color: '#c8462a' }}>INSTAGRAM · DESDE EL LOCAL</div>
-                <h2 className="display mt-3" style={{ fontSize: 'clamp(40px, 6vw, 84px)', lineHeight: 0.9 }}>
+                <h2 className="display text-white mt-3" style={{ fontSize: 'clamp(40px, 6vw, 84px)', lineHeight: 0.9 }}>
                   En <span style={{ color: '#c8462a' }}>directo.</span>
                 </h2>
               </div>
               <a href="https://www.instagram.com/mat32__" target="_blank" rel="noopener"
-                className="mono-tag hairline-ink-b pb-1 inline-flex items-center gap-2 hover:text-bermellon transition-colors self-start md:self-end">
+                className="mono-tag pb-1 inline-flex items-center gap-2 hover:text-bermellon transition-colors self-start md:self-end" style={{ color: '#f4f1ea', borderBottom: '1px solid rgba(255,255,255,.3)' }}>
                 @MAT32__ <ArrowRight size={14} />
               </a>
             </div>

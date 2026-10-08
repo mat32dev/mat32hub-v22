@@ -130,7 +130,7 @@ export const OpenDecks: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-paper text-ink pb-24">
-      <SEO titleKey="Open Decks · MAT32 Valencia" descriptionKey="Toca en MAT32. Vinyl only en el sistema Altec A7 + Technics 1210. Mándanos tu mix y te ponemos en la rotación." />
+      <SEO titleKey="Open Decks · MAT32 Valencia" descriptionKey="Toca en MAT32. Sesiones en discos en el sistema Altec A7 + Technics 1210. Mándanos tu mix y te ponemos en la rotación." />
 
       {/* HERO */}
       <div className="relative h-[58vh] overflow-hidden hairline-b">
