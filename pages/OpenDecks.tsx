@@ -11,12 +11,33 @@ const STREET_RADIO_POSTER_URL = '/video/street-radio-green-booth-poster.jpg';
 
 const GENRES = ['DISCO', 'HOUSE', 'BALEARIC', 'LEFTFIELD', 'JAZZ', 'SOUL', 'FUNK', 'AMBIENT', 'ELECTRÓNICA', 'WORLD', 'AFRO', 'EXPERIMENTAL', 'SYNTH'];
 
+// Solo VIERNES tiene slots fijos (19:30–21:00 y 21:00–22:30).
 const TIME_SLOTS = [
   { id: '1', start: '19:30', end: '21:00' },
   { id: '2', start: '21:00', end: '22:30' },
-  { id: '3', start: '22:30', end: '00:00' },
-  { id: '4', start: '00:00', end: '01:30' },
 ];
+
+// Días de la semana que abren Open Decks: JUEVES (requiere confirmación) y VIERNES.
+const OPEN_DAYS_TEXT: Record<number, string> = { 4: 'JUEVES', 5: 'VIERNES' };
+const DAY_NS = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
+const MONTH_NS = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const label = (d: Date) => `${DAY_NS[d.getDay()]} ${d.getDate()} ${MONTH_NS[d.getMonth()]}`;
+
+// Próximos JUEVES y VIERNES (solo esos días, 20 fechas como máximo).
+const NEXT_OPEN_DATES: { value: string; label: string; dow: number }[] = (() => {
+  const out: { value: string; label: string; dow: number }[] = [];
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  let guard = 0;
+  while (out.length < 20 && guard < 220) {
+    const dow = d.getDay();
+    if (OPEN_DAYS_TEXT[dow]) out.push({ value: iso(d), label: label(d), dow });
+    d.setDate(d.getDate() + 1);
+    guard++;
+  }
+  return out;
+})();
 
 interface NextSelector {
   id: string;
@@ -376,35 +397,50 @@ export const OpenDecks: React.FC = () => {
 
                 {/* Fecha + Slots */}
                 <div className="p-6">
-                  <label className="mono-tag text-ink/50 block mb-3">Disponibilidad <span className="text-ink/30">(opcional)</span></label>
-                  <input
-                    type="date"
+                  <label className="mono-tag text-ink/50 block mb-3">Día <span className="text-ink/30">(solo JUEVES y VIERNES · opcional)</span></label>
+                  <select
                     value={form.date}
-                    onChange={e => setForm({ ...form, date: e.target.value })}
-                    className="w-full hairline p-3 text-ink mono-tag !text-[12px] !normal-case outline-none focus:border-bermellon transition-colors bg-transparent mb-4"
-                  />
-                  <div className="mono-tag text-ink/50 mb-3">Slot preferido</div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {TIME_SLOTS.map(s => {
-                      const active = form.slot === s.id;
-                      return (
-                        <button
-                          key={s.id}
-                          type="button"
-                          onClick={() => setForm(f => ({ ...f, slot: f.slot === s.id ? '' : s.id }))}
-                          className={`p-4 text-left transition-colors ${
-                            active
-                              ? 'bg-ink text-paper'
-                              : 'hairline text-ink hover:bg-paper-2'
-                          }`}
-                        >
-                          <div className="mono-tag text-[10px] mb-1" style={{ color: active ? '#c8462a' : '#c8462a' }}>{s.start}</div>
-                          <div className="mono-tag text-[10px] opacity-60">→ {s.end}</div>
-                          <div className="mono-tag text-[9px] mt-2 opacity-40">90 MIN</div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                    onChange={e => setForm({ ...form, date: e.target.value, slot: '' })}
+                    className="w-full hairline p-3 text-ink mono-tag !text-[12px] !normal-case outline-none focus:border-bermellon transition-colors bg-transparent mb-4 appearance-none"
+                  >
+                    <option value="">— ELIGE UN DÍA —</option>
+                    {NEXT_OPEN_DATES.map(d => (
+                      <option key={d.value} value={d.value}>{d.label} · {OPEN_DAYS_TEXT[d.dow]}</option>
+                    ))}
+                  </select>
+
+                  {form.date && NEXT_OPEN_DATES.find(d => d.value === form.date)?.dow === 4 && (
+                    <p className="mono-tag text-bermellon mb-4 border border-bermellon/40 p-3 leading-relaxed">
+                      ⚠ Los JUEVES no abrimos todos los días: este día <strong>requiere confirmación</strong> del equipo de programación. Te avisamos por email si hay hueco.
+                    </p>
+                  )}
+
+                  {form.date && NEXT_OPEN_DATES.find(d => d.value === form.date)?.dow === 5 && (
+                    <>
+                      <div className="mono-tag text-ink/50 mb-3">Slot (VIERNES)</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {TIME_SLOTS.map(s => {
+                          const active = form.slot === s.id;
+                          return (
+                            <button
+                              key={s.id}
+                              type="button"
+                              onClick={() => setForm(f => ({ ...f, slot: f.slot === s.id ? '' : s.id }))}
+                              className={`p-4 text-left transition-colors ${
+                                active
+                                  ? 'bg-ink text-paper'
+                                  : 'hairline text-ink hover:bg-paper-2'
+                              }`}
+                            >
+                              <div className="mono-tag text-[13px] mb-1" style={{ color: '#c8462a' }}>{s.start}</div>
+                              <div className="mono-tag text-[10px] opacity-60">→ {s.end}</div>
+                              <div className="mono-tag text-[9px] mt-2 opacity-40">90 MIN</div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Street Radio opt-in */}
@@ -423,6 +459,7 @@ export const OpenDecks: React.FC = () => {
                     <div>
                       <div className="mono-tag" style={{ color: '#c8462a' }}>GRABAR EN EL GREEN BOOTH</div>
                       <div className="text-sm mt-1 opacity-80">Quiero que mi sesión se grabe en audio y vídeo, formato street radio · 21:00 → 23:00</div>
+                      <div className="text-sm mt-2 opacity-50">Solo queda confirmada si la programación de Mat32 lo aprueba.</div>
                     </div>
                   </button>
                 </div>

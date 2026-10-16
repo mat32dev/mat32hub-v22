@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Loader2, Instagram, Globe, Disc, Music, ChevronLeft, Sparkles } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
+import { slugFor } from './ArtistDetail';
 
 interface Selector {
   id: string;
@@ -110,7 +111,8 @@ const Card: React.FC<{ s: Selector }> = ({ s }) => {
   if (s.web_url) links.push({ href: s.web_url, icon: <Globe size={12} />, label: 'Web' });
 
   return (
-    <article className={`group relative bg-mat-950 border rounded-3xl overflow-hidden transition-all hover:border-mat-500/50 ${s.featured ? 'border-mat-500/30' : 'border-mat-800'}`}>
+    <Link to={`/artista/${slugFor(s.name)}`}
+      className={`group relative bg-mat-950 border rounded-3xl overflow-hidden transition-all hover:border-mat-500/50 ${s.featured ? 'border-mat-500/30' : 'border-mat-800'} block`}>
       <div className="relative aspect-[4/5] bg-mat-800 overflow-hidden">
         {s.image_url ? (
           <img src={s.image_url} alt={s.name} loading="lazy"
@@ -129,6 +131,7 @@ const Card: React.FC<{ s: Selector }> = ({ s }) => {
           {s.role && <div className="text-[9px] font-black text-mat-500 uppercase tracking-[0.3em] mb-1">{s.role}</div>}
           <div className="text-2xl font-black text-white uppercase tracking-tight font-exo leading-none">{s.name}</div>
           {s.handle && <div className="text-[11px] text-gray-400 mt-1">{s.handle}</div>}
+          <div className="mt-2 text-[9px] font-black text-mat-500 uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-opacity">VER PERFIL →</div>
         </div>
       </div>
 
@@ -154,7 +157,7 @@ const Card: React.FC<{ s: Selector }> = ({ s }) => {
           )}
         </div>
       )}
-    </article>
+    </Link>
   );
 };
 

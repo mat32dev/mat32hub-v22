@@ -48,6 +48,7 @@ import { Wishlist } from './pages/Wishlist';
 import { Gallery } from './pages/Gallery';
 
 import { EventDetail } from './pages/EventDetail';
+import { ArtistDetail } from './pages/ArtistDetail';
 import { RecordDetail } from './pages/RecordDetail';
 import { PostDetail } from './pages/PostDetail';
 import { RadioPage } from './pages/Radio';
@@ -98,20 +99,10 @@ const Navigation: React.FC<{ bannerVisible: boolean }> = ({ bannerVisible }) => 
     { name: t('nav.home'), path: '/' },
     { name: t('nav.events'), path: '/events' },
     { name: t('nav.open_decks'), path: '/open-decks' },
-    {
-      name: t('nav.records'),
-      path: '/records',
-      children: [
-        { name: t('nav.about_us'), path: '/about' },
-      ],
-    },
-    {
-      name: t('nav.contact'),
-      path: '/contact',
-      children: [
-        { name: 'Alquiler de espacio', path: '/alquiler-local-eventos-horas-valencia' },
-      ],
-    },
+    { name: t('nav.records'), path: '/records' },
+    { name: t('nav.about_us'), path: '/about' },
+    { name: t('nav.contact'), path: '/contact' },
+    { name: 'Alquiler de espacio', path: '/alquiler-local-eventos-horas-valencia' },
   ];
 
   const isActive = (path: string) => {
@@ -306,6 +297,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/agenda" element={<Navigate to="/community?tab=whats-on" replace />} />
           <Route path="/fondos-reservados" element={<Fondos />} />
           <Route path="/selectors" element={<SelectorsPage />} />
+          <Route path="/artista/:slug" element={<ArtistDetail />} />
           <Route path="/reference-points" element={<Navigate to="/selectors" replace />} />
           <Route path="/fondos" element={<Navigate to="/fondos-reservados" replace />} />
           <Route path="/fulfillment-discos" element={<Navigate to="/marketplace" replace />} />

@@ -9,6 +9,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
 import { CachedImage } from '../components/CachedImage';
 import { useEventRSVP } from '../hooks/useEventRSVP';
+import { slugFor } from './ArtistDetail';
 
 export const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -161,15 +162,32 @@ export const EventDetail: React.FC = () => {
                 <h3 className="display text-3xl md:text-4xl hairline-b pb-3 mb-6">The selectors.</h3>
                 <div className="grid sm:grid-cols-2 gap-2">
                   {event.lineup.map((member, i) => (
-                    <div key={i} className="hairline p-5 flex items-center gap-4 group hover:bg-ink hover:text-paper transition-colors">
+                    <Link key={i} to={`/artista/${slugFor(member.name)}`}
+                      className="hairline p-5 flex items-center gap-4 group hover:bg-ink hover:text-paper transition-colors">
                       <div className="w-14 h-14 bg-bermellon text-paper flex items-center justify-center display text-2xl">
                         {member.name[0].toUpperCase()}
                       </div>
                       <div>
                         <h4 className="display text-xl">{member.name}</h4>
                         <p className="mono-tag" style={{ color: '#c8462a' }}>{member.role}</p>
+                        <p className="mono-tag !text-[9px] opacity-60 mt-0.5">VER PERFIL →</p>
                       </div>
-                    </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {!!event.vibe?.length && (
+              <section>
+                <h3 className="display text-3xl md:text-4xl hairline-b pb-3 mb-6">Sonido.</h3>
+                <div className="flex flex-wrap gap-2">
+                  {event.vibe.map((g, i) => (
+                    <Link key={i} to={`/events?genero=${encodeURIComponent(g)}`}
+                      className="mono-tag px-4 py-2.5 hairline text-ink hover:bg-bermellon hover:text-paper transition-colors"
+                      title={`Ver próximos eventos de ${g}`}>
+                      {g.toUpperCase()}
+                    </Link>
                   ))}
                 </div>
               </section>

@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext';
 import { CachedImage } from './CachedImage';
 import { useEventRSVP } from '../hooks/useEventRSVP';
 import { GoogleCalendarButton } from './EventCardParts';
+import { slugFor } from '../pages/ArtistDetail';
 
 // IDs de las fotos del hero home — no son flyers de eventos
 const HERO_IMAGE_IDS = [
@@ -69,6 +70,17 @@ export const EventCard: React.FC<EventCardProps> = ({ event, isPast = false }) =
 
   const eventImageSrc = isHeroImage(event.imageUrl ?? '') ? '' : (event.imageUrl ?? '');
 
+  const goGenre = (e: React.MouseEvent, g: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/events?genero=${encodeURIComponent(g)}`);
+  };
+  const goArtist = (e: React.MouseEvent, name: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/artista/${slugFor(name)}`);
+  };
+
   const d = new Date(event.date);
   const dia = String(d.getDate()).padStart(2,'0');
   const mes = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'][d.getMonth()];
@@ -109,6 +121,41 @@ export const EventCard: React.FC<EventCardProps> = ({ event, isPast = false }) =
                 {event.title}
               </h3>
               {event.description && <p className="serif-italic text-ink-soft mt-2 text-sm leading-snug line-clamp-2">{event.description}</p>}
+
+              {/* SELECTORS · clicables → perfil */}
+              {!!event.lineup?.length && (
+                <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  <span className="mono-tag !text-[9px] text-ink/40">EN CABINA</span>
+                  {event.lineup.map((m, i) => (
+                    <React.Fragment key={i}>
+                      <span
+                        onClick={e => goArtist(e, m.name)}
+                        className="mono-tag !text-[10px] px-2.5 py-1 hairline text-ink hover:bg-ink hover:text-paper transition-colors cursor-pointer"
+                        title={`Ver perfil de ${m.name}`}>
+                        {m.name}
+                      </span>
+                      {i < event.lineup.length - 1 && <span className="text-ink/30">+</span>}
+                    </React.Fragment>
+                  ))}
+                </div>
+              )}
+
+              {/* GÉNEROS · clicables → agenda filtrada */}
+              {!!event.vibe?.length && (
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <span className="mono-tag !text-[9px] text-ink/40">SONIDO</span>
+                  {event.vibe.slice(0, 4).map((g, i) => (
+                    <span
+                      key={i}
+                      onClick={e => goGenre(e, g)}
+                      className="mono-tag !text-[9px] px-2 py-0.5 border transition-colors cursor-pointer text-bermellon hover:bg-bermellon hover:text-paper"
+                      style={{ borderColor: '#c8462a' }}
+                      title={`Ver próximos eventos de ${g}`}>
+                      {g}
+                    </span>
+                  ))}
+                </div>
+              )}
             </header>
 
             <div className="mt-auto flex flex-wrap items-center gap-3 justify-between">
