@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Loader2, Music, Instagram, ExternalLink, Radio, Volume2, VolumeX } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
@@ -71,7 +72,9 @@ export const OpenDecks: React.FC = () => {
     slot: '',
     socialUrl: '',
     streetRadio: false,
+    vinyles: '',
   });
+  const navigate = useNavigate();
   const { isPlaying: radioPlaying, toggle: toggleRadio } = useRadio();
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoSectionRef = useRef<HTMLDivElement>(null);
@@ -146,10 +149,20 @@ export const OpenDecks: React.FC = () => {
         type: 'artist',
         sender: form.artistName,
         email: form.email,
-        content: `Solicitud Open Decks. Teléfono: ${form.phone || '—'}. Estilos: ${form.genres.join(', ')}. Fecha: ${form.date || '—'} · Slot: ${slotLabel}. Link: ${form.socialUrl || '—'}. Street Radio (Green Booth, audio/vídeo 21:00→23:00): ${form.streetRadio ? 'Sí' : 'No'}.`,
-        metadata: { source: 'open-decks', artistName: form.artistName, phone: form.phone, genres: form.genres.join(', '), date: form.date, slot: form.slot, slotTime: slotLabel, socialUrl: form.socialUrl, streetRadio: form.streetRadio }
+        content: `Solicitud Open Decks. Teléfono: ${form.phone || '—'}. Estilos: ${form.genres.join(', ')}. Fecha: ${form.date || '—'} · Slot: ${slotLabel}. Link: ${form.socialUrl || '—'}. Street Radio (Green Booth, audio/vídeo 21:00→23:00): ${form.streetRadio ? 'Sí' : 'No'}. 3 discos que pondría en Mat32: ${form.vinyles || '—'}.`,
+        metadata: { source: 'open-decks', artistName: form.artistName, phone: form.phone, genres: form.genres.join(', '), date: form.date, slot: form.slot, slotTime: slotLabel, socialUrl: form.socialUrl, streetRadio: form.streetRadio, vinyles: form.vinyles }
       });
-      setIsSubmitted(true);
+      navigate('/open-decks/gracias', {
+        state: {
+          artistName: form.artistName,
+          genres: form.genres,
+          date: form.date,
+          slot: form.slot,
+          slotLabel,
+          streetRadio: form.streetRadio,
+          vinyles: form.vinyles,
+        },
+      });
     } catch {
       setSubmitError(true);
     } finally {
@@ -313,28 +326,21 @@ export const OpenDecks: React.FC = () => {
               <h2 className="display text-3xl md:text-4xl text-ink tracking-tight mb-3">
                 LA CABINA<br /><span style={{ color: '#c8462a' }}>ES TUYA.</span>
               </h2>
-              <p className="serif-italic text-ink/60 leading-relaxed">
-                Rellena el formulario con tus géneros y disponibilidad. Si tenemos hueco y encaja, te escribimos.
-              </p>
+              <div className="space-y-4 serif-italic text-ink/60 leading-relaxed">
+                <p className="mono-tag !text-[10px] text-bermellon !tracking-[0.25em]">CÓMO FUNCIONA</p>
+                <ol className="space-y-3">
+                  <li className="flex gap-3"><span className="mono-tag text-bermellon">01</span><span>Mándanos <strong>una sola sesión</strong> en Mixcloud o SoundCloud, lo más cerca posible de lo que pincharías aquí.</span></li>
+                  <li className="flex gap-3"><span className="mono-tag text-bermellon">02</span><span>El equipo de programación revisa que encaje con la rotación de los viernes y lo marca como <strong>CONFIRMADO</strong> o <strong>PENDIENTE</strong>.</span></li>
+                  <li className="flex gap-3"><span className="mono-tag text-bermellon">03</span><span>Si ha hueco, te confirmamos la fecha por email y queda marcada en el lineup. Automático en cuanto os aprobemos.</span></li>
+                </ol>
+                <p className="text-sm pt-2"><strong className="text-ink">Directo, sin enredos:</strong> revisamos, confirmamos y pinchas.</p>
+              </div>
             </div>
           </div>
 
           {/* Form */}
           <div className="lg:col-span-8 hairline">
-            {isSubmitted ? (
-              <div className="p-12 text-center">
-                <CheckCircle className="w-12 h-12 text-bermellon mx-auto mb-6" />
-                <h3 className="display text-3xl text-ink tracking-tight mb-3">SOLICITUD ENVIADA</h3>
-                <p className="serif-italic text-ink/60 mb-8">El equipo lo revisará y te avisamos si hay hueco.</p>
-                <button
-                  onClick={() => { setIsSubmitted(false); setForm({ artistName: '', email: '', phone: '', genres: [], date: '', slot: '', socialUrl: '', streetRadio: false }); }}
-                  className="mono-tag hairline px-6 py-3 text-ink hover:bg-ink hover:text-paper transition-colors"
-                >
-                  NUEVA SOLICITUD
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="divide-y divide-ink/10">
+            <form onSubmit={handleSubmit} className="divide-y divide-ink/10">
 
                 {/* Nombre + Email + Teléfono */}
                 <div className="p-6 grid sm:grid-cols-2 gap-4">
@@ -468,18 +474,31 @@ export const OpenDecks: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Link */}
+                {/* 3 discos que pondrías en MAT32 */}
                 <div className="p-6">
-                  <label className="mono-tag text-ink/50 block mb-2">Tu mix <span className="text-ink/30">(obligatorio · Mixcloud, SoundCloud, Instagram...)</span></label>
+                  <label className="mono-tag text-ink/50 block mb-2">3 discos que pondrías en MAT32 <span className="text-ink/30">(nos dice qué tocarías)</span></label>
+                  <textarea
+                    rows={3}
+                    value={form.vinyles}
+                    onChange={e => setForm({ ...form, vinyles: e.target.value })}
+                    className="w-full hairline p-3 text-ink mono-tag !text-[12px] !normal-case outline-none focus:border-bermellon transition-colors bg-transparent resize-none"
+                    placeholder={'1. Nombre del disco — artista\n2. . . .\n3. . . .'}
+                  />
+                  <p className="mono-tag text-ink/30 !text-[10px] mt-2">En vinilo, por favor. Con esto nos hacemos una idea clara de tu sesión.</p>
+                </div>
+
+                {/* Link: UNA sola sesión, solo Mixcloud o SoundCloud */}
+                <div className="p-6">
+                  <label className="mono-tag text-ink/50 block mb-2">Tu sesión <span className="text-ink/30">(obligatorio · Mixcloud o SoundCloud)</span></label>
                   <input
                     required
                     value={form.socialUrl}
                     onChange={e => { setMixError(false); setForm({ ...form, socialUrl: e.target.value }); }}
                     className={`w-full hairline p-3 text-ink mono-tag !text-[12px] !normal-case outline-none focus:border-bermellon transition-colors bg-transparent ${mixError ? 'border-bermellon' : ''}`}
-                    placeholder="https://mixcloud.com/tu-perfil"
+                    placeholder="https://mixcloud.com/tu-perfil/sesion-1"
                   />
-                  {mixError && <p className="mono-tag text-bermellon mt-2">Mándanos un enlace a tu mix o perfil (obligatorio).</p>}
-                  <p className="mono-tag text-ink/30 !text-[10px] mt-2">Solo vinilos · puedes pinchar con discos de la tienda.</p>
+                  {mixError && <p className="mono-tag text-bermellon mt-2">Mándanos el enlace a UNA sesión (obligatorio).</p>}
+                  <p className="mono-tag text-ink/30 !text-[10px] mt-2">Pega el enlace a una sola sesión — tu perfil no. Cuanto más se parezca a lo que pincharías aquí, mejor. Solo vinilo · puedes pinchar con discos de la tienda.</p>
                 </div>
 
                 {/* Submit */}
@@ -496,7 +515,6 @@ export const OpenDecks: React.FC = () => {
                 </div>
 
               </form>
-            )}
           </div>
         </div>
 

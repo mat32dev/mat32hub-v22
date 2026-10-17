@@ -15,6 +15,7 @@ import { Events } from './pages/Events';
 import { Records } from './pages/Records';
 import { Community } from './pages/Community';
 import { OpenDecks } from './pages/OpenDecks';
+import { OpenDecksGracias } from './pages/OpenDecksGracias';
 import { OpenDecksLineupPublic } from './pages/OpenDecksLineupPublic';
 import { Academy } from './pages/Academy';
 import { About } from './pages/About';
@@ -305,6 +306,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/envio-discos" element={<Navigate to="/marketplace" replace />} />
           <Route path="/community/:id" element={<PostDetail />} />
           <Route path="/open-decks" element={<OpenDecks />} />
+          <Route path="/open-decks/gracias" element={<OpenDecksGracias />} />
           <Route path="/open-decks/lineup" element={<OpenDecksLineupPublic />} />
           <Route path="/academy" element={<Academy />} />
           <Route path="/nosotros" element={<About />} />
