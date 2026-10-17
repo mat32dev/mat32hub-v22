@@ -15,6 +15,7 @@ import { Events } from './pages/Events';
 import { Records } from './pages/Records';
 import { Community } from './pages/Community';
 import { OpenDecks } from './pages/OpenDecks';
+import { OpenDecksLineupPublic } from './pages/OpenDecksLineupPublic';
 import { Academy } from './pages/Academy';
 import { About } from './pages/About';
 import { Marketplace } from './pages/Marketplace';
@@ -31,6 +32,7 @@ import { AdminLayout } from './pages/admin/AdminLayout';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminEntityList } from './pages/admin/AdminEntityList';
 import { AdminEntityForm } from './pages/admin/AdminEntityForm';
+import { AdminOpenDecksLineup } from './pages/admin/AdminOpenDecksLineup';
 import { AdminInbox } from './pages/admin/AdminInbox';
 import { AdminAllegretto } from './pages/admin/AdminAllegretto';
 import { AdminInstagramPosts } from './pages/admin/AdminInstagramPosts';
@@ -100,9 +102,7 @@ const Navigation: React.FC<{ bannerVisible: boolean }> = ({ bannerVisible }) => 
     { name: t('nav.events'), path: '/events' },
     { name: t('nav.open_decks'), path: '/open-decks' },
     { name: t('nav.records'), path: '/records' },
-    { name: t('nav.about_us'), path: '/about' },
     { name: t('nav.contact'), path: '/contact' },
-    { name: 'Alquiler de espacio', path: '/alquiler-local-eventos-horas-valencia' },
   ];
 
   const isActive = (path: string) => {
@@ -258,6 +258,7 @@ const AppRoutes: React.FC = () => {
           <Route path="selectors-ref" element={<AdminReferenceSelectors />} />
           <Route path="allegretto" element={<AdminAllegretto />} />
           <Route path="inbox" element={<AdminInbox />} />
+          <Route path="opendecks-lineup" element={<AdminOpenDecksLineup />} />
           <Route path="selectors" element={<AdminSelectors />} />
           <Route path="instagram-posts" element={<AdminInstagramPosts />} />
           <Route path="members" element={<AdminEntityList entity="members" />} />
@@ -304,6 +305,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/envio-discos" element={<Navigate to="/marketplace" replace />} />
           <Route path="/community/:id" element={<PostDetail />} />
           <Route path="/open-decks" element={<OpenDecks />} />
+          <Route path="/open-decks/lineup" element={<OpenDecksLineupPublic />} />
           <Route path="/academy" element={<Academy />} />
           <Route path="/nosotros" element={<About />} />
           <Route path="/about" element={<Navigate to="/nosotros" replace />} />

@@ -147,7 +147,7 @@ export interface InboxMessage {
   phone?: string;
   content: string;
   date: string;
-  status: 'pending' | 'read' | 'archived';
+  status: 'pending' | 'read' | 'archived' | 'confirmed';
   metadata?: any;
 }
 

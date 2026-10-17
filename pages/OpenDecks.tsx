@@ -11,10 +11,12 @@ const STREET_RADIO_POSTER_URL = '/video/street-radio-green-booth-poster.jpg';
 
 const GENRES = ['DISCO', 'HOUSE', 'BALEARIC', 'LEFTFIELD', 'JAZZ', 'SOUL', 'FUNK', 'AMBIENT', 'ELECTRÓNICA', 'WORLD', 'AFRO', 'EXPERIMENTAL', 'SYNTH'];
 
-// Solo VIERNES tiene slots fijos (19:30–21:00 y 21:00–22:30).
+// Solo VIERNES tiene slots fijos, de 90 minutos, hasta las 01:30.
 const TIME_SLOTS = [
   { id: '1', start: '19:30', end: '21:00' },
   { id: '2', start: '21:00', end: '22:30' },
+  { id: '3', start: '22:30', end: '00:00' },
+  { id: '4', start: '00:00', end: '01:30' },
 ];
 
 // Días de la semana que abren Open Decks: JUEVES (requiere confirmación) y VIERNES.
@@ -58,6 +60,7 @@ export const OpenDecks: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [submitError, setSubmitError] = useState(false);
   const [genreError, setGenreError] = useState(false);
+  const [mixError, setMixError] = useState(false);
   const [nextSelectors, setNextSelectors] = useState<NextSelector[]>([]);
   const [form, setForm] = useState({
     artistName: '',
@@ -133,6 +136,7 @@ export const OpenDecks: React.FC = () => {
     e.preventDefault();
     if (!form.artistName || !form.email) return;
     if (form.genres.length < 2) { setGenreError(true); return; }
+    if (!form.socialUrl) { setMixError(true); return; }
     setIsProcessing(true);
     setSubmitError(false);
     const slotObj = TIME_SLOTS.find(s => s.id === form.slot);
@@ -172,7 +176,7 @@ export const OpenDecks: React.FC = () => {
             OPEN<br /><span style={{ color: '#c8462a' }}>DECKS.</span>
           </h1>
           <p className="serif-italic text-paper/60 text-lg max-w-md leading-snug">
-            Records & Digital OK · Altec A7 · Technics 1210 · Rotary mixer
+            Solo discos de vinilo · Altec A7 · Technics 1210 · Rotary mixer
           </p>
         </div>
       </div>
@@ -185,7 +189,7 @@ export const OpenDecks: React.FC = () => {
             { label: 'SISTEMA P.A.', value: 'Altec Lansing A7' },
             { label: 'MIXER', value: 'Rotary Analógico' },
             { label: 'TURNTABLES', value: '2× Technics 1210' },
-            { label: 'FORMATO', value: 'Records & Digital OK' },
+            { label: 'FORMATO', value: 'Solo discos de vinilo' },
           ].map((item, i) => (
             <div key={i} className={`py-6 px-6 ${i < 3 ? 'md:hairline-r' : ''}`}>
               <div className="mono-tag text-ink/40 mb-2">{item.label}</div>
@@ -466,13 +470,16 @@ export const OpenDecks: React.FC = () => {
 
                 {/* Link */}
                 <div className="p-6">
-                  <label className="mono-tag text-ink/50 block mb-2">Tu mix / perfil <span className="text-ink/30">(opcional · Mixcloud, SoundCloud, Instagram...)</span></label>
+                  <label className="mono-tag text-ink/50 block mb-2">Tu mix <span className="text-ink/30">(obligatorio · Mixcloud, SoundCloud, Instagram...)</span></label>
                   <input
+                    required
                     value={form.socialUrl}
-                    onChange={e => setForm({ ...form, socialUrl: e.target.value })}
-                    className="w-full hairline p-3 text-ink mono-tag !text-[12px] !normal-case outline-none focus:border-bermellon transition-colors bg-transparent"
+                    onChange={e => { setMixError(false); setForm({ ...form, socialUrl: e.target.value }); }}
+                    className={`w-full hairline p-3 text-ink mono-tag !text-[12px] !normal-case outline-none focus:border-bermellon transition-colors bg-transparent ${mixError ? 'border-bermellon' : ''}`}
                     placeholder="https://mixcloud.com/tu-perfil"
                   />
+                  {mixError && <p className="mono-tag text-bermellon mt-2">Mándanos un enlace a tu mix o perfil (obligatorio).</p>}
+                  <p className="mono-tag text-ink/30 !text-[10px] mt-2">Solo vinilos · puedes pinchar con discos de la tienda.</p>
                 </div>
 
                 {/* Submit */}
