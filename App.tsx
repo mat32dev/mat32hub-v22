@@ -343,6 +343,8 @@ const AppRoutes: React.FC = () => {
             <Link to="/events" className="block hover:text-bermellon transition-colors">AGENDA</Link>
             <Link to="/records" className="block hover:text-bermellon transition-colors">DISCOS</Link>
             <Link to="/open-decks" className="block hover:text-bermellon transition-colors">OPEN DECKS</Link>
+            <Link to="/nosotros" className="block hover:text-bermellon transition-colors">SOBRE NOSOTROS</Link>
+            <Link to="/alquiler-local-eventos-horas-valencia" className="block hover:text-bermellon transition-colors">ALQUILER DE ESPACIO</Link>
             <Link to="/legal/aviso-legal" className="block hover:text-bermellon transition-colors">AVISO LEGAL</Link>
             <Link to="/legal/privacidad" className="block hover:text-bermellon transition-colors">PRIVACIDAD</Link>
           </div>
