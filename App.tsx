@@ -15,6 +15,8 @@ import { Events } from './pages/Events';
 import { Records } from './pages/Records';
 import { Community } from './pages/Community';
 import { OpenDecks } from './pages/OpenDecks';
+import { OpenDecksGracias } from './pages/OpenDecksGracias';
+import { OpenDecksLineupPublic } from './pages/OpenDecksLineupPublic';
 import { Academy } from './pages/Academy';
 import { About } from './pages/About';
 import { Marketplace } from './pages/Marketplace';
@@ -25,12 +27,14 @@ import { SobremesaProvider } from './components/SobremesaModal';
 import { SobremesaOk, SobremesaCancel } from './pages/SobremesaPayment';
 import { Contact } from './pages/Contact';
 import { PrivateEvents } from './pages/PrivateEvents';
+import { Presencia } from './pages/Presencia';
 import { Checkout } from './pages/Checkout';
 import { Legal } from './pages/Legal';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminEntityList } from './pages/admin/AdminEntityList';
 import { AdminEntityForm } from './pages/admin/AdminEntityForm';
+import { AdminOpenDecksLineup } from './pages/admin/AdminOpenDecksLineup';
 import { AdminInbox } from './pages/admin/AdminInbox';
 import { AdminAllegretto } from './pages/admin/AdminAllegretto';
 import { AdminInstagramPosts } from './pages/admin/AdminInstagramPosts';
@@ -48,6 +52,7 @@ import { Wishlist } from './pages/Wishlist';
 import { Gallery } from './pages/Gallery';
 
 import { EventDetail } from './pages/EventDetail';
+import { ArtistDetail } from './pages/ArtistDetail';
 import { RecordDetail } from './pages/RecordDetail';
 import { PostDetail } from './pages/PostDetail';
 import { RadioPage } from './pages/Radio';
@@ -98,20 +103,8 @@ const Navigation: React.FC<{ bannerVisible: boolean }> = ({ bannerVisible }) => 
     { name: t('nav.home'), path: '/' },
     { name: t('nav.events'), path: '/events' },
     { name: t('nav.open_decks'), path: '/open-decks' },
-    {
-      name: t('nav.records'),
-      path: '/records',
-      children: [
-        { name: t('nav.about_us'), path: '/about' },
-      ],
-    },
-    {
-      name: t('nav.contact'),
-      path: '/contact',
-      children: [
-        { name: 'Alquiler de espacio', path: '/alquiler-local-eventos-horas-valencia' },
-      ],
-    },
+    { name: t('nav.records'), path: '/records' },
+    { name: t('nav.contact'), path: '/contact' },
   ];
 
   const isActive = (path: string) => {
@@ -158,9 +151,9 @@ const Navigation: React.FC<{ bannerVisible: boolean }> = ({ bannerVisible }) => 
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link to="/alquiler-local-eventos-horas-valencia" className="hidden sm:inline-flex items-center mono-tag window-panel bg-paper text-ink px-3 py-2 hover:bg-teal hover:text-paper transition-colors">
-              TU EVENTO AQUÍ →
-            </Link>
+<Link to="/records#vender" className="hidden sm:inline-flex items-center mono-tag window-panel bg-paper text-ink px-3 py-2 hover:bg-teal hover:text-paper transition-colors">
+  VENDER DISCOS
+</Link>
             <button onClick={toggleLanguage} className="hidden sm:flex items-center gap-1.5 mono-tag !text-[10px] hairline px-3 py-1.5 text-ink-soft hover:text-bermellon transition-colors">
               <Globe size={12} /> {language === 'es' ? 'EN' : 'ES'}
             </button>
@@ -267,6 +260,7 @@ const AppRoutes: React.FC = () => {
           <Route path="selectors-ref" element={<AdminReferenceSelectors />} />
           <Route path="allegretto" element={<AdminAllegretto />} />
           <Route path="inbox" element={<AdminInbox />} />
+          <Route path="opendecks-lineup" element={<AdminOpenDecksLineup />} />
           <Route path="selectors" element={<AdminSelectors />} />
           <Route path="instagram-posts" element={<AdminInstagramPosts />} />
           <Route path="members" element={<AdminEntityList entity="members" />} />
@@ -306,12 +300,15 @@ const AppRoutes: React.FC = () => {
           <Route path="/agenda" element={<Navigate to="/community?tab=whats-on" replace />} />
           <Route path="/fondos-reservados" element={<Fondos />} />
           <Route path="/selectors" element={<SelectorsPage />} />
+          <Route path="/artista/:slug" element={<ArtistDetail />} />
           <Route path="/reference-points" element={<Navigate to="/selectors" replace />} />
           <Route path="/fondos" element={<Navigate to="/fondos-reservados" replace />} />
           <Route path="/fulfillment-discos" element={<Navigate to="/marketplace" replace />} />
           <Route path="/envio-discos" element={<Navigate to="/marketplace" replace />} />
           <Route path="/community/:id" element={<PostDetail />} />
           <Route path="/open-decks" element={<OpenDecks />} />
+          <Route path="/open-decks/gracias" element={<OpenDecksGracias />} />
+          <Route path="/open-decks/lineup" element={<OpenDecksLineupPublic />} />
           <Route path="/academy" element={<Academy />} />
           <Route path="/nosotros" element={<About />} />
           <Route path="/about" element={<Navigate to="/nosotros" replace />} />
@@ -324,6 +321,7 @@ const AppRoutes: React.FC = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/radio" element={<RadioPage />} />
           <Route path="/legal/:type" element={<Legal />} />
+          <Route path="/presencia" element={<Presencia />} />
         </Routes>
       </main>
       <CartDrawer />
@@ -338,7 +336,8 @@ const AppRoutes: React.FC = () => {
             <div className="text-paper/60">EL LOCAL</div>
             <div>MATÍAS PERELLÓ 32 · RUZAFA</div>
             <div>46005 VALENCIA</div>
-            <div>JUE–SÁB · 19:30–02:00</div>
+            <div>Consulta programación</div>
+            <div className="opacity-50" style={{ fontSize: '10px' }}>Sala no phone · presente</div>
           </div>
           <div className="space-y-2 mono-tag !text-[10px] !tracking-[0.25em]">
             <div className="text-paper/60">CONTACTO</div>
@@ -351,7 +350,10 @@ const AppRoutes: React.FC = () => {
             <Link to="/events" className="block hover:text-bermellon transition-colors">AGENDA</Link>
             <Link to="/records" className="block hover:text-bermellon transition-colors">DISCOS</Link>
             <Link to="/open-decks" className="block hover:text-bermellon transition-colors">OPEN DECKS</Link>
+            <Link to="/nosotros" className="block hover:text-bermellon transition-colors">SOBRE NOSOTROS</Link>
+            <a href="https://ruzafaclub.com" target="_blank" rel="noopener noreferrer" className="block hover:text-bermellon transition-colors">ALQUILER DE ESPACIO</a>
             <Link to="/legal/aviso-legal" className="block hover:text-bermellon transition-colors">AVISO LEGAL</Link>
+            <Link to="/presencia" className="block hover:text-bermellon transition-colors">POLÍTICA DE PRESENCIA</Link>
             <Link to="/legal/privacidad" className="block hover:text-bermellon transition-colors">PRIVACIDAD</Link>
           </div>
         </div>

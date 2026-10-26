@@ -182,6 +182,10 @@ class DataService {
   }
 
   // ── INBOX ─────────────────────────────────────────────────────
+  async getOpenDecksLineup(): Promise<any[]> { return api('/open-decks/lineup'); }
+  async setOpenDecksLineupStatus(id: string, status: string) {
+    return api(`/open-decks/lineup/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) });
+  }
   async getInbox(): Promise<InboxMessage[]> { return api('/inbox'); }
 
   async createInboxMessage(m: Partial<InboxMessage>) {

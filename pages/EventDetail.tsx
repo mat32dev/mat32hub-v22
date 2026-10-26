@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Calendar, Clock, MapPin, Users, Ticket, ArrowLeft, Headphones, Share2, Zap, Loader2, CheckCircle2, User, X, Disc, ShieldCheck } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Ticket, ArrowLeft, Headphones, Share2, Zap, Loader2, CheckCircle2, User, X, Disc, ShieldCheck, Coffee } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { SEO } from '../components/SEO';
 import { Event } from '../types';
@@ -9,6 +9,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useCart } from '../context/CartContext';
 import { CachedImage } from '../components/CachedImage';
 import { useEventRSVP } from '../hooks/useEventRSVP';
+import { slugFor } from './ArtistDetail';
 
 export const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +23,10 @@ export const EventDetail: React.FC = () => {
   const { isAttending, guestList, userName, toggleRSVP } = useEventRSVP(id || '');
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [tempName, setTempName] = useState(userName);
+  const [showTableForm, setShowTableForm] = useState(false);
+  const [tableForm, setTableForm] = useState({ name: '', email: '', guests: 4 });
+  const [tableSent, setTableSent] = useState(false);
+  const [tableSending, setTableSending] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -88,6 +93,23 @@ export const EventDetail: React.FC = () => {
 
   const isFree = event.price === 0;
   const seoDescription = `${event.title} · ${event.date} · ${event.time} · MAT32 Ruzafa Valencia. ${isFree ? 'Entrada libre.' : `Entrada ${event.price}€.`} Aforo: ${event.capacity} personas. ${event.description}`;
+
+  const handleTableSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tableForm.name || !tableForm.email || tableForm.guests < 4) return;
+    setTableSending(true);
+    try {
+      await dataService.createInboxMessage({
+        type: 'booking',
+        sender: tableForm.name,
+        email: tableForm.email,
+        content: `[RESERVA MESA EVENTO] Evento: ${event.title} (${event.date}). Comensales: ${tableForm.guests}.`,
+        metadata: { source: 'evento', eventId: event.id, eventTitle: event.title, eventDate: event.date, guests: tableForm.guests }
+      });
+      setTableSent(true);
+    } catch {}
+    setTableSending(false);
+  };
 
   React.useEffect(() => {
     document.body.classList.add('theme-paper');
@@ -161,15 +183,32 @@ export const EventDetail: React.FC = () => {
                 <h3 className="display text-3xl md:text-4xl hairline-b pb-3 mb-6">The selectors.</h3>
                 <div className="grid sm:grid-cols-2 gap-2">
                   {event.lineup.map((member, i) => (
-                    <div key={i} className="hairline p-5 flex items-center gap-4 group hover:bg-ink hover:text-paper transition-colors">
+                    <Link key={i} to={`/artista/${slugFor(member.name)}`}
+                      className="hairline p-5 flex items-center gap-4 group hover:bg-ink hover:text-paper transition-colors">
                       <div className="w-14 h-14 bg-bermellon text-paper flex items-center justify-center display text-2xl">
                         {member.name[0].toUpperCase()}
                       </div>
                       <div>
                         <h4 className="display text-xl">{member.name}</h4>
                         <p className="mono-tag" style={{ color: '#c8462a' }}>{member.role}</p>
+                        <p className="mono-tag !text-[9px] opacity-60 mt-0.5">VER PERFIL →</p>
                       </div>
-                    </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {!!event.vibe?.length && (
+              <section>
+                <h3 className="display text-3xl md:text-4xl hairline-b pb-3 mb-6">Sonido.</h3>
+                <div className="flex flex-wrap gap-2">
+                  {event.vibe.map((g, i) => (
+                    <Link key={i} to={`/events?genero=${encodeURIComponent(g)}`}
+                      className="mono-tag px-4 py-2.5 hairline text-ink hover:bg-bermellon hover:text-paper transition-colors"
+                      title={`Ver próximos eventos de ${g}`}>
+                      {g.toUpperCase()}
+                    </Link>
                   ))}
                 </div>
               </section>
@@ -228,6 +267,48 @@ export const EventDetail: React.FC = () => {
                   <>{isFree ? <Users size={16} /> : <Ticket size={16} />} {isFree ? 'UNIRSE A LA LISTA' : 'COMPRAR TICKET'}</>
                 )}
               </button>
+            </div>
+
+            {/* RESERVAR MESA */}
+            <div className="hairline p-7 bg-paper-2">
+              {tableSent ? (
+                <div className="text-center py-4">
+                  <CheckCircle2 className="w-10 h-10 mx-auto mb-3" style={{ color: '#c8462a' }} />
+                  <p className="mono-tag">Solicitud recibida</p>
+                  <p className="serif-italic text-ink-soft text-sm mt-1">Te escribimos para confirmar.</p>
+                </div>
+              ) : showTableForm ? (
+                <form onSubmit={handleTableSubmit} className="space-y-3">
+                  <div className="mono-tag" style={{ color: '#c8462a' }}>RESERVAR MESA</div>
+                  <input required value={tableForm.name} onChange={e => setTableForm({ ...tableForm, name: e.target.value })}
+                    className="w-full hairline p-2.5 text-ink mono-tag !text-[11px] outline-none bg-transparent" placeholder="Nombre" />
+                  <input required type="email" value={tableForm.email} onChange={e => setTableForm({ ...tableForm, email: e.target.value })}
+                    className="w-full hairline p-2.5 text-ink mono-tag !text-[11px] outline-none bg-transparent" placeholder="Email" />
+                  <div className="flex items-center gap-2 mono-tag text-ink/60">
+                    <span>Comensales</span>
+                    <input required type="number" min={4} max={12} value={tableForm.guests} onChange={e => setTableForm({ ...tableForm, guests: parseInt(e.target.value) || 4 })}
+                      className="w-16 hairline p-2 text-ink mono-tag !text-[11px] text-center outline-none bg-transparent" />
+                  </div>
+                  <p className="mono-tag !text-[9px] text-ink/40">Mín. 4 personas · consumo por adelantado</p>
+                  <button type="submit" disabled={tableSending}
+                    className="w-full py-3 bg-bermellon text-paper mono-tag hover:bg-ink transition-colors">
+                    {tableSending ? <Loader2 size={12} className="animate-spin" /> : 'SOLICITAR MESA'}
+                  </button>
+                </form>
+              ) : (
+                <>
+                  <h3 className="mono-tag" style={{ color: '#c8462a' }}>MESA</h3>
+                  <p className="mono-tag mt-1">Reservar con consumo</p>
+                  <div className="my-4">
+                    <span className="display" style={{ fontSize: 'clamp(24px, 4vw, 36px)' }}>4–12 PAX</span>
+                    <p className="serif-italic text-ink-soft text-sm mt-2 leading-snug">Mínimo 4 personas. Consumición anticipada.</p>
+                  </div>
+                  <button onClick={() => setShowTableForm(true)}
+                    className="w-full py-3 bg-bermellon text-paper mono-tag hover:bg-ink transition-colors flex items-center justify-center gap-2">
+                    <Coffee size={14} /> RESERVAR MESA
+                  </button>
+                </>
+              )}
             </div>
 
             {/* UBICACIÓN */}

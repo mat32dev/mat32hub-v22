@@ -6,7 +6,6 @@ import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
 import { Event, VinylRecord } from '../types';
 import { CachedImage } from '../components/CachedImage';
-import { WhatsAppButton } from '../components/WhatsAppButton';
 import { CalendarPolaroid } from '../components/CalendarPolaroid';
 import { InstagramEmbed } from '../components/InstagramEmbed';
 import { INSTAGRAM_FEATURED_POSTS } from '../constants';
@@ -129,7 +128,6 @@ export const Home: React.FC = () => {
   return (
     <div className="min-h-screen" style={{ background: '#0e0c09', color: '#f4f1ea' }}>
       <SEO titleKey="home.seo.title" descriptionKey="home.seo.desc" />
-      <WhatsAppButton defaultMessage="Hola MATi, una pregunta desde mat32.com" />
 
       {/* ─── HERO · foto fija cabina ─── */}
       <section className="bg-fixed-club" style={{ backgroundImage: BG_CABINA }}>
@@ -278,33 +276,19 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── COLABORACIONES NOCTURNAS · CTA ─── */}
+      {/* ─── SESIONES · CTA ─── */}
       <section className="bg-ink text-paper hairline-b">
         <div className="container mx-auto px-6 md:px-10 py-16 md:py-20">
-          <div className="grid md:grid-cols-[1.3fr_1fr] gap-10 md:gap-16 items-center">
-            <div>
-              <div className="mono-tag" style={{ color: '#d8ff5a' }}>TU EVENTO EN MAT32</div>
-              <h2 className="display mt-4" style={{ fontSize: 'clamp(40px, 6vw, 84px)', lineHeight: 0.9 }}>
-                Tu evento<br/>en mat32.
-              </h2>
-              <p className="serif-italic mt-6 text-xl md:text-2xl text-paper/70 max-w-xl leading-snug">
-                Sin condición de estilo. Cabina abierta a discos y barra lista. Escríbenos y lo montamos.
-              </p>
-              <div className="flex flex-wrap gap-2 mt-10">
-                <a href="https://wa.me/34622190802?text=Hola%20MAT32%2C%20queremos%20proponer%20una%20colaboraci%C3%B3n%20nocturna%20con%20nuestro%20colectivo"
-                   target="_blank" rel="noopener"
-                   className="bg-bermellon text-paper px-5 py-3 mono-tag hover:bg-paper hover:text-ink transition-colors flex items-center gap-2">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                  PROPONER COLABORACIÓN
-                </a>
-                <Link to="/events" className="hairline px-5 py-3 mono-tag hover:bg-paper hover:text-ink transition-colors">
-                  VER PROGRAMACIÓN ACTUAL
-                </Link>
-              </div>
+          <div className="flex items-center justify-center flex-col text-center max-w-3xl mx-auto">
+            <div className="mono-tag" style={{ color: '#d8ff5a' }}>DISCO · HOUSE · JAZZ · SOUL · DUB · FOLK · AOR</div>
+            <div className="flex flex-wrap gap-2 mt-10 justify-center">
+              <Link to="/open-decks" className="bg-bermellon text-paper px-5 py-3 mono-tag hover:bg-paper hover:text-ink transition-colors">
+                ENVIAR MIX →
+              </Link>
+              <Link to="/events" className="hairline px-5 py-3 mono-tag hover:bg-paper hover:text-ink transition-colors">
+                PROGRAMACIÓN
+              </Link>
             </div>
-            <p className="serif-italic text-paper/50 text-sm text-center mt-4">
-              Trae tu sonido. Nosotros ponemos la sala, el sonido y la barra.
-            </p>
           </div>
         </div>
       </section>

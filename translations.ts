@@ -48,13 +48,14 @@ export const translations = {
     "seo.events.title": "Live Music Events in Valencia | Mat32 Ruzafa Agenda",
     "seo.events.description": "Discover the best live music events in Valencia. Hi-Fi sessions, vinyl DJs, and acoustic sessions in the heart of Ruzafa. Check our weekly cultural agenda.",
     "seo.events.keywords": "music events valencia, ruzafa gigs, vinyl djs valencia, live music ruzafa, cultural agenda valencia, mat32 events",
-    "home.seo.title": "MAT32 — DJ Club, Record Shop & Bar · Ruzafa, Valencia",
-    "home.seo.desc": "Cozy venue in Ruzafa with two zones: lounge for sitting and dancefloor for dancing. Record shop by day, club by night. A space for collectives and promoters.",
-    "home.hero.intro": "Cozy venue with two zones: lounge for sitting and dancefloor for dancing. Record shop by day, club by night.",
-    "footer.tagline": "Cozy venue with two zones: lounge for sitting and dancefloor for dancing. Record shop by day, club by night.",
+"home.seo.title": "MAT32 — Discos de segunda mano Valencia · Tienda y Marketplace",
+    "home.seo.desc": "Tienda de discos de segunda mano en Ruzafa, Valencia. Compra y vende vinilos. Marketplace para sellers de Discogs, eBay y Wallapop.",
+    "home.hero.intro": "Compra y venta de discos de segunda mano en Ruzafa, Valencia.",
+    "footer.tagline": "Compra y venta de discos de segunda mano en Ruzafa · Valencia.",
 
     "bar.hero.h1_pre": "Liquid",
     "bar.hero.h1_color": "sounds.",
+
     "bar.hero.subtitle": "Cocktails, wines and spirits. No fuss.",
     "bar.hero.days": "THU / FRI / SAT",
     "bar.sobremesa.title_pre": "Reserve ",

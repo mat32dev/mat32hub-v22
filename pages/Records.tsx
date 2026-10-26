@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, ShoppingBag, Heart, Loader2, X, Play, ExternalLink, Store } from 'lucide-react';
+import { Search, ShoppingBag, Heart, Loader2, X, Play, ExternalLink, Store, Send, CheckCircle } from 'lucide-react';
 import { CachedImage } from '../components/CachedImage';
 import { RecordPlayer } from '../components/RecordPlayer';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
@@ -21,6 +21,9 @@ export const Records: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<VinylRecord | null>(null);
   const [heroOpen, setHeroOpen] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [sellerForm, setSellerForm] = useState({ name: '', email: '', platform: 'discogs', username: '' });
+  const [sellerSent, setSellerSent] = useState(false);
+  const [sellerSending, setSellerSending] = useState(false);
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -62,6 +65,23 @@ export const Records: React.FC = () => {
     setSearchParams(next, { replace: true });
   };
   const clearFilters = () => setSearchParams({}, { replace: true });
+
+  const handleSellerSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sellerForm.name || !sellerForm.email || !sellerForm.username) return;
+    setSellerSending(true);
+    try {
+      await dataService.createInboxMessage({
+        type: 'lead',
+        sender: sellerForm.name,
+        email: sellerForm.email,
+        content: `[VENDER DISCOS] Plataforma: ${sellerForm.platform}. Usuario: ${sellerForm.username}. Quiere anunciar su stock en MAT32.`,
+        metadata: { source: 'records-seller-form', platform: sellerForm.platform, username: sellerForm.username }
+      });
+      setSellerSent(true);
+    } catch {}
+    setSellerSending(false);
+  };
 
   const topPicks = useMemo(() => {
     return [...records]
@@ -110,6 +130,49 @@ export const Records: React.FC = () => {
           </p>
         </div>
       </section>
+
+      {/* ─── VENDE TUS DISCOS ─── */}
+      <div className="hairline-b my-12 py-12 md:py-16" id="vender">
+        <div className="max-w-2xl mx-auto px-6">
+          {sellerSent ? (
+            <div className="text-center py-12">
+              <CheckCircle className="w-12 h-12 mx-auto mb-4" style={{ color: '#c8462a' }} />
+              <h2 className="display text-3xl text-paper">Recibido.</h2>
+              <p className="serif-italic text-paper/60 text-lg mt-3">Te escribimos para activar tu stock.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSellerSubmit} className="hairline p-6 md:p-10">
+              <div className="mono-tag text-bermellon mb-2">VENDER</div>
+              <h2 className="display text-3xl md:text-4xl text-paper leading-tight mb-3">Tus discos,<br/>aquí anunciados.</h2>
+              <p className="serif-italic text-paper/60 text-lg mb-8 max-w-md mx-auto">Vendes en Discogs, eBay o Wallapop. Pon tu usuario y los importamos.</p>
+              <div className="grid sm:grid-cols-2 gap-3 mb-4">
+                <input required value={sellerForm.name} onChange={e => setSellerForm({ ...sellerForm, name: e.target.value })}
+                  className="w-full bg-ink-2 hairline p-3 text-paper mono-tag !text-[11px] !normal-case outline-none"
+                  placeholder="Nombre" />
+                <input required type="email" value={sellerForm.email} onChange={e => setSellerForm({ ...sellerForm, email: e.target.value })}
+                  className="w-full bg-ink-2 hairline p-3 text-paper mono-tag !text-[11px] !normal-case outline-none"
+                  placeholder="Email" />
+              </div>
+              <div className="flex gap-3 mb-4">
+                <select value={sellerForm.platform} onChange={e => setSellerForm({ ...sellerForm, platform: e.target.value })}
+                  className="bg-ink-2 hairline p-3 text-paper mono-tag !text-[11px] outline-none">
+                  <option value="discogs">Discogs</option>
+                  <option value="ebay">eBay</option>
+                  <option value="wallapop">Wallapop</option>
+                  <option value="todocoleccion">Todocolección</option>
+                </select>
+                <input required value={sellerForm.username} onChange={e => setSellerForm({ ...sellerForm, username: e.target.value })}
+                  className="flex-1 bg-ink-2 hairline p-3 text-paper mono-tag !text-[11px] !normal-case outline-none" placeholder="Tu usuario" />
+              </div>
+              <button type="submit" disabled={sellerSending}
+                className="w-full py-4 bg-bermellon text-paper mono-tag flex items-center justify-center gap-2 hover:bg-paper hover:text-ink transition-colors">
+                {sellerSending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                ANUNCIAR MIS DISCOS
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
 
       <div className="container mx-auto px-6 md:px-10 py-6">
         {/* CTA Marketplace */}
